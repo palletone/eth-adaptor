@@ -20,11 +20,9 @@ package adaptoreth
 import (
 	"context"
 	"encoding/json"
-	//	"fmt"
 	"log"
 	"math/big"
 	"strconv"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -73,14 +71,13 @@ func GetBalance(params string, rpcParams *RPCParams, netID int) string {
 	//remove e+18
 	bigFloat := new(big.Float)
 	bigFloat.SetInt(balance)
+	bigFloat.Mul(bigFloat, big.NewFloat(1e-18))
 	strFloat := bigFloat.String()
-	eIndex := strings.IndexAny(strFloat, "e")
-	strValue := strFloat[:eIndex] //Bug zxl Error not e+18
-	//	fmt.Println(strValue)
+	//fmt.Println(strFloat)
 
 	//convert balance
 	var result GetBalanceResult
-	result.Balance, _ = strconv.ParseFloat(strValue, 8)
+	result.Balance, _ = strconv.ParseFloat(strFloat, 8)
 
 	//
 	jsonResult, err := json.Marshal(result)
