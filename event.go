@@ -117,7 +117,7 @@ func (it *PalletOneDepositIterator) Close() error {
 	return nil
 }
 
-func GetEventByAddress(getEventByAddressParams *adaptor.GetEventByAddressParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
+func GetEventByAddress(getEventByAddressParams *adaptor.GetEventByAddressParams, rpcParams *RPCParams, netID int) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {

@@ -400,7 +400,7 @@ func parseResults(outs *[]interface{}) []interface{} {
 	return results
 }
 
-func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
+func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *RPCParams, netID int) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -463,7 +463,7 @@ func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *
 	return string(jsonResult), nil
 }
 
-func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
+func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams, rpcParams *RPCParams, netID int) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -520,7 +520,7 @@ func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams
 	return string(jsonResult), nil
 }
 
-func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
+func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams, rpcParams *RPCParams, netID int) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {

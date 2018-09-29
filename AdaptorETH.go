@@ -26,7 +26,7 @@ type RPCParams struct {
 }
 
 type AdaptorETH struct {
-	NetID adaptor.NetID
+	NetID int
 	RPCParams
 }
 

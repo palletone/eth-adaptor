@@ -75,7 +75,7 @@ func SignTransaction(signTransactionParams *adaptor.ETHSignTransactionParams) (s
 	return string(jsonResult), nil
 }
 
-func SendTransaction(sendTransactionParams *adaptor.SendTransactionParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
+func SendTransaction(sendTransactionParams *adaptor.SendTransactionParams, rpcParams *RPCParams, netID int) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {

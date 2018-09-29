@@ -19,14 +19,12 @@ package adaptoreth
 
 import (
 	"encoding/hex"
-	//	"fmt"
 
 	"github.com/ethereum/go-ethereum/crypto"
-
-	"github.com/palletone/adaptor"
+	//"github.com/palletone/adaptor"
 )
 
-func NewPrivateKey(netID adaptor.NetID) (prikeyHex string) {
+func NewPrivateKey(netID int) (prikeyHex string) {
 	privateKeyECDSA, err := crypto.GenerateKey()
 	if err != nil {
 		return err.Error()
@@ -37,7 +35,7 @@ func NewPrivateKey(netID adaptor.NetID) (prikeyHex string) {
 	return priHex
 }
 
-func GetPublicKey(priKeyHex string, netID adaptor.NetID) (pubKey string) {
+func GetPublicKey(priKeyHex string, netID int) (pubKey string) {
 	privateKeyECDSA, err := crypto.HexToECDSA(priKeyHex)
 	if err != nil {
 		return err.Error()
@@ -48,7 +46,7 @@ func GetPublicKey(priKeyHex string, netID adaptor.NetID) (pubKey string) {
 	return pubHex
 }
 
-func GetAddress(priKeyHex string, netID adaptor.NetID) (address string) {
+func GetAddress(priKeyHex string, netID int) (address string) {
 	privateKeyECDSA, err := crypto.HexToECDSA(priKeyHex)
 	if err != nil {
 		return err.Error()
