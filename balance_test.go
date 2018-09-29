@@ -3,6 +3,8 @@ package adaptoreth
 import (
 	"fmt"
 	"testing"
+
+	"github.com/palletone/adaptor"
 )
 
 func TestGetBalance(t *testing.T) {
@@ -13,6 +15,6 @@ func TestGetBalance(t *testing.T) {
 	rpcParams := RPCParams{
 		Rawurl: "\\\\.\\pipe\\geth.ipc",
 	}
-	result := GetBalance(params, &rpcParams, NETID_MAIN)
+	result := GetBalance(params, &rpcParams, adaptor.NETID_MAIN)
 	fmt.Println(result)
 }

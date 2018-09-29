@@ -8,9 +8,11 @@ import (
 	"math/big"
 	"strings"
 	"testing"
+
+	"github.com/palletone/adaptor"
 )
 
-func processResult(getevent *GetEventByAddressResult) {
+func processResult(getevent *adaptor.GetEventByAddressResult) {
 	for _, result := range getevent.Events {
 		fmt.Println(result)
 
@@ -50,7 +52,7 @@ func processResult(getevent *GetEventByAddressResult) {
 	}
 }
 
-func processResultBalance(ethAddr string, geteventresult *GetEventByAddressResult) error {
+func processResultBalance(ethAddr string, geteventresult *adaptor.GetEventByAddressResult) error {
 	//
 	eth_redeem := "7d7116a8706ae08baa7f4909e26728fa7a5f0365aaa919a7c465be9b053673c567d73be8603179636c7110482920e0af149a82189251f292a84148a85b7cd70d"
 
@@ -119,7 +121,7 @@ func processResultBalance(ethAddr string, geteventresult *GetEventByAddressResul
 
 	return nil
 }
-func processWithdrawResult(ethAddr string, geteventresult *GetEventByAddressResult) error {
+func processWithdrawResult(ethAddr string, geteventresult *adaptor.GetEventByAddressResult) error {
 	//
 	eth_redeem := "7d7116a8706ae08baa7f4909e26728fa7a5f0365aaa919a7c465be9b053673c567d73be8603179636c7110482920e0af149a82189251f292a84148a85b7cd70d"
 
@@ -199,18 +201,18 @@ func TestGetEventByAddress(t *testing.T) {
 	contractABI := "[{\"constant\":false,\"inputs\":[{\"name\":\"token\",\"type\":\"address\"},{\"name\":\"redeem\",\"type\":\"bytes\"},{\"name\":\"recver\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"},{\"name\":\"nonece\",\"type\":\"uint256\"},{\"name\":\"sigstr1\",\"type\":\"bytes\"},{\"name\":\"sigstr2\",\"type\":\"bytes\"}],\"name\":\"withdrawtoken\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"redeem\",\"type\":\"bytes\"},{\"name\":\"recver\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"},{\"name\":\"nonece\",\"type\":\"uint256\"},{\"name\":\"sigstr1\",\"type\":\"bytes\"},{\"name\":\"sigstr2\",\"type\":\"bytes\"}],\"name\":\"withdraw\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"suicideto\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"redeem\",\"type\":\"bytes\"}],\"name\":\"deposit\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"tokens\",\"outputs\":[{\"name\":\"balance\",\"type\":\"uint256\"},{\"name\":\"nonece\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"token\",\"type\":\"address\"},{\"name\":\"redeem\",\"type\":\"bytes\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"deposittoken\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"my_eth_bal\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"},{\"name\":\"redeem\",\"type\":\"bytes\"}],\"name\":\"getmultisig\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"admin\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"admin_\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"redeem\",\"type\":\"bytes\"}],\"name\":\"Deposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"redeem\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"recver\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"confirmvalue\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"state\",\"type\":\"string\"}],\"name\":\"Withdraw\",\"type\":\"event\"}]"
 	contractAddr := "0x6817Cfb2c442693d850332c3B755B2342Ec4aFB2"
 
-	var getEventByAddressParams GetEventByAddressParams
+	var getEventByAddressParams adaptor.GetEventByAddressParams
 	getEventByAddressParams.ContractABI = contractABI
 	getEventByAddressParams.ContractAddr = contractAddr
 
 	getEventByAddressParams.ConcernAddr = "0x7d7116a8706ae08baa7f4909e26728fa7a5f0365"
 	getEventByAddressParams.EventName = "Deposit"
-	result1, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, NETID_MAIN)
+	result1, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, adaptor.NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
 		//fmt.Println(result1)
-		var getevent GetEventByAddressResult
+		var getevent adaptor.GetEventByAddressResult
 		err = json.Unmarshal([]byte(result1), &getevent)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -227,12 +229,12 @@ func TestGetEventByAddress(t *testing.T) {
 	getEventByAddressParams.EventName = "Withdraw"
 	getEventByAddressParams.StartHeight = "3885311"
 	getEventByAddressParams.EndHeight = "3886333"
-	result2, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, NETID_MAIN)
+	result2, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, adaptor.NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println(result2)
-		var getevent GetEventByAddressResult
+		var getevent adaptor.GetEventByAddressResult
 		err = json.Unmarshal([]byte(result2), &getevent)
 		if err != nil {
 			fmt.Println(err.Error())

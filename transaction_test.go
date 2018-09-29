@@ -3,6 +3,8 @@ package adaptoreth
 import (
 	"fmt"
 	"testing"
+
+	"github.com/palletone/adaptor"
 )
 
 func TestGetTransactionByHash(t *testing.T) {
@@ -13,6 +15,6 @@ func TestGetTransactionByHash(t *testing.T) {
 	rpcParams := RPCParams{
 		Rawurl: "\\\\.\\pipe\\geth.ipc",
 	}
-	result := GetTransactionByHash(params, &rpcParams, NETID_MAIN)
+	result := GetTransactionByHash(params, &rpcParams, adaptor.NETID_MAIN)
 	fmt.Println(result)
 }

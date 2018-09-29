@@ -5,6 +5,8 @@ import (
 	"fmt"
 	//	"strings"
 	"testing"
+
+	"github.com/palletone/adaptor"
 )
 
 func TestCreateMultiSigAddress(t *testing.T) {
@@ -32,7 +34,7 @@ func TestCreateMultiSigAddress(t *testing.T) {
 	addr2 := "0x6FFE3469678053D0ec55d966dDBa76BDf1742a3e"
 	addr3 := "0x1f97d837dDf8673319eBB4352EB293f28353478f"
 	addr4 := "0x0e827EAfEa2c7F627C7dFEAB8Da565961898Ee5E"
-	var createMultiSigAddressParams CreateMultiSigAddressParams
+	var createMultiSigAddressParams adaptor.CreateMultiSigAddressParams
 	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addrA)
 	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addrB)
 	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addr1)
@@ -102,7 +104,7 @@ func TestCalculateSig(t *testing.T) {
 		return
 	}
 	//
-	var sigParams Keccak256HashPackedSigParams
+	var sigParams adaptor.Keccak256HashPackedSigParams
 	sigParams.ParamTypes = string(paramTypesJson)
 	sigParams.Params = string(paramsJson)
 	//
@@ -158,7 +160,7 @@ func TestKeccak256HashPackedSig(t *testing.T) {
 		return
 	}
 	//
-	var sigParams Keccak256HashPackedSigParams
+	var sigParams adaptor.Keccak256HashPackedSigParams
 	sigParams.ParamTypes = string(paramTypesJson)
 	sigParams.Params = string(paramsJson)
 	//
@@ -192,13 +194,13 @@ func TestQueryContract(t *testing.T) {
 		return
 	}
 	//
-	var queryContractParams QueryContractParams
+	var queryContractParams adaptor.QueryContractParams
 	queryContractParams.ContractABI = contractABI
 	queryContractParams.ContractAddr = contractAddr
 	queryContractParams.Method = method
 	queryContractParams.Params = string(paramsJson)
 
-	result, err := QueryContract(&queryContractParams, &rpcParams, NETID_MAIN)
+	result, err := QueryContract(&queryContractParams, &rpcParams, adaptor.NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -268,7 +270,7 @@ func TestGenInvokeContractTX(t *testing.T) {
 		return
 	}
 	//
-	var invokeContractParams GenInvokeContractTXParams
+	var invokeContractParams adaptor.GenInvokeContractTXParams
 	invokeContractParams.ContractABI = contractABI
 	invokeContractParams.ContractAddr = contractAddr
 	invokeContractParams.CallerAddr = callerAddr //user
@@ -278,7 +280,7 @@ func TestGenInvokeContractTX(t *testing.T) {
 	invokeContractParams.Method = method //params
 	invokeContractParams.Params = string(paramsJson)
 	//
-	result, err := GenInvokeContractTX(&invokeContractParams, &rpcParams, NETID_MAIN)
+	result, err := GenInvokeContractTX(&invokeContractParams, &rpcParams, adaptor.NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -388,7 +390,7 @@ func TestGenDeployContractTX(t *testing.T) {
 		return
 	}
 	//
-	var deployContractParams GenDeployContractTXParams
+	var deployContractParams adaptor.GenDeployContractTXParams
 	deployContractParams.ContractABI = contractABI
 	deployContractParams.ContractBin = contractBin
 	deployContractParams.DeployerAddr = deployerAddr //deployer
@@ -397,7 +399,7 @@ func TestGenDeployContractTX(t *testing.T) {
 	deployContractParams.GasLimit = gasLimit
 	deployContractParams.Params = string(paramsJson) //params
 	//
-	result, err := GenDeployContractTX(&deployContractParams, &rpcParams, NETID_MAIN)
+	result, err := GenDeployContractTX(&deployContractParams, &rpcParams, adaptor.NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {

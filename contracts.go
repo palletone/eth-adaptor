@@ -32,18 +32,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
+
+	"github.com/palletone/adaptor"
 )
 
-type CreateMultiSigAddressParams struct {
-	Addresses []string `json:"addresses"`
-	N         int      `json:"n"`
-	M         int      `json:"m"`
-}
-type CreateMultiSigAddressResult struct {
-	RedeemHex string `json:"redeemhex"`
-}
-
-func CreateMultiSigAddress(createMultiSigAddressParams *CreateMultiSigAddressParams) (string, error) {
+func CreateMultiSigAddress(createMultiSigAddressParams *adaptor.CreateMultiSigAddressParams) (string, error) {
 	//	//redeem format : A B 1 2 3 4 utc
 	//	utc := time.Now().UTC().Unix()
 	//redeem format : A B 1 2 3 4
@@ -57,7 +50,7 @@ func CreateMultiSigAddress(createMultiSigAddressParams *CreateMultiSigAddressPar
 	//	redeem = fmt.Sprintf("%s%x", redeem, utc)
 
 	//save result
-	var result CreateMultiSigAddressResult
+	var result adaptor.CreateMultiSigAddressResult
 	result.RedeemHex = redeem
 
 	//
@@ -154,17 +147,7 @@ func CalculateSig(params string) string {
 	return string(jsonResult)
 }
 
-type Keccak256HashPackedSigParams struct {
-	PrivateKeyHex string `json:"privatekeyhex"`
-	ParamTypes    string `json:"paramtypes"`
-	Params        string `json:"params"`
-}
-
-type Keccak256HashPackedSigResult struct {
-	Signature string `json:"signature"`
-}
-
-func Keccak256HashPackedSig(sigParams *Keccak256HashPackedSigParams) (string, error) {
+func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (string, error) {
 	//remove 0x, then convert to ecdsa private key
 	if "0x" == sigParams.PrivateKeyHex[0:2] {
 		sigParams.PrivateKeyHex = sigParams.PrivateKeyHex[2:]
@@ -254,7 +237,7 @@ func Keccak256HashPackedSig(sigParams *Keccak256HashPackedSigParams) (string, er
 	}
 
 	//save result
-	var result Keccak256HashPackedSigResult
+	var result adaptor.Keccak256HashPackedSigResult
 	result.Signature = hexutil.Encode(signature)
 
 	//
@@ -417,17 +400,7 @@ func parseResults(outs *[]interface{}) []interface{} {
 	return results
 }
 
-type QueryContractParams struct {
-	ContractABI  string `json:"contractABI"`
-	ContractAddr string `json:"contractAddr"`
-	Method       string `json:"method"`
-	Params       string `json:"params"`
-}
-type QueryContractResult struct {
-	Result string `json:"result"`
-}
-
-func QueryContract(queryContractParams *QueryContractParams, rpcParams *RPCParams, netID int) (string, error) {
+func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -478,7 +451,7 @@ func QueryContract(queryContractParams *QueryContractParams, rpcParams *RPCParam
 	}
 
 	//save result
-	var result QueryContractResult
+	var result adaptor.QueryContractResult
 	result.Result = string(resultsJson)
 
 	//
@@ -490,21 +463,7 @@ func QueryContract(queryContractParams *QueryContractParams, rpcParams *RPCParam
 	return string(jsonResult), nil
 }
 
-type GenInvokeContractTXParams struct {
-	ContractABI  string `json:"contractabi"`
-	ContractAddr string `json:"contractaddr"`
-	CallerAddr   string `json:"calleraddr"`
-	Value        string `json:"value"`
-	GasPrice     string `json:"gasprice"`
-	GasLimit     string `json:"gaslimit"`
-	Method       string `json:"method"`
-	Params       string `json:"params"`
-}
-type GenInvokeContractTXResult struct {
-	TransactionHex string `json:"transactionhex"`
-}
-
-func GenInvokeContractTX(invokeContractParams *GenInvokeContractTXParams, rpcParams *RPCParams, netID int) (string, error) {
+func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -549,7 +508,7 @@ func GenInvokeContractTX(invokeContractParams *GenInvokeContractTXParams, rpcPar
 	}
 
 	//save result
-	var result GenInvokeContractTXResult
+	var result adaptor.GenInvokeContractTXResult
 	result.TransactionHex = hexutil.Encode(rlpTXBytes)
 
 	//
@@ -561,21 +520,7 @@ func GenInvokeContractTX(invokeContractParams *GenInvokeContractTXParams, rpcPar
 	return string(jsonResult), nil
 }
 
-type GenDeployContractTXParams struct {
-	ContractABI  string `json:"contractabi"`
-	ContractBin  string `json:"contractbin"`
-	DeployerAddr string `json:"deployeraddr"`
-	Value        string `json:"value"`
-	GasPrice     string `json:"gasprice"`
-	GasLimit     string `json:"gaslimit"`
-	Params       string `json:"params"`
-}
-type GenDeployContractTXResult struct {
-	TransactionHex string `json:"transactionhex"`
-	ContractAddr   string `json:"contractaddr"`
-}
-
-func GenDeployContractTX(deployContractParams *GenDeployContractTXParams, rpcParams *RPCParams, netID int) (string, error) {
+func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -618,7 +563,7 @@ func GenDeployContractTX(deployContractParams *GenDeployContractTXParams, rpcPar
 	}
 
 	//save result
-	var result GenDeployContractTXResult
+	var result adaptor.GenDeployContractTXResult
 	result.TransactionHex = hexutil.Encode(rlpTXBytes)
 	result.ContractAddr = address.String()
 

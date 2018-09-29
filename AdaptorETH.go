@@ -17,19 +17,18 @@
  */
 package adaptoreth
 
+import (
+	"github.com/palletone/adaptor"
+)
+
 type RPCParams struct {
 	Rawurl string `json:"rawurl"`
 }
 
 type AdaptorETH struct {
-	NetID int
+	NetID adaptor.NetID
 	RPCParams
 }
-
-const (
-	NETID_MAIN = iota
-	NETID_TEST
-)
 
 func (aeth AdaptorETH) NewPrivateKey() (prikeyHex string) {
 	return NewPrivateKey(aeth.NetID)
@@ -48,34 +47,34 @@ func (aeth AdaptorETH) GetTransactionByHash(params string) string {
 	return GetTransactionByHash(params, &aeth.RPCParams, aeth.NetID)
 }
 
-func (aeth AdaptorETH) CreateMultiSigAddress(params *CreateMultiSigAddressParams) (string, error) {
+func (aeth AdaptorETH) CreateMultiSigAddress(params *adaptor.CreateMultiSigAddressParams) (string, error) {
 	return CreateMultiSigAddress(params)
 }
 
 func (aeth AdaptorETH) CalculateSig(params string) string {
 	return CalculateSig(params)
 }
-func (aeth AdaptorETH) Keccak256HashPackedSig(params *Keccak256HashPackedSigParams) (string, error) {
+func (aeth AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (string, error) {
 	return Keccak256HashPackedSig(params)
 }
 
-func (aeth AdaptorETH) SignTransaction(params *SignTransactionParams) (string, error) {
+func (aeth AdaptorETH) SignTransaction(params *adaptor.ETHSignTransactionParams) (string, error) {
 	return SignTransaction(params)
 }
-func (aeth AdaptorETH) SendTransaction(params *SendTransactionParams) (string, error) {
+func (aeth AdaptorETH) SendTransaction(params *adaptor.SendTransactionParams) (string, error) {
 	return SendTransaction(params, &aeth.RPCParams, aeth.NetID)
 }
 
-func (aeth AdaptorETH) QueryContract(params *QueryContractParams) (string, error) {
+func (aeth AdaptorETH) QueryContract(params *adaptor.QueryContractParams) (string, error) {
 	return QueryContract(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) GenInvokeContractTX(params *GenInvokeContractTXParams) (string, error) {
+func (aeth AdaptorETH) GenInvokeContractTX(params *adaptor.GenInvokeContractTXParams) (string, error) {
 	return GenInvokeContractTX(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) GenDeployContractTX(params *GenDeployContractTXParams) (string, error) {
+func (aeth AdaptorETH) GenDeployContractTX(params *adaptor.GenDeployContractTXParams) (string, error) {
 	return GenDeployContractTX(params, &aeth.RPCParams, aeth.NetID)
 }
 
-func (aeth AdaptorETH) GetEventByAddress(params *GetEventByAddressParams) (string, error) {
+func (aeth AdaptorETH) GetEventByAddress(params *adaptor.GetEventByAddressParams) (string, error) {
 	return GetEventByAddress(params, &aeth.RPCParams, aeth.NetID)
 }

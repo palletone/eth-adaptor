@@ -25,17 +25,11 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
+
+	"github.com/palletone/adaptor"
 )
 
-type SignTransactionParams struct {
-	PrivateKeyHex  string `json:"privatekeyhex"`
-	TransactionHex string `json:"transactionhex"`
-}
-type SignTransactionResult struct {
-	TransactionHex string `json:"transactionhex"`
-}
-
-func SignTransaction(signTransactionParams *SignTransactionParams) (string, error) {
+func SignTransaction(signTransactionParams *adaptor.ETHSignTransactionParams) (string, error) {
 	rlpTx, err := hexutil.Decode(signTransactionParams.TransactionHex)
 	if err != nil {
 		return "", err
@@ -69,7 +63,7 @@ func SignTransaction(signTransactionParams *SignTransactionParams) (string, erro
 	rlpTXBytes, err := rlp.EncodeToBytes(signedTx)
 
 	//save result
-	var result SignTransactionResult
+	var result adaptor.ETHSignTransactionResult
 	result.TransactionHex = hexutil.Encode(rlpTXBytes)
 
 	//
@@ -81,14 +75,7 @@ func SignTransaction(signTransactionParams *SignTransactionParams) (string, erro
 	return string(jsonResult), nil
 }
 
-type SendTransactionParams struct {
-	TransactionHex string `json:"transactionhex"`
-}
-type SendTransactionResult struct {
-	TransactionHah string `json:"transactionhash"`
-}
-
-func SendTransaction(sendTransactionParams *SendTransactionParams, rpcParams *RPCParams, netID int) (string, error) {
+func SendTransaction(sendTransactionParams *adaptor.SendTransactionParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -113,7 +100,7 @@ func SendTransaction(sendTransactionParams *SendTransactionParams, rpcParams *RP
 	}
 
 	//save result
-	var result SendTransactionResult
+	var result adaptor.SendTransactionResult
 	result.TransactionHah = tx.Hash().Hex()
 
 	//

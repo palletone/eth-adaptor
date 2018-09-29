@@ -27,6 +27,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+
+	"github.com/palletone/adaptor"
 )
 
 type GetTransactionParams struct {
@@ -47,7 +49,7 @@ type GetTransactionResult struct {
 	Input            string `json:"input"`
 }
 
-func GetTransactionByHash(params string, rpcParams *RPCParams, netID int) string {
+func GetTransactionByHash(params string, rpcParams *RPCParams, netID adaptor.NetID) string {
 	//convert params from json format
 	var getTransactionParams GetTransactionParams
 	err := json.Unmarshal([]byte(params), &getTransactionParams)

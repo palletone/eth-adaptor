@@ -11,6 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+
+	"github.com/palletone/adaptor"
 )
 
 // PalletOneFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
@@ -115,20 +117,7 @@ func (it *PalletOneDepositIterator) Close() error {
 	return nil
 }
 
-type GetEventByAddressParams struct {
-	ContractABI  string `json:"contractABI"`
-	ContractAddr string `json:"contractAddr"`
-	ConcernAddr  string `json:"concernaddr"`
-	StartHeight  string `json:"startheight"`
-	EndHeight    string `json:"endheight"`
-	EventName    string `json:"eventname"`
-}
-
-type GetEventByAddressResult struct {
-	Events []string `json:"events"`
-}
-
-func GetEventByAddress(getEventByAddressParams *GetEventByAddressParams, rpcParams *RPCParams, netID int) (string, error) {
+func GetEventByAddress(getEventByAddressParams *adaptor.GetEventByAddressParams, rpcParams *RPCParams, netID adaptor.NetID) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -170,7 +159,7 @@ func GetEventByAddress(getEventByAddressParams *GetEventByAddressParams, rpcPara
 		getEventByAddressParams.EventName)
 
 	//
-	var result GetEventByAddressResult
+	var result adaptor.GetEventByAddressResult
 	getEventByAddressParams.ConcernAddr = strings.ToLower(getEventByAddressParams.ConcernAddr)
 	for filterIter.Next() {
 		if strings.Contains(filterIter.values, getEventByAddressParams.ConcernAddr) {
