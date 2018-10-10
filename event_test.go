@@ -207,7 +207,7 @@ func TestGetEventByAddress(t *testing.T) {
 
 	getEventByAddressParams.ConcernAddr = "0x7d7116a8706ae08baa7f4909e26728fa7a5f0365"
 	getEventByAddressParams.EventName = "Deposit"
-	result1, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, adaptor.NETID_MAIN)
+	result1, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -229,7 +229,7 @@ func TestGetEventByAddress(t *testing.T) {
 	getEventByAddressParams.EventName = "Withdraw"
 	getEventByAddressParams.StartHeight = "3885311"
 	getEventByAddressParams.EndHeight = "3886333"
-	result2, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, adaptor.NETID_MAIN)
+	result2, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {

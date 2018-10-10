@@ -30,6 +30,11 @@ type AdaptorETH struct {
 	RPCParams
 }
 
+const (
+	NETID_MAIN = iota
+	NETID_TEST
+)
+
 func (aeth AdaptorETH) NewPrivateKey() (prikeyHex string) {
 	return NewPrivateKey(aeth.NetID)
 }

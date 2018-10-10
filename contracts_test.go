@@ -200,7 +200,7 @@ func TestQueryContract(t *testing.T) {
 	queryContractParams.Method = method
 	queryContractParams.Params = string(paramsJson)
 
-	result, err := QueryContract(&queryContractParams, &rpcParams, adaptor.NETID_MAIN)
+	result, err := QueryContract(&queryContractParams, &rpcParams, NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -280,7 +280,7 @@ func TestGenInvokeContractTX(t *testing.T) {
 	invokeContractParams.Method = method //params
 	invokeContractParams.Params = string(paramsJson)
 	//
-	result, err := GenInvokeContractTX(&invokeContractParams, &rpcParams, adaptor.NETID_MAIN)
+	result, err := GenInvokeContractTX(&invokeContractParams, &rpcParams, NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -399,7 +399,7 @@ func TestGenDeployContractTX(t *testing.T) {
 	deployContractParams.GasLimit = gasLimit
 	deployContractParams.Params = string(paramsJson) //params
 	//
-	result, err := GenDeployContractTX(&deployContractParams, &rpcParams, adaptor.NETID_MAIN)
+	result, err := GenDeployContractTX(&deployContractParams, &rpcParams, NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
