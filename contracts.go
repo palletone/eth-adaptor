@@ -30,6 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
 
@@ -146,6 +147,8 @@ func CalculateSig(params string) string {
 
 	return string(jsonResult)
 }
+
+//==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ===
 
 func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (string, error) {
 	//remove 0x, then convert to ecdsa private key
@@ -414,32 +417,27 @@ func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *
 	}
 
 	//
-	var paramsNew []interface{}
-	err = convertContractParams(&paramsNew, &parsed,
-		queryContractParams.Method, queryContractParams.Params)
-	if err != nil {
-		return "", err
-	}
-
-	//
 	contractAddr := common.HexToAddress(queryContractParams.ContractAddr)
 	contract := bind.NewBoundContract(contractAddr, parsed, client, client, client)
 
-	//	//
-	//	outs := &[]interface{}{}
-	//	prepareResults(outs, &parsed, queryContractParams.Method)
-	//	//
-	//	err = contract.Call(&bind.CallOpts{Pending: false},
-	//		outs, queryContractParams.Method, paramsNew...)
-	//	if err != nil {
-	//		return "", err
-	//	}
-	//	//
-	//	results := parseResults(outs)
-
 	//
-	results, err := contract.CallZXL(&bind.CallOpts{Pending: false},
-		queryContractParams.Method, paramsNew...)
+	var results []interface{}
+	if queryContractParams.Params != "" {
+		//
+		var paramsNew []interface{}
+		err = convertContractParams(&paramsNew, &parsed,
+			queryContractParams.Method, queryContractParams.Params)
+		if err != nil {
+			return "", err
+		}
+		//
+		results, err = contract.CallZXL(&bind.CallOpts{Pending: false},
+			queryContractParams.Method, paramsNew...)
+	} else {
+		//
+		results, err = contract.CallZXL(&bind.CallOpts{Pending: false},
+			queryContractParams.Method, queryContractParams.ParamsArray...)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -476,11 +474,6 @@ func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams
 	}
 
 	//
-	var paramsNew []interface{}
-	convertContractParams(&paramsNew, &parsed,
-		invokeContractParams.Method, invokeContractParams.Params)
-
-	//
 	addrContract := common.HexToAddress(invokeContractParams.ContractAddr)
 	addrCallFrom := common.HexToAddress(invokeContractParams.CallerAddr)
 
@@ -495,9 +488,22 @@ func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams
 	}
 
 	//
-	tx, err := bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimit},
-		parsed, client, addrContract,
-		invokeContractParams.Method, paramsNew...)
+	var tx *types.Transaction
+	if invokeContractParams.Params != "" {
+		//
+		var paramsNew []interface{}
+		convertContractParams(&paramsNew, &parsed,
+			invokeContractParams.Method, invokeContractParams.Params)
+
+		//
+		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimit},
+			parsed, client, addrContract,
+			invokeContractParams.Method, paramsNew...)
+	} else {
+		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimit},
+			parsed, client, addrContract,
+			invokeContractParams.Method, invokeContractParams.ParamsArray...)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -533,11 +539,6 @@ func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams
 	}
 
 	//
-	var paramsNew []interface{}
-	convertContractParams(&paramsNew, &parsed,
-		"", deployContractParams.Params)
-
-	//
 	value := new(big.Int)
 	value.SetString(deployContractParams.Value, 10)
 	gasPrice := new(big.Int)
@@ -551,8 +552,21 @@ func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams
 	deployerAddr := common.HexToAddress(deployContractParams.DeployerAddr)
 
 	//
-	address, tx, _, err := bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice, GasLimit: gasLimit}, parsed,
-		common.FromHex(deployContractParams.ContractBin), client, paramsNew...)
+	var address common.Address
+	var tx *types.Transaction
+	if deployContractParams.Params != "" {
+		//
+		var paramsNew []interface{}
+		convertContractParams(&paramsNew, &parsed,
+			"", deployContractParams.Params)
+
+		//
+		address, tx, _, err = bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice, GasLimit: gasLimit}, parsed,
+			common.FromHex(deployContractParams.ContractBin), client, paramsNew...)
+	} else {
+		address, tx, _, err = bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice, GasLimit: gasLimit}, parsed,
+			common.FromHex(deployContractParams.ContractBin), client, deployContractParams.ParamsArray...)
+	}
 	if err != nil {
 		return "", err
 	}
