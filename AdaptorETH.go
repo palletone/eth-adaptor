@@ -83,3 +83,7 @@ func (aeth AdaptorETH) GenDeployContractTX(params *adaptor.GenDeployContractTXPa
 func (aeth AdaptorETH) GetEventByAddress(params *adaptor.GetEventByAddressParams) (string, error) {
 	return GetEventByAddress(params, &aeth.RPCParams, aeth.NetID)
 }
+
+func (aeth AdaptorETH) GetBestHeader(params *adaptor.GetBestHeaderParams) (string, error) {
+	return GetBestHeader(params, &aeth.RPCParams, aeth.NetID)
+}

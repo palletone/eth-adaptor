@@ -3,6 +3,8 @@ package adaptoreth
 import (
 	"fmt"
 	"testing"
+
+	"github.com/palletone/adaptor"
 )
 
 func TestGetTransactionByHash(t *testing.T) {
@@ -15,4 +17,20 @@ func TestGetTransactionByHash(t *testing.T) {
 	}
 	result := GetTransactionByHash(params, &rpcParams, NETID_MAIN)
 	fmt.Println(result)
+}
+
+func TestGetBestHeader(t *testing.T) {
+	rpcParams := RPCParams{
+		Rawurl: "\\\\.\\pipe\\geth.ipc",
+	}
+	var getBestHeaderParams adaptor.GetBestHeaderParams
+	getBestHeaderParams.Number = "dd100dd" //invalid test
+
+	//
+	result, err := GetBestHeader(&getBestHeaderParams, &rpcParams, NETID_MAIN)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(result)
+	}
 }

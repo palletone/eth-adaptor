@@ -21,13 +21,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	//"github.com/palletone/adaptor"
+	"github.com/palletone/adaptor"
 )
 
 type GetTransactionParams struct {
@@ -53,14 +52,12 @@ func GetTransactionByHash(params string, rpcParams *RPCParams, netID int) string
 	var getTransactionParams GetTransactionParams
 	err := json.Unmarshal([]byte(params), &getTransactionParams)
 	if err != nil {
-		log.Fatal(err)
 		return err.Error()
 	}
 
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		log.Fatal(err)
 		return err.Error()
 	}
 
@@ -68,14 +65,14 @@ func GetTransactionByHash(params string, rpcParams *RPCParams, netID int) string
 	hash := common.HexToHash(getTransactionParams.Hash)
 	tx, blockNumber, blockHash, err := client.TransactionsByHash(context.Background(), hash)
 	if err != nil {
-		log.Fatal("TransactionByHash err : ", err.Error())
+		return err.Error()
 	}
 
 	//conver to msg for from address
 	signer := types.NewEIP155Signer(big.NewInt(18))
 	msg, err := tx.AsMessage(signer)
 	if err != nil {
-		log.Fatal(err)
+		return err.Error()
 	}
 	//	fmt.Println(msg.From().String())
 	//	fmt.Println(msg.To().String())
@@ -97,9 +94,42 @@ func GetTransactionByHash(params string, rpcParams *RPCParams, netID int) string
 	//
 	jsonResult, err := json.Marshal(result)
 	if err != nil {
-		log.Fatal(err)
 		return err.Error()
 	}
 
 	return string(jsonResult)
+}
+
+func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *RPCParams, netID int) (string, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return "", err
+	}
+
+	//call eth rpc method
+	var heder *types.Header
+	number := new(big.Int)
+	_, isNum := number.SetString(getBestHeaderParams.Number, 10)
+	if isNum {
+		heder, err = client.HeaderByNumber(context.Background(), number)
+	} else { //get best header
+		heder, err = client.HeaderByNumber(context.Background(), nil)
+	}
+	if err != nil {
+		return "", err
+	}
+
+	//
+	var result adaptor.GetBestHeaderResult
+	result.TxHash = heder.TxHash.String()
+	result.Number = heder.Number.String()
+
+	//
+	jsonResult, err := json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonResult), nil
 }
