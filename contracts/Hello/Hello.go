@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ontio/ontology-/core/types"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 // HelloABI is the input ABI used to generate the binding from.
