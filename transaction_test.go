@@ -13,7 +13,7 @@ func TestGetTransactionByHash(t *testing.T) {
 		}
 		`
 	rpcParams := RPCParams{
-		Rawurl: "\\\\.\\pipe\\geth.ipc",
+		Rawurl: "https://ropsten.infura.io/",//"\\\\.\\pipe\\geth.ipc",
 	}
 	result := GetTransactionByHash(params, &rpcParams, NETID_MAIN)
 	fmt.Println(result)
@@ -21,7 +21,7 @@ func TestGetTransactionByHash(t *testing.T) {
 
 func TestGetBestHeader(t *testing.T) {
 	rpcParams := RPCParams{
-		Rawurl: "\\\\.\\pipe\\geth.ipc",
+		Rawurl: "https://ropsten.infura.io/",//"\\\\.\\pipe\\geth.ipc",
 	}
 	var getBestHeaderParams adaptor.GetBestHeaderParams
 	getBestHeaderParams.Number = "dd100dd" //invalid test

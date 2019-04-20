@@ -59,7 +59,7 @@ func TestSignTransaction(t *testing.T) {
 
 func TestSendTransaction(t *testing.T) {
 	rpcParams := RPCParams{
-		Rawurl: "\\\\.\\pipe\\geth.ipc",
+		Rawurl: "https://ropsten.infura.io/",//"\\\\.\\pipe\\geth.ipc",
 	}
 	var sendTransactionParams adaptor.SendTransactionParams
 	//multisig contract 2/3 withdraw, copy from result of [TestGenDeployContractTX()+TestSignTransaction()]
@@ -72,7 +72,7 @@ func TestSendTransaction(t *testing.T) {
 	}
 
 	//	rpcParams := RPCParams{
-	//		Rawurl: "\\\\.\\pipe\\geth.ipc",
+	//		Rawurl: "https://ropsten.infura.io/",//"\\\\.\\pipe\\geth.ipc",
 	//	}
 	//	var sendTransactionParams SendTransactionParams
 	//	//multisig contract 2/3 deposit, copy from result of [TestGenDeployContractTX()+TestSignTransaction()]
@@ -85,7 +85,7 @@ func TestSendTransaction(t *testing.T) {
 	//	}
 
 	//	rpcParams := RPCParams{
-	//		Rawurl: "\\\\.\\pipe\\geth.ipc",
+	//		Rawurl: "https://ropsten.infura.io/",//"\\\\.\\pipe\\geth.ipc",
 	//	}
 	//	var sendTransactionParams SendTransactionParams
 	//	//multisig contract 2/3 deploy, copy from result of [TestGenDeployContractTX()+TestSignTransaction()]
