@@ -25,7 +25,9 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
+	//"github.com/ethereum/go-ethereum/ethclient"
+
+	"github.com/palletone/eth-adaptor/ethclient"
 )
 
 func GetClient(rpcParams *RPCParams) (*ethclient.Client, error) {
