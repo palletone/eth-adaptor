@@ -11,7 +11,6 @@ import (
 	//"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-
 	"github.com/palletone/eth-adaptor/bind"
 
 	"github.com/palletone/adaptor"
@@ -48,6 +47,8 @@ type PalletOneDepositIterator struct {
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
 	values   string              //json values
+	txhash   string              //json txhash
+	blocknum uint64              //json blocknum
 
 	logs chan types.Log        // Log channel receiving the found contract events
 	sub  ethereum.Subscription // Subscription for errors, completion and termination
@@ -78,6 +79,8 @@ func (it *PalletOneDepositIterator) Next() bool {
 				return false
 			}
 			it.values = string(jsonValues)
+			it.txhash = log.TxHash.String()
+			it.blocknum = log.BlockNumber
 			return true
 
 		default:
@@ -98,6 +101,8 @@ func (it *PalletOneDepositIterator) Next() bool {
 			return false
 		}
 		it.values = string(jsonValues)
+		it.txhash = log.TxHash.String()
+		it.blocknum = log.BlockNumber
 		return true
 
 	case err := <-it.sub.Err():
@@ -166,6 +171,8 @@ func GetEventByAddress(getEventByAddressParams *adaptor.GetEventByAddressParams,
 	for filterIter.Next() {
 		if strings.Contains(filterIter.values, getEventByAddressParams.ConcernAddr) {
 			result.Events = append(result.Events, filterIter.values)
+			result.Txhashs = append(result.Txhashs, filterIter.txhash)
+			result.Blocknums = append(result.Blocknums, filterIter.blocknum)
 		}
 	}
 
