@@ -62,6 +62,9 @@ func (aeth AdaptorETH) CalculateSig(params string) string {
 func (aeth AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (string, error) {
 	return Keccak256HashPackedSig(params)
 }
+func (aeth AdaptorETH) RecoverAddr(params *adaptor.RecoverParams) (string, error) {
+	return RecoverAddr(params)
+}
 
 func (aeth AdaptorETH) SignTransaction(params *adaptor.ETHSignTransactionParams) (string, error) {
 	return SignTransaction(params)

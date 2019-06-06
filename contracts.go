@@ -33,7 +33,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
-
 	"github.com/palletone/eth-adaptor/bind"
 
 	"github.com/palletone/adaptor"
@@ -243,7 +242,78 @@ func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (st
 
 	//save result
 	var result adaptor.Keccak256HashPackedSigResult
+	result.Hash = hash.String()
 	result.Signature = hexutil.Encode(signature)
+
+	//
+	jsonResult, err := json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonResult), nil
+}
+
+func Keccak256HashVerify(verifyParams *adaptor.Keccak256HashVerifyParams) (string, error) {
+	//
+	if "0x" == verifyParams.PublicKeyHex[0:2] {
+		verifyParams.PublicKeyHex = verifyParams.PublicKeyHex[2:]
+	}
+	pubkey := common.Hex2Bytes(verifyParams.PublicKeyHex)
+	if "0x" == verifyParams.Hash[0:2] {
+		verifyParams.Hash = verifyParams.Hash[2:]
+	}
+	hash := common.Hex2Bytes(verifyParams.Hash)
+	if "0x" == verifyParams.Signature[0:2] {
+		verifyParams.Signature = verifyParams.Signature[2:]
+	}
+	sig := common.Hex2Bytes(verifyParams.Signature)
+	if len(sig) == 65 {
+		sig = sig[0:64]
+	}
+
+	//sign the hash
+	valid := crypto.VerifySignature(pubkey, hash, sig)
+
+	//save result
+	var result adaptor.Keccak256HashVerifyResult
+	result.Valid = valid
+
+	//
+	jsonResult, err := json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonResult), nil
+}
+
+func RecoverAddr(recoverParams *adaptor.RecoverParams) (string, error) {
+	//
+	if "0x" == recoverParams.Hash[0:2] {
+		recoverParams.Hash = recoverParams.Hash[2:]
+	}
+	hash := common.Hex2Bytes(recoverParams.Hash)
+	if "0x" == recoverParams.Signature[0:2] {
+		recoverParams.Signature = recoverParams.Signature[2:]
+	}
+	sig := common.Hex2Bytes(recoverParams.Signature)
+
+	//
+	pubkeyByte, err := crypto.Ecrecover(hash, sig)
+	if err != nil {
+		return "", err
+	}
+
+	pubkey, err := crypto.UnmarshalPubkey(pubkeyByte)
+	if err != nil {
+		return "", err
+	}
+	addr := crypto.PubkeyToAddress(*pubkey)
+
+	//save result
+	var result adaptor.RecoverResult
+	result.Addr = addr.String()
 
 	//
 	jsonResult, err := json.Marshal(result)
