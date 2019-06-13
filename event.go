@@ -167,7 +167,7 @@ func GetEventByAddress(getEventByAddressParams *adaptor.GetEventByAddressParams,
 
 	//
 	var result adaptor.GetEventByAddressResult
-	getEventByAddressParams.ConcernAddr = strings.ToLower(getEventByAddressParams.ConcernAddr)
+	//getEventByAddressParams.ConcernAddr = strings.ToLower(getEventByAddressParams.ConcernAddr)//eth address need lower
 	for filterIter.Next() {
 		if strings.Contains(filterIter.values, getEventByAddressParams.ConcernAddr) {
 			result.Events = append(result.Events, filterIter.values)
