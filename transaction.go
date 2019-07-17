@@ -26,64 +26,46 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/palletone/adaptor"
 )
 
-type GetTransactionParams struct {
-	Hash string `json:"hash"`
-}
-
-type GetTransactionResult struct {
-	Hash             string `json:"hash"`
-	Nonce            string `json:"nonce"`
-	BlockHash        string `json:"blockHash"`
-	BlockNumber      string `json:"blockNumber"`
-	TransactionIndex string `json:"transactionIndex"`
-	From             string `json:"from"`
-	To               string `json:"to"`
-	Value            string `json:"value"`
-	Gas              string `json:"gas"`
-	GasPrice         string `json:"gasPrice"`
-	Input            string `json:"input"`
-}
-
-func GetTransactionByHash(params string, rpcParams *RPCParams, netID int) string {
-	//convert params from json format
-	var getTransactionParams GetTransactionParams
-	err := json.Unmarshal([]byte(params), &getTransactionParams)
-	if err != nil {
-		return err.Error()
-	}
-
+func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPCParams, netID int) (string, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		return err.Error()
+		return "", err
 	}
 
 	//call eth method
-	hash := common.HexToHash(getTransactionParams.Hash)
+	hash := common.HexToHash(txParams.Hash)
 	tx, blockNumber, blockHash, err := client.TransactionsByHash(context.Background(), hash)
 	if err != nil {
-		return err.Error()
+		return "", err
 	}
 
 	//conver to msg for from address
-	signer := types.NewEIP155Signer(big.NewInt(18))
+	bigIntBlockNum := new(big.Int)
+	bigIntBlockNum.SetString(blockNumber, 0)
+
+	var signer types.Signer
+	if netID == NETID_MAIN {
+		signer = types.MakeSigner(params.MainnetChainConfig, bigIntBlockNum)
+	} else {
+		signer = types.MakeSigner(params.TestnetChainConfig, bigIntBlockNum)
+	}
+
 	msg, err := tx.AsMessage(signer)
 	if err != nil {
-		return err.Error()
+		return "", err
 	}
-	//	fmt.Println(msg.From().String())
-	//	fmt.Println(msg.To().String())
 
 	//save result
-	var result GetTransactionResult
+	var result adaptor.GetTransactionResult
 	result.Hash = tx.Hash().String()
 	result.Nonce = fmt.Sprintf("%d", tx.Nonce())
 	result.BlockHash = blockHash
 	result.BlockNumber = blockNumber
-	//  result.TransactionIndex =
 	result.From = msg.From().String()
 	result.To = msg.To().String()
 	result.Value = tx.Value().String()
@@ -93,11 +75,57 @@ func GetTransactionByHash(params string, rpcParams *RPCParams, netID int) string
 
 	//
 	jsonResult, err := json.Marshal(result)
+	//jsonResult, err := json.MarshalIndent(result, "", "\t")
 	if err != nil {
-		return err.Error()
+		return "", err
 	}
 
-	return string(jsonResult)
+	return string(jsonResult), nil
+}
+
+func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCParams, netID int) (string, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return "", err
+	}
+
+	//call eth method
+	hash := common.HexToHash(txParams.Hash)
+	receipt, err := client.TransactionReceipt(context.Background(), hash)
+	if err != nil {
+		return "", err
+	}
+
+	//save result
+	var result adaptor.GetErc20TxByHashResult
+	result.Hash = receipt.TxHash.String()
+	result.Status = fmt.Sprintf("%d", receipt.Status)
+	if len(receipt.Logs) > 0 {
+		result.BlockHash = receipt.Logs[0].BlockHash.String()
+		bigIntBlockNum := new(big.Int)
+		bigIntBlockNum.SetUint64(receipt.Logs[0].BlockNumber)
+		result.BlockNumber = bigIntBlockNum.String()
+
+		result.ContractAddr = receipt.Logs[0].Address.String()
+		if len(receipt.Logs[0].Topics) > 2 {
+			result.From = common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes()).String()
+			result.To = common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes()).String()
+		}
+
+		bigIntAmount := new(big.Int)
+		bigIntAmount, _ = bigIntAmount.SetString(hexutil.Encode(receipt.Logs[0].Data), 0)
+		result.Amount = bigIntAmount.String()
+	}
+
+	//
+	jsonResult, err := json.Marshal(result)
+	//jsonResult, err := json.MarshalIndent(result, "", "\t")
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonResult), nil
 }
 
 func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *RPCParams, netID int) (string, error) {
