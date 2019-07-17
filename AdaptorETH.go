@@ -48,10 +48,12 @@ func (aeth AdaptorETH) GetAddress(prikeyHex string) (address string) {
 func (aeth AdaptorETH) GetBalance(params string) string {
 	return GetBalance(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) GetTransactionByHash(params string) string {
+func (aeth AdaptorETH) GetTransactionByHash(params *adaptor.GetTransactionParams) (string, error) {
 	return GetTransactionByHash(params, &aeth.RPCParams, aeth.NetID)
 }
-
+func (aeth AdaptorETH) GetErc20TxByHash(params *adaptor.GetErc20TxByHashParams) (string, error) {
+	return GetErc20TxByHash(params, &aeth.RPCParams, aeth.NetID)
+}
 func (aeth AdaptorETH) CreateMultiSigAddress(params *adaptor.CreateMultiSigAddressParams) (string, error) {
 	return CreateMultiSigAddress(params)
 }
