@@ -17,5 +17,5 @@ matrix:
       env: GO111MODULE=on  
 
 script:
-    - go get -u github.com/palletone/adaptor
+    - go get -u github.com/palletone/adaptor@master
     - go test ./...
