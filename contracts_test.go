@@ -10,48 +10,6 @@ import (
 	"github.com/palletone/adaptor"
 )
 
-func TestCreateMultiSigAddress(t *testing.T) {
-	//	params := `{
-	//		    "AddrA": "0x7d7116a8706ae08baa7f4909e26728fa7a5f0365",
-	//		    "AddrB": "0xaAA919a7c465be9b053673C567D73Be860317963",
-	//		    "Addr1": "0x6c7110482920E0AF149a82189251f292a84148A8",
-	//		    "Addr2": "0x6FFE3469678053D0ec55d966dDBa76BDf1742a3e",
-	//		    "Addr3": "0x1f97d837dDf8673319eBB4352EB293f28353478f",
-	//		    "Addr4": "0x0e827EAfEa2c7F627C7dFEAB8Da565961898Ee5E"
-	//		}
-	//		`
-
-	//	params := `{
-	//	    "addresses": ["0x7d7116a8706ae08baa7f4909e26728fa7a5f0365","0xaAA919a7c465be9b053673C567D73Be860317963","0x6c7110482920E0AF149a82189251f292a84148A8","0x6FFE3469678053D0ec55d966dDBa76BDf1742a3e","0x1f97d837dDf8673319eBB4352EB293f28353478f","0x0e827EAfEa2c7F627C7dFEAB8Da565961898Ee5E"],
-	//	    "n": 6
-	//	  	}
-	//		`
-
-	//	result := CreateMultiSigAddress(params)
-
-	addrA := "0x7d7116a8706ae08baa7f4909e26728fa7a5f0365"
-	addrB := "0xaAA919a7c465be9b053673C567D73Be860317963"
-	addr1 := "0x6c7110482920E0AF149a82189251f292a84148A8"
-	addr2 := "0x6FFE3469678053D0ec55d966dDBa76BDf1742a3e"
-	addr3 := "0x1f97d837dDf8673319eBB4352EB293f28353478f"
-	addr4 := "0x0e827EAfEa2c7F627C7dFEAB8Da565961898Ee5E"
-	var createMultiSigAddressParams adaptor.CreateMultiSigAddressParams
-	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addrA)
-	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addrB)
-	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addr1)
-	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addr2)
-	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addr3)
-	createMultiSigAddressParams.Addresses = append(createMultiSigAddressParams.Addresses, addr4)
-	createMultiSigAddressParams.N = 6
-
-	result, err := CreateMultiSigAddress(&createMultiSigAddressParams)
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println(result)
-	}
-}
-
 func TestCalculateSig(t *testing.T) {
 	//	keys := []string{
 	//		"5908338b18e52027e0c107fa0eacb392fcda860f1ba1d7b9a00bacac8e189a11",
@@ -111,7 +69,11 @@ func TestCalculateSig(t *testing.T) {
 	//
 	for _, key := range keys {
 		paramsNew := fmt.Sprintf(params, key)
-		result := CalculateSig(paramsNew)
+		result, err := CalculateSig(paramsNew)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 		fmt.Println(result)
 
 		//
@@ -120,7 +82,7 @@ func TestCalculateSig(t *testing.T) {
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
-			if result == result1 {
+			if result.Signature == result1.Signature {
 				fmt.Println("Same !!!")
 			} else {
 				fmt.Println("NotSame ", result1)
@@ -134,11 +96,14 @@ func TestKeccak256HashPackedSig(t *testing.T) {
 	//		"a125ecfe858950703389ac1e46d7fd9aff7a09832071ccc24b69dc3553d4709d",
 	//		"5908338b18e52027e0c107fa0eacb392fcda860f1ba1d7b9a00bacac8e189a11"}
 	keys := []string{
-		"3a2b9d31114f0aaa2b0758e97e0402370a8b29602ac64494a053b6a2d53109a5",
-		"be2da21d719e002a0035b52d36ba9137afe7a67e4c92e0a342ec1632944ce806"}
+		"9322c55001bc5713aff902b09817dfa07357e2e079127542fb8b7fc02186a459",
+		"2b552726f05241b7dd8a2eb35592a926ce082f7cbf5b58415d6d836b8836385e",
+		"9a7b190f9884fb99a11408d83c7e34d5364aedc4a33a4b2f0acaa8974798229c",
+		"d096c348cdd9487a23ba1e60f8cde1a7ddc8d5c143a8c6ad2b2becd4906a4bae"}
 
 	//	paramTypes := []string{"Address", "Bytes", "Address", "Address", "UInt", "UInt"}//ERC20 token
-	paramTypesArray := []string{"Bytes", "Address", "Address", "Uint", "Uint"} //eth
+	//paramTypesArray := []string{"Bytes", "Address", "Address", "Uint", "Uint"} //eth
+	paramTypesArray := []string{"Address", "Address", "Uint", "String"} //eth
 	paramTypesJson, err := json.Marshal(paramTypesArray)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -149,12 +114,24 @@ func TestKeccak256HashPackedSig(t *testing.T) {
 	//		"0x6817Cfb2c442693d850332c3B755B2342Ec4aFB2",
 	//		"1000000000000000000",
 	//		"1"}
-	paramsArray := []string{
-		"0x588eb98f8814aedb056d549c0bafd5ef4963069c3b311ce19ddcfd2d3e07e508b927d50cf299611caa7a95E0287982dc8F6D57F947626263AA9c1146",
-		"0x588eB98f8814aedB056D549C0bafD5Ef4963069C",
-		"0x6817Cfb2c442693d850332c3B755B2342Ec4aFB2",
-		"1201717280000000000",
-		"1"}
+	//paramsArray := []string{
+	//	"0x588eb98f8814aedb056d549c0bafd5ef4963069c3b311ce19ddcfd2d3e07e508b927d50cf299611caa7a95E0287982dc8F6D57F947626263AA9c1146",
+	//	"0x588eB98f8814aedB056D549C0bafD5Ef4963069C",
+	//	"0x6817Cfb2c442693d850332c3B755B2342Ec4aFB2",
+	//	"1201717280000000000",
+	//	"1"}
+	//paramsArray := []string{
+	//	"0x5b8c8b8aa705bf555f0b8e556bf0d58956ecd6e9",
+	//	"0x7d7116a8706ae08baa7f4909e26728fa7a5f0365",
+	//	"499900000000000000",
+	//	"0x80b849e2f2b64b199f6a35a2dec609cded9c55b61a32a29697e4d84814a59b3c"}
+	var paramsArray []string
+	paramsArray = append(paramsArray, "0x5b8c8b8aa705bf555f0b8e556bf0d58956ecd6e9")
+	paramsArray = append(paramsArray, "0x7d7116a8706ae08baa7f4909e26728fa7a5f0365")
+	ethAmountStr := fmt.Sprintf("%d", 49990000)
+	ethAmountStr = ethAmountStr + "0000000000"
+	paramsArray = append(paramsArray, ethAmountStr)
+	paramsArray = append(paramsArray, "0x2b9d23bffc64aaba7607445760434037a18e95f9501cf2bd49eedfb0115e5bea")
 	paramsJson, err := json.Marshal(paramsArray)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -242,6 +219,43 @@ func TestQueryContract(t *testing.T) {
 	rpcParams := RPCParams{
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",
 	}
+
+	//const PTNMapABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getptnhex\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
+	////
+	//mapAddr := "0xb6164aacbf07b11259282c565b4f0b31837899cb"
+	////
+	//var queryPTNParams adaptor.QueryContractParams
+	//queryPTNParams.ContractABI = PTNMapABI
+	//queryPTNParams.ContractAddr = mapAddr
+	//queryPTNParams.Method = "getptnhex"
+	//senderAddr := HexToAddress("0x588eb98f8814aedb056d549c0bafd5ef4963069c")
+	//queryPTNParams.ParamsArray = append(queryPTNParams.ParamsArray, senderAddr)
+	////
+	//for i := 0; i < 1; i++ {
+	//	result1, err := QueryContract(&queryPTNParams, &rpcParams, NETID_MAIN)
+	//	if err != nil {
+	//		fmt.Println(err.Error())
+	//	} else {
+	//		fmt.Println(result1)
+	//	}
+	//
+	//	reqBytes1, _ := json.Marshal(queryPTNParams)
+	//	var queryContract1 adaptor.QueryContractParams
+	//	err1 := json.Unmarshal(reqBytes1, &queryContract1)
+	//	if err1 != nil {
+	//		fmt.Println("err1: ", err1)
+	//	} else {
+	//		fmt.Println(queryContract1)
+	//	}
+	//	result11, err := QueryContract(&queryContract1, &rpcParams, NETID_MAIN)
+	//	if err != nil {
+	//		fmt.Println(err.Error())
+	//	} else {
+	//		fmt.Println(result11)
+	//	}
+	//}
+	//
+	//return
 	//a test contract for params process test
 	contractABI := "[{\"constant\":true,\"inputs\":[],\"name\":\"info\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"a\",\"type\":\"int256\"},{\"name\":\"a256\",\"type\":\"int256\"},{\"name\":\"au\",\"type\":\"uint256\"},{\"name\":\"a8\",\"type\":\"int8\"}],\"name\":\"testpraram3\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"},{\"name\":\"\",\"type\":\"int256\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"int8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"a\",\"type\":\"int256\"},{\"name\":\"b\",\"type\":\"bool\"},{\"name\":\"str\",\"type\":\"string\"},{\"name\":\"addr\",\"type\":\"address\"},{\"name\":\"bs\",\"type\":\"bytes\"},{\"name\":\"bs32\",\"type\":\"bytes32\"}],\"name\":\"testpraram\",\"outputs\":[{\"name\":\"\",\"type\":\"int256\"},{\"name\":\"\",\"type\":\"bool\"},{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"bytes\"},{\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"a\",\"type\":\"uint256\"},{\"name\":\"b\",\"type\":\"bool\"},{\"name\":\"str\",\"type\":\"string\"},{\"name\":\"addr\",\"type\":\"address\"},{\"name\":\"bs\",\"type\":\"bytes\"},{\"name\":\"bs32\",\"type\":\"bytes28\"}],\"name\":\"testpraram2\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"bool\"},{\"name\":\"\",\"type\":\"string\"},{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"bytes\"},{\"name\":\"\",\"type\":\"bytes28\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_str\",\"type\":\"string\"}],\"name\":\"saySomething\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]"
 	contractAddr := "0x981350976dd8339bd975e717cbf238bff227e66f"
@@ -315,6 +329,9 @@ func TestQueryContract(t *testing.T) {
 }
 
 func TestGenInvokeContractTX(t *testing.T) {
+	UnpackInput()
+	return
+
 	rpcParams := RPCParams{
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",
 	}

@@ -45,50 +45,44 @@ func (aeth AdaptorETH) GetAddress(prikeyHex string) (address string) {
 	return GetAddress(prikeyHex, aeth.NetID)
 }
 
-func (aeth AdaptorETH) GetBalance(params string) string {
+func (aeth AdaptorETH) GetBalance(params *adaptor.GetBalanceParams) (*adaptor.GetBalanceResult, error) {
 	return GetBalance(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) GetTransactionByHash(params *adaptor.GetTransactionParams) (string, error) {
+func (aeth AdaptorETH) GetTransactionByHash(params *adaptor.GetTransactionParams) (*adaptor.GetTransactionResult, error) {
 	return GetTransactionByHash(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) GetErc20TxByHash(params *adaptor.GetErc20TxByHashParams) (string, error) {
+func (aeth AdaptorETH) GetErc20TxByHash(params *adaptor.GetErc20TxByHashParams) (*adaptor.GetErc20TxByHashResult, error) {
 	return GetErc20TxByHash(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) CreateMultiSigAddress(params *adaptor.CreateMultiSigAddressParams) (string, error) {
-	return CreateMultiSigAddress(params)
-}
 
-func (aeth AdaptorETH) CalculateSig(params string) string {
-	return CalculateSig(params)
-}
-func (aeth AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (string, error) {
+func (aeth AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
 	return Keccak256HashPackedSig(params)
 }
-func (aeth AdaptorETH) RecoverAddr(params *adaptor.RecoverParams) (string, error) {
+func (aeth AdaptorETH) RecoverAddr(params *adaptor.RecoverParams) (*adaptor.RecoverResult, error) {
 	return RecoverAddr(params)
 }
 
-func (aeth AdaptorETH) SignTransaction(params *adaptor.ETHSignTransactionParams) (string, error) {
+func (aeth AdaptorETH) SignTransaction(params *adaptor.ETHSignTransactionParams) (*adaptor.ETHSignTransactionResult, error) {
 	return SignTransaction(params)
 }
-func (aeth AdaptorETH) SendTransaction(params *adaptor.SendTransactionParams) (string, error) {
+func (aeth AdaptorETH) SendTransaction(params *adaptor.SendTransactionParams) (*adaptor.SendTransactionResult, error) {
 	return SendTransaction(params, &aeth.RPCParams, aeth.NetID)
 }
 
-func (aeth AdaptorETH) QueryContract(params *adaptor.QueryContractParams) (string, error) {
+func (aeth AdaptorETH) QueryContract(params *adaptor.QueryContractParams) (*adaptor.QueryContractResult, error) {
 	return QueryContract(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) GenInvokeContractTX(params *adaptor.GenInvokeContractTXParams) (string, error) {
+func (aeth AdaptorETH) GenInvokeContractTX(params *adaptor.GenInvokeContractTXParams) (*adaptor.GenInvokeContractTXResult, error) {
 	return GenInvokeContractTX(params, &aeth.RPCParams, aeth.NetID)
 }
-func (aeth AdaptorETH) GenDeployContractTX(params *adaptor.GenDeployContractTXParams) (string, error) {
+func (aeth AdaptorETH) GenDeployContractTX(params *adaptor.GenDeployContractTXParams) (*adaptor.GenDeployContractTXResult, error) {
 	return GenDeployContractTX(params, &aeth.RPCParams, aeth.NetID)
 }
 
-func (aeth AdaptorETH) GetEventByAddress(params *adaptor.GetEventByAddressParams) (string, error) {
+func (aeth AdaptorETH) GetEventByAddress(params *adaptor.GetEventByAddressParams) (*adaptor.GetEventByAddressResult, error) {
 	return GetEventByAddress(params, &aeth.RPCParams, aeth.NetID)
 }
 
-func (aeth AdaptorETH) GetBestHeader(params *adaptor.GetBestHeaderParams) (string, error) {
+func (aeth AdaptorETH) GetBestHeader(params *adaptor.GetBestHeaderParams) (*adaptor.GetBestHeaderResult, error) {
 	return GetBestHeader(params, &aeth.RPCParams, aeth.NetID)
 }

@@ -38,32 +38,6 @@ import (
 	"github.com/palletone/adaptor"
 )
 
-func CreateMultiSigAddress(createMultiSigAddressParams *adaptor.CreateMultiSigAddressParams) (string, error) {
-	//	//redeem format : A B 1 2 3 4 utc
-	//	utc := time.Now().UTC().Unix()
-	//redeem format : A B 1 2 3 4
-	var redeem string
-	for _, address := range createMultiSigAddressParams.Addresses {
-		if "0x" == address[0:2] {
-			address = address[2:]
-		}
-		redeem = fmt.Sprintf("%s%s", redeem, address)
-	}
-	//	redeem = fmt.Sprintf("%s%x", redeem, utc)
-
-	//save result
-	var result adaptor.CreateMultiSigAddressResult
-	result.RedeemHex = redeem
-
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
-}
-
 type CalculateSigParams struct {
 	PrivateKeyHex      string `json:"privatekeyhex"`
 	PalletContractAddr string `json:"palletcontractaddr"`
@@ -77,12 +51,12 @@ type CalculateSigResult struct {
 	Signature string `json:"signature"`
 }
 
-func CalculateSig(params string) string {
+func CalculateSig(params string) (*CalculateSigResult, error) {
 	//convert params from json format
 	var calculateSigParams CalculateSigParams
 	err := json.Unmarshal([]byte(params), &calculateSigParams)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 
 	//remove 0x, then convert to ecdsa private key
@@ -91,13 +65,13 @@ func CalculateSig(params string) string {
 	}
 	privateKey, err := crypto.HexToECDSA(calculateSigParams.PrivateKeyHex)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 
 	//redeem bytes
 	redeem, err := hexutil.Decode(calculateSigParams.RedeemHex)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 
 	//address
@@ -132,7 +106,7 @@ func CalculateSig(params string) string {
 	//sign the hash
 	signature, err := crypto.Sign(hash.Bytes(), privateKey)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 	//	fmt.Println(hexutil.Encode(signature))
 
@@ -140,37 +114,31 @@ func CalculateSig(params string) string {
 	var result CalculateSigResult
 	result.Signature = hexutil.Encode(signature)
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return err.Error()
-	}
-
-	return string(jsonResult)
+	return &result, nil
 }
 
 //==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ===
 
-func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (string, error) {
+func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
 	//remove 0x, then convert to ecdsa private key
 	if "0x" == sigParams.PrivateKeyHex[0:2] {
 		sigParams.PrivateKeyHex = sigParams.PrivateKeyHex[2:]
 	}
 	privateKey, err := crypto.HexToECDSA(sigParams.PrivateKeyHex)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var paramTypes []string
 	err = json.Unmarshal([]byte(sigParams.ParamTypes), &paramTypes)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var params []string
 	err = json.Unmarshal([]byte(sigParams.Params), &params)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var allBytes [][]byte
@@ -224,11 +192,11 @@ func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (st
 			}
 		}
 	} else {
-		return "", errors.New("Params error : ParamTypes and params not match.")
+		return nil, errors.New("Params error : ParamTypes and params not match.")
 	}
 
 	if len(allBytes) != len(params) {
-		return "", errors.New("Params error : Process params error.")
+		return nil, errors.New("Params error : Process params error.")
 	}
 
 	//
@@ -237,7 +205,7 @@ func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (st
 	//sign the hash
 	signature, err := crypto.Sign(hash.Bytes(), privateKey)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//save result
@@ -245,16 +213,10 @@ func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (st
 	result.Hash = hash.String()
 	result.Signature = hexutil.Encode(signature)
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }
 
-func Keccak256HashVerify(verifyParams *adaptor.Keccak256HashVerifyParams) (string, error) {
+func Keccak256HashVerify(verifyParams *adaptor.Keccak256HashVerifyParams) (*adaptor.Keccak256HashVerifyResult, error) {
 	//
 	if "0x" == verifyParams.PublicKeyHex[0:2] {
 		verifyParams.PublicKeyHex = verifyParams.PublicKeyHex[2:]
@@ -279,16 +241,10 @@ func Keccak256HashVerify(verifyParams *adaptor.Keccak256HashVerifyParams) (strin
 	var result adaptor.Keccak256HashVerifyResult
 	result.Valid = valid
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }
 
-func RecoverAddr(recoverParams *adaptor.RecoverParams) (string, error) {
+func RecoverAddr(recoverParams *adaptor.RecoverParams) (*adaptor.RecoverResult, error) {
 	//
 	if "0x" == recoverParams.Hash[0:2] {
 		recoverParams.Hash = recoverParams.Hash[2:]
@@ -302,12 +258,12 @@ func RecoverAddr(recoverParams *adaptor.RecoverParams) (string, error) {
 	//
 	pubkeyByte, err := crypto.Ecrecover(hash, sig)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	pubkey, err := crypto.UnmarshalPubkey(pubkeyByte)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	addr := crypto.PubkeyToAddress(*pubkey)
 
@@ -315,13 +271,7 @@ func RecoverAddr(recoverParams *adaptor.RecoverParams) (string, error) {
 	var result adaptor.RecoverResult
 	result.Addr = addr.String()
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }
 
 func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI,
@@ -475,17 +425,17 @@ func parseResults(outs *[]interface{}) []interface{} {
 	return results
 }
 
-func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *RPCParams, netID int) (string, error) {
+func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *RPCParams, netID int) (*adaptor.QueryContractResult, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//
 	parsed, err := abi.JSON(strings.NewReader(queryContractParams.ContractABI))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//
@@ -500,7 +450,7 @@ func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *
 		err = convertContractParams(&paramsNew, &parsed,
 			queryContractParams.Method, queryContractParams.Params)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		//
 		results, err = contract.CallZXL(&bind.CallOpts{Pending: false},
@@ -511,38 +461,32 @@ func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *
 			queryContractParams.Method, queryContractParams.ParamsArray...)
 	}
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//
 	resultsJson, err := json.Marshal(results)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//save result
 	var result adaptor.QueryContractResult
 	result.Result = string(resultsJson)
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }
 
-func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams, rpcParams *RPCParams, netID int) (string, error) {
+func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams, rpcParams *RPCParams, netID int) (*adaptor.GenInvokeContractTXResult, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	parsed, err := abi.JSON(strings.NewReader(invokeContractParams.ContractABI))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//
@@ -577,37 +521,31 @@ func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams
 			invokeContractParams.Method, invokeContractParams.ParamsArray...)
 	}
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	rlpTXBytes, err := rlp.EncodeToBytes(tx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//save result
 	var result adaptor.GenInvokeContractTXResult
 	result.TransactionHex = hexutil.Encode(rlpTXBytes)
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }
 
-func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams, rpcParams *RPCParams, netID int) (string, error) {
+func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams, rpcParams *RPCParams, netID int) (*adaptor.GenDeployContractTXResult, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	parsed, err := abi.JSON(strings.NewReader(deployContractParams.ContractABI))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//
@@ -640,12 +578,12 @@ func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams
 			common.FromHex(deployContractParams.ContractBin), client, deployContractParams.ParamsArray...)
 	}
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	rlpTXBytes, err := rlp.EncodeToBytes(tx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//save result
@@ -653,12 +591,31 @@ func GenDeployContractTX(deployContractParams *adaptor.GenDeployContractTXParams
 	result.TransactionHex = hexutil.Encode(rlpTXBytes)
 	result.ContractAddr = address.String()
 
-	//
-	jsonResult, err := json.Marshal(result)
+	return &result, nil
+
+}
+
+func UnpackInput() (string, error) {
+	//const PANZABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_owner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_spender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"}]"
+	const PANZABI = "[{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+	parsed, err := abi.JSON(strings.NewReader(PANZABI))
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
-
-	return string(jsonResult), nil
-
+	methodName := "transfer"
+	method, exist := parsed.Methods[methodName]
+	if !exist {
+		fmt.Println("Not exist method")
+		return "", errors.New("Not exist method")
+	}
+	inputData := "000000000000000000000000c5b8f9336bf26f0f931c97d17e9376c4933ab6c800000000000000000000000000000000000000000000001b1ae4d6e2ef500000"
+	result, err := method.Inputs.UnpackValues([]byte(inputData))
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	fmt.Println(result)
+	//common.LeftPadBytes()
+	return "", nil
 }

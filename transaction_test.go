@@ -27,6 +27,11 @@ func TestGetTransactionByHash(t *testing.T) {
 }
 
 func TestGetErc20TxByHash(t *testing.T) {
+	//bigIntAmout := new(big.Int)
+	//bigIntAmout.SetString("500000000000000000000", 10)
+	//bigIntAmout = bigIntAmout.Div(bigIntAmout, big.NewInt(1e18)) //Token's decimal is 18
+	//fmt.Println(bigIntAmout.String())
+	//return
 	//params := `{
 	//	    "Hash": "0x0d07060f1d99e161b1602ac0cab47ed6a414112aa2367389945e4ca5265f65cf"
 	//	}

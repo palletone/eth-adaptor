@@ -19,7 +19,6 @@ package adaptoreth
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/big"
 
@@ -30,18 +29,18 @@ import (
 	"github.com/palletone/adaptor"
 )
 
-func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPCParams, netID int) (string, error) {
+func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPCParams, netID int) (*adaptor.GetTransactionResult, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//call eth method
 	hash := common.HexToHash(txParams.Hash)
 	tx, blockNumber, blockHash, err := client.TransactionsByHash(context.Background(), hash)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//conver to msg for from address
@@ -57,7 +56,7 @@ func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPC
 
 	msg, err := tx.AsMessage(signer)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//save result
@@ -73,28 +72,21 @@ func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPC
 	result.GasPrice = fmt.Sprintf("%d", tx.GasPrice())
 	result.Input = hexutil.Encode(tx.Data())
 
-	//
-	jsonResult, err := json.Marshal(result)
-	//jsonResult, err := json.MarshalIndent(result, "", "\t")
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }
 
-func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCParams, netID int) (string, error) {
+func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCParams, netID int) (*adaptor.GetErc20TxByHashResult, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//call eth method
 	hash := common.HexToHash(txParams.Hash)
 	receipt, err := client.TransactionReceipt(context.Background(), hash)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//save result
@@ -118,21 +110,14 @@ func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCPa
 		result.Amount = bigIntAmount.String()
 	}
 
-	//
-	jsonResult, err := json.Marshal(result)
-	//jsonResult, err := json.MarshalIndent(result, "", "\t")
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }
 
-func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *RPCParams, netID int) (string, error) {
+func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *RPCParams, netID int) (*adaptor.GetBestHeaderResult, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//call eth rpc method
@@ -145,7 +130,7 @@ func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *
 		heder, err = client.HeaderByNumber(context.Background(), nil)
 	}
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//
@@ -153,11 +138,5 @@ func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *
 	result.TxHash = heder.TxHash.String()
 	result.Number = heder.Number.String()
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonResult), nil
+	return &result, nil
 }

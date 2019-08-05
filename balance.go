@@ -19,8 +19,6 @@ package adaptoreth
 
 import (
 	"context"
-	"encoding/json"
-	"log"
 	"math/big"
 	"strconv"
 
@@ -28,6 +26,8 @@ import (
 	//"github.com/ethereum/go-ethereum/ethclient"
 
 	"github.com/palletone/eth-adaptor/ethclient"
+
+	"github.com/palletone/adaptor"
 )
 
 func GetClient(rpcParams *RPCParams) (*ethclient.Client, error) {
@@ -45,28 +45,18 @@ type GetBalanceResult struct {
 	Balance float64 `json:"balance"`
 }
 
-func GetBalance(params string, rpcParams *RPCParams, netID int) string {
-	//convert params from json format
-	var getBalanceParams GetBalanceParams
-	err := json.Unmarshal([]byte(params), &getBalanceParams)
-	if err != nil {
-		log.Fatal(err)
-		return err.Error()
-	}
-
+func GetBalance(params *adaptor.GetBalanceParams, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceResult, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
-		log.Fatal(err)
-		return err.Error()
+		return nil, err
 	}
 
 	//call eth rpc method
-	account := common.HexToAddress(getBalanceParams.Account)
+	account := common.HexToAddress(params.Address)
 	balance, err := client.BalanceAt(context.Background(), account, nil)
 	if err != nil {
-		log.Fatal(err)
-		return err.Error()
+		return nil, err
 	}
 	//	fmt.Println("balance : ", balance)
 
@@ -78,15 +68,8 @@ func GetBalance(params string, rpcParams *RPCParams, netID int) string {
 	//fmt.Println(strFloat)
 
 	//convert balance
-	var result GetBalanceResult
-	result.Balance, _ = strconv.ParseFloat(strFloat, 8)
+	var result adaptor.GetBalanceResult
+	result.Value, _ = strconv.ParseFloat(strFloat, 8)
 
-	//
-	jsonResult, err := json.Marshal(result)
-	if err != nil {
-		log.Fatal(err)
-		return err.Error()
-	}
-
-	return string(jsonResult)
+	return &result, nil
 }

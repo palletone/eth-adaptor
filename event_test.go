@@ -3,9 +3,9 @@ package adaptoreth
 import (
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"math/big"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -124,6 +124,47 @@ func processResultBalance(ethAddr string, geteventresult *adaptor.GetEventByAddr
 
 	return nil
 }
+
+type DepositETHInfo struct {
+	Txhash string
+	Amount uint64
+}
+
+//need check confirms
+func getDepositETHInfo(geteventresult *adaptor.GetEventByAddressResult) ([]DepositETHInfo, error) {
+	endHeight := "5784143"
+	//event Deposit(address token, address user, uint amount, string ptnaddr);
+	endBlockNum, _ := strconv.ParseUint(endHeight, 10, 64)
+	var depositInfo []DepositETHInfo
+	for i, event := range geteventresult.Events {
+		//Event example : ["0x0000000000000000000000000000000000000000","0x7d7116a8706ae08baa7f4909e26728fa7a5f0365",500000000000000000,"P1DXLJmJh9j3LFNUZ7MmfLVNWHoLzDUHM9A"]
+		strArray := strings.Split(event, ",")
+		if len(strArray) != 4 {
+			fmt.Printf("len(strArray) %d\n", len(strArray))
+			continue
+		}
+		//confirm
+		if geteventresult.Blocknums[i]+10 > endBlockNum {
+			fmt.Printf("geteventresult.Blocknums[i] %d, endBlockNum %d", geteventresult.Blocknums[i], endBlockNum)
+			continue
+		}
+		//deposit amount, example : 500000000000000000
+		str2 := strArray[2]
+		bigInt := new(big.Int)
+		bigInt.SetString(str2, 10)
+		bigInt = bigInt.Div(bigInt, big.NewInt(10000000000)) //ethToken's decimal is 8
+		//
+		depositInfo = append(depositInfo, DepositETHInfo{geteventresult.Txhashs[i], bigInt.Uint64()})
+	}
+	if len(depositInfo) == 0 {
+		fmt.Println("len(depositInfo) is 0")
+		return nil, nil
+	}
+
+	return depositInfo, nil
+
+}
+
 func processWithdrawResult(ethAddr string, geteventresult *adaptor.GetEventByAddressResult) error {
 	//
 	eth_redeem := "7d7116a8706ae08baa7f4909e26728fa7a5f0365aaa919a7c465be9b053673c567d73be8603179636c7110482920e0af149a82189251f292a84148a85b7cd70d"
@@ -201,33 +242,33 @@ func TestGetEventByAddress(t *testing.T) {
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",
 	}
 
-	const contractABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"reqid\",\"type\":\"string\"}],\"name\":\"getmultisig\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"suicideto\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"ptnaddr\",\"type\":\"string\"}],\"name\":\"deposit\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"my_eth_bal\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"recver\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"},{\"name\":\"reqid\",\"type\":\"string\"},{\"name\":\"sigstr1\",\"type\":\"bytes\"},{\"name\":\"sigstr2\",\"type\":\"bytes\"}],\"name\":\"withdraw\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"addra\",\"type\":\"address\"},{\"name\":\"addrb\",\"type\":\"address\"},{\"name\":\"addrc\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"ptnaddr\",\"type\":\"string\"}],\"name\":\"Deposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"recver\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"reqid\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"confirmvalue\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"state\",\"type\":\"string\"}],\"name\":\"Withdraw\",\"type\":\"event\"}]"
-	contractAddr := "0x17b40301d3124c6b0fd49dc48b37400e9f157906"
+	const contractABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"reqid\",\"type\":\"string\"}],\"name\":\"getmultisig\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"suicideto\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"ptnaddr\",\"type\":\"string\"}],\"name\":\"deposit\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"my_eth_bal\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"addra\",\"type\":\"address\"},{\"name\":\"addrb\",\"type\":\"address\"},{\"name\":\"addrc\",\"type\":\"address\"},{\"name\":\"addrd\",\"type\":\"address\"}],\"name\":\"setaddrs\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"recver\",\"type\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\"},{\"name\":\"reqid\",\"type\":\"string\"},{\"name\":\"sigstr1\",\"type\":\"bytes\"},{\"name\":\"sigstr2\",\"type\":\"bytes\"},{\"name\":\"sigstr3\",\"type\":\"bytes\"}],\"name\":\"withdraw\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"addra\",\"type\":\"address\"},{\"name\":\"addrb\",\"type\":\"address\"},{\"name\":\"addrc\",\"type\":\"address\"},{\"name\":\"addrd\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"ptnaddr\",\"type\":\"string\"}],\"name\":\"Deposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"recver\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"reqid\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"confirmvalue\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"state\",\"type\":\"string\"}],\"name\":\"Withdraw\",\"type\":\"event\"}]"
+	contractAddr := "0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"
 
 	var getEventByAddressParams adaptor.GetEventByAddressParams
 	getEventByAddressParams.ContractABI = contractABI
 	getEventByAddressParams.ContractAddr = contractAddr
 
-	getEventByAddressParams.ConcernAddr = "ac91690f24b642aec664b3c10782c295f3e0ab8b707e173c7c539071df2bee3d" //"0x588eB98f8814aedB056D549C0bafD5Ef4963069C"
+	getEventByAddressParams.ConcernAddr = "P1BsMFaiGD1WGdTr6ARz1UKDejDbVumwwzm" //"0x588eB98f8814aedB056D549C0bafD5Ef4963069C"
 	getEventByAddressParams.EventName = "Deposit"
+	getEventByAddressParams.StartHeight = "5611499"
+	getEventByAddressParams.EndHeight = "5784293"
 	result1, err := GetEventByAddress(&getEventByAddressParams, &rpcParams, NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
 		//fmt.Println(result1)
-		var getevent adaptor.GetEventByAddressResult
-		err = json.Unmarshal([]byte(result1), &getevent)
+
+		//err = processResultBalance("0x7d7116a8706ae08baa7f4909e26728fa7a5f0365", &getevent)
+		depositInfo, err := getDepositETHInfo(result1)
+		fmt.Printf("len(depositInfo) is %d\n", len(depositInfo))
 		if err != nil {
 			fmt.Println(err.Error())
-		} else {
-			err = processResultBalance("0x7d7116a8706ae08baa7f4909e26728fa7a5f0365", &getevent)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
 		}
+
 	}
 
-	return
+	//return
 	fmt.Println("==== ===== ==== =====")
 	getEventByAddressParams.ConcernAddr = "0xaAA919a7c465be9b053673C567D73Be860317963"
 	getEventByAddressParams.EventName = "Withdraw"
@@ -237,16 +278,12 @@ func TestGetEventByAddress(t *testing.T) {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Println("result2: " + result2)
-		var getevent adaptor.GetEventByAddressResult
-		err = json.Unmarshal([]byte(result2), &getevent)
+		fmt.Println(result2)
+
+		err = processWithdrawResult("0xaAA919a7c465be9b053673C567D73Be860317963", result2)
 		if err != nil {
 			fmt.Println(err.Error())
-		} else {
-			err = processWithdrawResult("0xaAA919a7c465be9b053673C567D73Be860317963", &getevent)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
 		}
+
 	}
 }
