@@ -39,7 +39,7 @@ const (
 
 /*IUtility*/
 //创建一个新的私钥
-func (aeth AdaptorETH) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adaptor.NewPrivateKeyOutput, error) {
+func (aeth *AdaptorETH) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adaptor.NewPrivateKeyOutput, error) {
 	prikey, err := NewPrivateKey(aeth.NetID)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (aeth AdaptorETH) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adapto
 }
 
 //根据私钥创建公钥
-func (aeth AdaptorETH) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor.GetPublicKeyOutput, error) {
+func (aeth *AdaptorETH) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor.GetPublicKeyOutput, error) {
 	pubkey, err := GetPublicKey(input.PrivateKey, aeth.NetID)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (aeth AdaptorETH) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor.
 }
 
 //根据Key创建地址
-func (aeth AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAddressOutput, error) {
+func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAddressOutput, error) {
 	addr, err := GetAddress(key.Key, aeth.NetID)
 	if err != nil {
 		return nil, err
@@ -72,28 +72,28 @@ func (aeth AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAdd
 //SignMessage(addr string, message []byte, extra []byte) (signature []byte, err error)
 
 //对一条交易进行签名，并返回签名结果
-func (aeth AdaptorETH) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
+func (aeth *AdaptorETH) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
 	return SignTransaction(input)
 }
 
 //将未签名的原始交易与签名进行绑定，返回一个签名后的交易
-func (aeth AdaptorETH) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
+func (aeth *AdaptorETH) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
 	return BindTxAndSignature(input)
 }
 
 //根据交易内容，计算交易Hash
-func (aeth AdaptorETH) CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, error) {
+func (aeth *AdaptorETH) CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, error) {
 	return CalcTxHash(input)
 }
 
 //将签名后的交易广播到网络中,如果发送交易需要手续费，指定最多支付的手续费
-func (aeth AdaptorETH) SendTransaction(input *adaptor.SendTransactionInput) (*adaptor.SendTransactionOutput, error) {
+func (aeth *AdaptorETH) SendTransaction(input *adaptor.SendTransactionInput) (*adaptor.SendTransactionOutput, error) {
 	return SendTransaction(input, &aeth.RPCParams, aeth.NetID)
 }
 
 //根据交易ID获得交易的基本信息
-func (aeth AdaptorETH) GetTxBasicInfo(*adaptor.GetTxBasicInfoOutput, error) (*adaptor.GetTxBasicInfoOutput, error) {
-	return nil, errors.New("todo") //todo
+func (aeth *AdaptorETH) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (*adaptor.GetTxBasicInfoOutput, error) {
+	return GetTxBasicInfo(input, &aeth.RPCParams, aeth.NetID)
 }
 
 //获取最新区块头
@@ -101,119 +101,119 @@ func (aeth AdaptorETH) GetTxBasicInfo(*adaptor.GetTxBasicInfoOutput, error) (*ad
 
 /*ICryptoCurrency*/
 //获取某地址下持有某资产的数量,返回数量为该资产的最小单位
-func (aeth AdaptorETH) GetBalance(input *adaptor.GetBalanceInput) (*adaptor.GetBalanceOutput, error) {
-	return nil, errors.New("todo") //todo
+func (aeth *AdaptorETH) GetBalance(input *adaptor.GetBalanceInput) (*adaptor.GetBalanceOutput, error) {
+	return GetBalance(input, &aeth.RPCParams, aeth.NetID)
 }
 
 //获取某资产的小数点位数
-func (aeth AdaptorETH) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
+func (aeth *AdaptorETH) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //创建一个转账交易，但是未签名
-func (aeth AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
+func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
-func (aeth AdaptorETH) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
+func (aeth *AdaptorETH) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //根据交易ID获得对应的转账交易
-func (aeth AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adaptor.GetTransferTxOutput, error) {
+func (aeth *AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adaptor.GetTransferTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
-func (aeth AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
+func (aeth *AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 /*ISmartContract*/
 //创建一个安装合约的交易，未签名
-func (aeth AdaptorETH) CreateContractInstallTx(input *adaptor.CreateContractInstallTxInput) (*adaptor.CreateContractInstallTxOutput, error) {
+func (aeth *AdaptorETH) CreateContractInstallTx(input *adaptor.CreateContractInstallTxInput) (*adaptor.CreateContractInstallTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //查询合约安装的结果的交易
-func (aeth AdaptorETH) GetContractInstallTx(input *adaptor.GetContractInstallTxInput) (*adaptor.GetContractInstallTxOutput, error) {
+func (aeth *AdaptorETH) GetContractInstallTx(input *adaptor.GetContractInstallTxInput) (*adaptor.GetContractInstallTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //初始化合约实例
-func (aeth AdaptorETH) CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput) (*adaptor.CreateContractInitialTxOutput, error) {
+func (aeth *AdaptorETH) CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput) (*adaptor.CreateContractInitialTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //查询初始化合约实例的交易
-func (aeth AdaptorETH) GetContractInitialTx(input *adaptor.GetContractInitialTxInput) (*adaptor.GetContractInitialTxOutput, error) {
+func (aeth *AdaptorETH) GetContractInitialTx(input *adaptor.GetContractInitialTxInput) (*adaptor.GetContractInitialTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //调用合约方法
-func (aeth AdaptorETH) CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput) (*adaptor.CreateContractInvokeTxOutput, error) {
+func (aeth *AdaptorETH) CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput) (*adaptor.CreateContractInvokeTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //查询调用合约方法的交易
-func (aeth AdaptorETH) GetContractInvokeTx(input *adaptor.GetContractInvokeTxInput) (*adaptor.GetContractInvokeTxOutput, error) {
+func (aeth *AdaptorETH) GetContractInvokeTx(input *adaptor.GetContractInvokeTxInput) (*adaptor.GetContractInvokeTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //调用合约的查询方法
-func (aeth AdaptorETH) QueryContract(input *adaptor.QueryContractInput) (*adaptor.QueryContractOutput, error) {
+func (aeth *AdaptorETH) QueryContract(input *adaptor.QueryContractInput) (*adaptor.QueryContractOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
-//func (aeth AdaptorETH) NewPrivateKey() (prikeyHex string) {
+//func (aeth *AdaptorETH) NewPrivateKey() (prikeyHex string) {
 //	return NewPrivateKey(aeth.NetID)
 //}
-//func (aeth AdaptorETH) GetPublicKey(prikeyHex string) (pubKey string) {
+//func (aeth *AdaptorETH) GetPublicKey(prikeyHex string) (pubKey string) {
 //	return GetPublicKey(prikeyHex, aeth.NetID)
 //}
-//func (aeth AdaptorETH) GetAddress(prikeyHex string) (address string) {
+//func (aeth *AdaptorETH) GetAddress(prikeyHex string) (address string) {
 //	return GetAddress(prikeyHex, aeth.NetID)
 //}
 //
-//func (aeth AdaptorETH) GetBalance(params *adaptor.GetBalanceParams) (*adaptor.GetBalanceResult, error) {
+//func (aeth *AdaptorETH) GetBalance(params *adaptor.GetBalanceParams) (*adaptor.GetBalanceResult, error) {
 //	return GetBalance(params, &aeth.RPCParams, aeth.NetID)
 //}
-//func (aeth AdaptorETH) GetTransactionByHash(params *adaptor.GetTransactionParams) (*adaptor.GetTransactionResult, error) {
+//func (aeth *AdaptorETH) GetTransactionByHash(params *adaptor.GetTransactionParams) (*adaptor.GetTransactionResult, error) {
 //	return GetTransactionByHash(params, &aeth.RPCParams, aeth.NetID)
 //}
-//func (aeth AdaptorETH) GetErc20TxByHash(params *adaptor.GetErc20TxByHashParams) (*adaptor.GetErc20TxByHashResult, error) {
+//func (aeth *AdaptorETH) GetErc20TxByHash(params *adaptor.GetErc20TxByHashParams) (*adaptor.GetErc20TxByHashResult, error) {
 //	return GetErc20TxByHash(params, &aeth.RPCParams, aeth.NetID)
 //}
 //
-//func (aeth AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
+//func (aeth *AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
 //	return Keccak256HashPackedSig(params)
 //}
-//func (aeth AdaptorETH) RecoverAddr(params *adaptor.RecoverParams) (*adaptor.RecoverResult, error) {
+//func (aeth *AdaptorETH) RecoverAddr(params *adaptor.RecoverParams) (*adaptor.RecoverResult, error) {
 //	return RecoverAddr(params)
 //}
 //
-//func (aeth AdaptorETH) SignTransaction(params *adaptor.ETHSignTransactionParams) (*adaptor.ETHSignTransactionResult, error) {
+//func (aeth *AdaptorETH) SignTransaction(params *adaptor.ETHSignTransactionParams) (*adaptor.ETHSignTransactionResult, error) {
 //	return SignTransaction(params)
 //}
-//func (aeth AdaptorETH) SendTransaction(params *adaptor.SendTransactionParams) (*adaptor.SendTransactionResult, error) {
+//func (aeth *AdaptorETH) SendTransaction(params *adaptor.SendTransactionParams) (*adaptor.SendTransactionResult, error) {
 //	return SendTransaction(params, &aeth.RPCParams, aeth.NetID)
 //}
 //
-//func (aeth AdaptorETH) QueryContract(params *adaptor.QueryContractParams) (*adaptor.QueryContractResult, error) {
+//func (aeth *AdaptorETH) QueryContract(params *adaptor.QueryContractParams) (*adaptor.QueryContractResult, error) {
 //	return QueryContract(params, &aeth.RPCParams, aeth.NetID)
 //}
-//func (aeth AdaptorETH) GenInvokeContractTX(params *adaptor.GenInvokeContractTXParams) (*adaptor.GenInvokeContractTXResult, error) {
+//func (aeth *AdaptorETH) GenInvokeContractTX(params *adaptor.GenInvokeContractTXParams) (*adaptor.GenInvokeContractTXResult, error) {
 //	return GenInvokeContractTX(params, &aeth.RPCParams, aeth.NetID)
 //}
-//func (aeth AdaptorETH) GenDeployContractTX(params *adaptor.GenDeployContractTXParams) (*adaptor.GenDeployContractTXResult, error) {
+//func (aeth *AdaptorETH) GenDeployContractTX(params *adaptor.GenDeployContractTXParams) (*adaptor.GenDeployContractTXResult, error) {
 //	return GenDeployContractTX(params, &aeth.RPCParams, aeth.NetID)
 //}
 //
-//func (aeth AdaptorETH) GetEventByAddress(params *adaptor.GetEventByAddressParams) (*adaptor.GetEventByAddressResult, error) {
+//func (aeth *AdaptorETH) GetEventByAddress(params *adaptor.GetEventByAddressParams) (*adaptor.GetEventByAddressResult, error) {
 //	return GetEventByAddress(params, &aeth.RPCParams, aeth.NetID)
 //}
 //
-//func (aeth AdaptorETH) GetBestHeader(params *adaptor.GetBestHeaderParams) (*adaptor.GetBestHeaderResult, error) {
+//func (aeth *AdaptorETH) GetBestHeader(params *adaptor.GetBestHeaderParams) (*adaptor.GetBestHeaderResult, error) {
 //	return GetBestHeader(params, &aeth.RPCParams, aeth.NetID)
 //}

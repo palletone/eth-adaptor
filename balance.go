@@ -18,15 +18,14 @@
 package adaptoreth
 
 import (
-	//"context"
-	//"math/big"
-	//"strconv"
+	"context"
 
-	//"github.com/ethereum/go-ethereum/common"
-	//"github.com/ethereum/go-ethereum/ethclient"
-
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/palletone/eth-adaptor/ethclient"
-	//"github.com/palletone/adaptor"
+
+	"github.com/palletone/adaptor"
+	"github.com/palletone/go-palletone/dag/errors"
+	"strings"
 )
 
 func GetClient(rpcParams *RPCParams) (*ethclient.Client, error) {
@@ -44,31 +43,30 @@ type GetBalanceResult struct {
 	Balance float64 `json:"balance"`
 }
 
-//func GetBalance(params *adaptor.GetBalanceParams, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceResult, error) {
-//	//get rpc client
-//	client, err := GetClient(rpcParams)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//call eth rpc method
-//	account := common.HexToAddress(params.Address)
-//	balance, err := client.BalanceAt(context.Background(), account, nil)
-//	if err != nil {
-//		return nil, err
-//	}
-//	//	fmt.Println("balance : ", balance)
-//
-//	//remove e+18
-//	bigFloat := new(big.Float)
-//	bigFloat.SetInt(balance)
-//	bigFloat.Mul(bigFloat, big.NewFloat(1e-18))
-//	strFloat := bigFloat.String()
-//	//fmt.Println(strFloat)
-//
-//	//convert balance
-//	var result adaptor.GetBalanceResult
-//	result.Value, _ = strconv.ParseFloat(strFloat, 8)
-//
-//	return &result, nil
-//}
+func GetBalance(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	//call eth rpc method
+	account := common.HexToAddress(input.Address)
+	Asset := strings.ToUpper(input.Asset)
+	if Asset == "ETH" {
+		balance, err := client.BalanceAt(context.Background(), account, nil)
+		if err != nil {
+			return nil, err
+		}
+		//	fmt.Println("balance : ", balance)
+
+		//convert balance
+		var result adaptor.GetBalanceOutput
+		result.Balance.Amount = *balance
+		result.Balance.Asset = input.Asset
+		return &result, nil
+	} else {
+		return nil, errors.New("todo") //todo
+	}
+
+}

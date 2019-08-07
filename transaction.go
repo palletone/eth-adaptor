@@ -21,7 +21,6 @@ import (
 	"context"
 	"math/big"
 
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
@@ -37,16 +36,9 @@ func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, ne
 
 	//call eth method
 	hash := common.BytesToHash(input.TxID)
-
-	receipt, err := client.TransactionReceipt(context.Background(), hash)
-	if err != nil {
-		fmt.Println("2")
-		return nil, err
-	}
-
 	tx, blockNumber, blockHash, err := client.TransactionsByHash(context.Background(), hash)
 	if err != nil {
-		fmt.Println("0")
+		//fmt.Println("0")//pending not found
 		return nil, err
 	}
 
@@ -63,7 +55,11 @@ func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, ne
 
 	msg, err := tx.AsMessage(signer)
 	if err != nil {
-		fmt.Println("1")
+		return nil, err
+	}
+
+	receipt, err := client.TransactionReceipt(context.Background(), hash)
+	if err != nil {
 		return nil, err
 	}
 
@@ -86,8 +82,8 @@ func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, ne
 		result.Tx.BlockID = Hex2Bytes(blockHash)
 	}
 	result.Tx.BlockHeight = uint(bigIntBlockNum.Uint64())
-	//result.Tx.TxIndex = receipt.Logs[0].TxIndex
-	//result.Tx.Timestamp =
+	result.Tx.TxIndex = 0   //receipt.Logs[0].TxIndex //todo delete
+	result.Tx.Timestamp = 0 //todo delete
 
 	return &result, nil
 }

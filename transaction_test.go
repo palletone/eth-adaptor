@@ -9,8 +9,8 @@ import (
 
 func TestGetTxBasicInfo(t *testing.T) {
 	//params := &adaptor.GetTxBasicInfoInput{Hex2Bytes("a0826794e0381b52c49eb4e8a13d906db797165856dbdc3506bee1043117ca13")}
-	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("5718c914399c34d6f1da2301042be0b0487ba58bce1a648c70d1f84e3a61a6b2")}
-	input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")}
+	input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("5718c914399c34d6f1da2301042be0b0487ba58bce1a648c70d1f84e3a61a6b2")} //eth transfer
+	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
 
 	rpcParams := RPCParams{
 		//Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
@@ -20,10 +20,10 @@ func TestGetTxBasicInfo(t *testing.T) {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Println(result)
-		fmt.Println(result.Tx.TxIndex)
+		//fmt.Println(result)
 		fmt.Println(result.Tx.IsInBlock)
 		fmt.Println(result.Tx.IsSuccess)
+		fmt.Println(result.Tx.TxIndex)
 	}
 }
 
