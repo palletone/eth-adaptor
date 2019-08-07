@@ -19,17 +19,16 @@ package adaptoreth
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/palletone/adaptor"
 )
 
-func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPCParams, netID int) (*adaptor.GetTransactionResult, error) {
+func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, netID int) (*adaptor.GetTxBasicInfoOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -37,9 +36,17 @@ func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPC
 	}
 
 	//call eth method
-	hash := common.HexToHash(txParams.Hash)
+	hash := common.BytesToHash(input.TxID)
+
+	receipt, err := client.TransactionReceipt(context.Background(), hash)
+	if err != nil {
+		fmt.Println("2")
+		return nil, err
+	}
+
 	tx, blockNumber, blockHash, err := client.TransactionsByHash(context.Background(), hash)
 	if err != nil {
+		fmt.Println("0")
 		return nil, err
 	}
 
@@ -56,87 +63,97 @@ func GetTransactionByHash(txParams *adaptor.GetTransactionParams, rpcParams *RPC
 
 	msg, err := tx.AsMessage(signer)
 	if err != nil {
+		fmt.Println("1")
 		return nil, err
 	}
 
 	//save result
-	var result adaptor.GetTransactionResult
-	result.Hash = tx.Hash().String()
-	result.Nonce = fmt.Sprintf("%d", tx.Nonce())
-	result.BlockHash = blockHash
-	result.BlockNumber = blockNumber
-	result.From = msg.From().String()
-	result.To = msg.To().String()
-	result.Value = tx.Value().String()
-	result.Gas = fmt.Sprintf("%d", tx.Gas())
-	result.GasPrice = fmt.Sprintf("%d", tx.GasPrice())
-	result.Input = hexutil.Encode(tx.Data())
+	var result adaptor.GetTxBasicInfoOutput
+	result.Tx.TxID = tx.Hash().Bytes()
+	result.Tx.TxRawData = tx.Data()
+	result.Tx.CreatorAddress = msg.From().String()
+	result.Tx.TargetAddress = msg.To().String()
+	result.Tx.IsInBlock = true
+	if receipt.Status > 0 {
+		result.Tx.IsSuccess = true
+	} else {
+		result.Tx.IsSuccess = false
+	}
+	result.Tx.IsStable = true //todo delete
+	if "0x" == blockHash[:2] || "0X" == blockHash[:2] {
+		result.Tx.BlockID = Hex2Bytes(blockHash[2:])
+	} else {
+		result.Tx.BlockID = Hex2Bytes(blockHash)
+	}
+	result.Tx.BlockHeight = uint(bigIntBlockNum.Uint64())
+	//result.Tx.TxIndex = receipt.Logs[0].TxIndex
+	//result.Tx.Timestamp =
 
 	return &result, nil
 }
 
-func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCParams, netID int) (*adaptor.GetErc20TxByHashResult, error) {
-	//get rpc client
-	client, err := GetClient(rpcParams)
-	if err != nil {
-		return nil, err
-	}
-
-	//call eth method
-	hash := common.HexToHash(txParams.Hash)
-	receipt, err := client.TransactionReceipt(context.Background(), hash)
-	if err != nil {
-		return nil, err
-	}
-
-	//save result
-	var result adaptor.GetErc20TxByHashResult
-	result.Hash = receipt.TxHash.String()
-	result.Status = fmt.Sprintf("%d", receipt.Status)
-	if len(receipt.Logs) > 0 {
-		result.BlockHash = receipt.Logs[0].BlockHash.String()
-		bigIntBlockNum := new(big.Int)
-		bigIntBlockNum.SetUint64(receipt.Logs[0].BlockNumber)
-		result.BlockNumber = bigIntBlockNum.String()
-
-		result.ContractAddr = receipt.Logs[0].Address.String()
-		if len(receipt.Logs[0].Topics) > 2 {
-			result.From = common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes()).String()
-			result.To = common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes()).String()
-		}
-
-		bigIntAmount := new(big.Int)
-		bigIntAmount, _ = bigIntAmount.SetString(hexutil.Encode(receipt.Logs[0].Data), 0)
-		result.Amount = bigIntAmount.String()
-	}
-
-	return &result, nil
-}
-
-func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *RPCParams, netID int) (*adaptor.GetBestHeaderResult, error) {
-	//get rpc client
-	client, err := GetClient(rpcParams)
-	if err != nil {
-		return nil, err
-	}
-
-	//call eth rpc method
-	var heder *types.Header
-	number := new(big.Int)
-	_, isNum := number.SetString(getBestHeaderParams.Number, 10)
-	if isNum {
-		heder, err = client.HeaderByNumber(context.Background(), number)
-	} else { //get best header
-		heder, err = client.HeaderByNumber(context.Background(), nil)
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	//
-	var result adaptor.GetBestHeaderResult
-	result.TxHash = heder.TxHash.String()
-	result.Number = heder.Number.String()
-
-	return &result, nil
-}
+//func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCParams, netID int) (*adaptor.GetErc20TxByHashResult, error) {
+//	//get rpc client
+//	client, err := GetClient(rpcParams)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	//call eth method
+//	hash := common.HexToHash(txParams.Hash)
+//	receipt, err := client.TransactionReceipt(context.Background(), hash)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	//save result
+//	var result adaptor.GetErc20TxByHashResult
+//	result.Hash = receipt.TxHash.String()
+//	result.Status = fmt.Sprintf("%d", receipt.Status)
+//	if len(receipt.Logs) > 0 {
+//		result.BlockHash = receipt.Logs[0].BlockHash.String()
+//		bigIntBlockNum := new(big.Int)
+//		bigIntBlockNum.SetUint64(receipt.Logs[0].BlockNumber)
+//		result.BlockNumber = bigIntBlockNum.String()
+//
+//		result.ContractAddr = receipt.Logs[0].Address.String()
+//		if len(receipt.Logs[0].Topics) > 2 {
+//			result.From = common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes()).String()
+//			result.To = common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes()).String()
+//		}
+//
+//		bigIntAmount := new(big.Int)
+//		bigIntAmount, _ = bigIntAmount.SetString(hexutil.Encode(receipt.Logs[0].Data), 0)
+//		result.Amount = bigIntAmount.String()
+//	}
+//
+//	return &result, nil
+//}
+//
+//func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *RPCParams, netID int) (*adaptor.GetBestHeaderResult, error) {
+//	//get rpc client
+//	client, err := GetClient(rpcParams)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	//call eth rpc method
+//	var heder *types.Header
+//	number := new(big.Int)
+//	_, isNum := number.SetString(getBestHeaderParams.Number, 10)
+//	if isNum {
+//		heder, err = client.HeaderByNumber(context.Background(), number)
+//	} else { //get best header
+//		heder, err = client.HeaderByNumber(context.Background(), nil)
+//	}
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	//
+//	var result adaptor.GetBestHeaderResult
+//	result.TxHash = heder.TxHash.String()
+//	result.Number = heder.Number.String()
+//
+//	return &result, nil
+//}

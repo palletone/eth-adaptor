@@ -119,102 +119,102 @@ func CalculateSig(params string) (*CalculateSigResult, error) {
 
 //==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ===
 
-func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
-	//remove 0x, then convert to ecdsa private key
-	if "0x" == sigParams.PrivateKeyHex[0:2] {
-		sigParams.PrivateKeyHex = sigParams.PrivateKeyHex[2:]
-	}
-	privateKey, err := crypto.HexToECDSA(sigParams.PrivateKeyHex)
-	if err != nil {
-		return nil, err
-	}
-
-	var paramTypes []string
-	err = json.Unmarshal([]byte(sigParams.ParamTypes), &paramTypes)
-	if err != nil {
-		return nil, err
-	}
-
-	var params []string
-	err = json.Unmarshal([]byte(sigParams.Params), &params)
-	if err != nil {
-		return nil, err
-	}
-
-	var allBytes [][]byte
-	if len(paramTypes) == len(params) {
-		for i, arg := range params {
-			//fmt.Println("=== ==== ==== ==== ", arg)
-			switch paramTypes[i] {
-			case "Int":
-				fallthrough
-			case "Uint":
-				paramBigInt := new(big.Int)
-				paramBigInt.SetString(arg, 10)
-				paddedBytes := common.LeftPadBytes(paramBigInt.Bytes(), 32)
-				allBytes = append(allBytes, paddedBytes)
-
-			case "Bool":
-				paramBool, _ := strconv.ParseBool(arg)
-				if paramBool {
-					paddedBytes := common.LeftPadBytes(common.Big1.Bytes(), 32)
-					allBytes = append(allBytes, paddedBytes)
-				} else {
-					paddedBytes := common.LeftPadBytes(common.Big0.Bytes(), 32)
-					allBytes = append(allBytes, paddedBytes)
-				}
-
-			case "String":
-				paddedBytes := common.LeftPadBytes([]byte(arg), 32)
-				allBytes = append(allBytes, paddedBytes)
-
-			case "Slice": //#zxl#
-			case "Array": //#zxl#
-			case "Address":
-				addr := common.HexToAddress(arg)
-				allBytes = append(allBytes, addr.Bytes())
-				//fmt.Println(addr.Bytes())
-
-			case "FixedBytes":
-				fallthrough
-			case "Hash":
-				fallthrough
-			case "Bytes":
-				if "0x" == arg[0:2] {
-					arg = arg[2:]
-				}
-				paramBytes := common.Hex2Bytes(arg)
-				allBytes = append(allBytes, paramBytes)
-				//fmt.Println(paramBytes)
-
-			case "FixedPoint": //#zxl#
-			case "Function": //#zxl#
-			}
-		}
-	} else {
-		return nil, errors.New("Params error : ParamTypes and params not match.")
-	}
-
-	if len(allBytes) != len(params) {
-		return nil, errors.New("Params error : Process params error.")
-	}
-
-	//
-	hash := crypto.Keccak256Hash(allBytes...)
-
-	//sign the hash
-	signature, err := crypto.Sign(hash.Bytes(), privateKey)
-	if err != nil {
-		return nil, err
-	}
-
-	//save result
-	var result adaptor.Keccak256HashPackedSigResult
-	result.Hash = hash.String()
-	result.Signature = hexutil.Encode(signature)
-
-	return &result, nil
-}
+//func Keccak256HashPackedSig(sigParams *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
+//	//remove 0x, then convert to ecdsa private key
+//	if "0x" == sigParams.PrivateKeyHex[0:2] {
+//		sigParams.PrivateKeyHex = sigParams.PrivateKeyHex[2:]
+//	}
+//	privateKey, err := crypto.HexToECDSA(sigParams.PrivateKeyHex)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	var paramTypes []string
+//	err = json.Unmarshal([]byte(sigParams.ParamTypes), &paramTypes)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	var params []string
+//	err = json.Unmarshal([]byte(sigParams.Params), &params)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	var allBytes [][]byte
+//	if len(paramTypes) == len(params) {
+//		for i, arg := range params {
+//			//fmt.Println("=== ==== ==== ==== ", arg)
+//			switch paramTypes[i] {
+//			case "Int":
+//				fallthrough
+//			case "Uint":
+//				paramBigInt := new(big.Int)
+//				paramBigInt.SetString(arg, 10)
+//				paddedBytes := common.LeftPadBytes(paramBigInt.Bytes(), 32)
+//				allBytes = append(allBytes, paddedBytes)
+//
+//			case "Bool":
+//				paramBool, _ := strconv.ParseBool(arg)
+//				if paramBool {
+//					paddedBytes := common.LeftPadBytes(common.Big1.Bytes(), 32)
+//					allBytes = append(allBytes, paddedBytes)
+//				} else {
+//					paddedBytes := common.LeftPadBytes(common.Big0.Bytes(), 32)
+//					allBytes = append(allBytes, paddedBytes)
+//				}
+//
+//			case "String":
+//				paddedBytes := common.LeftPadBytes([]byte(arg), 32)
+//				allBytes = append(allBytes, paddedBytes)
+//
+//			case "Slice": //#zxl#
+//			case "Array": //#zxl#
+//			case "Address":
+//				addr := common.HexToAddress(arg)
+//				allBytes = append(allBytes, addr.Bytes())
+//				//fmt.Println(addr.Bytes())
+//
+//			case "FixedBytes":
+//				fallthrough
+//			case "Hash":
+//				fallthrough
+//			case "Bytes":
+//				if "0x" == arg[0:2] {
+//					arg = arg[2:]
+//				}
+//				paramBytes := common.Hex2Bytes(arg)
+//				allBytes = append(allBytes, paramBytes)
+//				//fmt.Println(paramBytes)
+//
+//			case "FixedPoint": //#zxl#
+//			case "Function": //#zxl#
+//			}
+//		}
+//	} else {
+//		return nil, errors.New("Params error : ParamTypes and params not match.")
+//	}
+//
+//	if len(allBytes) != len(params) {
+//		return nil, errors.New("Params error : Process params error.")
+//	}
+//
+//	//
+//	hash := crypto.Keccak256Hash(allBytes...)
+//
+//	//sign the hash
+//	signature, err := crypto.Sign(hash.Bytes(), privateKey)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	//save result
+//	var result adaptor.Keccak256HashPackedSigResult
+//	result.Hash = hash.String()
+//	result.Signature = hexutil.Encode(signature)
+//
+//	return &result, nil
+//}
 
 func Keccak256HashVerify(verifyParams *adaptor.Keccak256HashVerifyParams) (*adaptor.Keccak256HashVerifyResult, error) {
 	//

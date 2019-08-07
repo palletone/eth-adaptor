@@ -18,16 +18,15 @@
 package adaptoreth
 
 import (
-	"context"
-	"math/big"
-	"strconv"
+	//"context"
+	//"math/big"
+	//"strconv"
 
-	"github.com/ethereum/go-ethereum/common"
+	//"github.com/ethereum/go-ethereum/common"
 	//"github.com/ethereum/go-ethereum/ethclient"
 
 	"github.com/palletone/eth-adaptor/ethclient"
-
-	"github.com/palletone/adaptor"
+	//"github.com/palletone/adaptor"
 )
 
 func GetClient(rpcParams *RPCParams) (*ethclient.Client, error) {
@@ -45,31 +44,31 @@ type GetBalanceResult struct {
 	Balance float64 `json:"balance"`
 }
 
-func GetBalance(params *adaptor.GetBalanceParams, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceResult, error) {
-	//get rpc client
-	client, err := GetClient(rpcParams)
-	if err != nil {
-		return nil, err
-	}
-
-	//call eth rpc method
-	account := common.HexToAddress(params.Address)
-	balance, err := client.BalanceAt(context.Background(), account, nil)
-	if err != nil {
-		return nil, err
-	}
-	//	fmt.Println("balance : ", balance)
-
-	//remove e+18
-	bigFloat := new(big.Float)
-	bigFloat.SetInt(balance)
-	bigFloat.Mul(bigFloat, big.NewFloat(1e-18))
-	strFloat := bigFloat.String()
-	//fmt.Println(strFloat)
-
-	//convert balance
-	var result adaptor.GetBalanceResult
-	result.Value, _ = strconv.ParseFloat(strFloat, 8)
-
-	return &result, nil
-}
+//func GetBalance(params *adaptor.GetBalanceParams, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceResult, error) {
+//	//get rpc client
+//	client, err := GetClient(rpcParams)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	//call eth rpc method
+//	account := common.HexToAddress(params.Address)
+//	balance, err := client.BalanceAt(context.Background(), account, nil)
+//	if err != nil {
+//		return nil, err
+//	}
+//	//	fmt.Println("balance : ", balance)
+//
+//	//remove e+18
+//	bigFloat := new(big.Float)
+//	bigFloat.SetInt(balance)
+//	bigFloat.Mul(bigFloat, big.NewFloat(1e-18))
+//	strFloat := bigFloat.String()
+//	//fmt.Println(strFloat)
+//
+//	//convert balance
+//	var result adaptor.GetBalanceResult
+//	result.Value, _ = strconv.ParseFloat(strFloat, 8)
+//
+//	return &result, nil
+//}

@@ -18,35 +18,36 @@
 package adaptoreth
 
 import (
-	"context"
+	"bytes"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
 
+	"context"
+	"fmt"
 	"github.com/palletone/adaptor"
 )
 
-func SignTransaction(signTransactionParams *adaptor.ETHSignTransactionParams) (*adaptor.ETHSignTransactionResult, error) {
-	rlpTx, err := hexutil.Decode(signTransactionParams.TransactionHex)
-	if err != nil {
-		return nil, err
+func writeBytes(buf *bytes.Buffer, appendBytes []byte) {
+	lenBytes := len(appendBytes)
+	if lenBytes == 32 {
+		buf.Write(appendBytes)
+	} else {
+		zeroBytes := make([]byte, 32-lenBytes)
+		buf.Write(zeroBytes)
+		buf.Write(appendBytes)
 	}
+}
 
+func SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
 	var tx types.Transaction
-	err = rlp.DecodeBytes(rlpTx, &tx)
+	err := rlp.DecodeBytes(input.Transaction, &tx)
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Printf("tx hash : 0x%x\n\n", tx.Hash())
 
-	//hex private key to ecdsa private key
-
-	if "0x" == signTransactionParams.PrivateKeyHex[0:2] {
-		signTransactionParams.PrivateKeyHex = signTransactionParams.PrivateKeyHex[2:]
-	}
-	priKey, err := crypto.HexToECDSA(signTransactionParams.PrivateKeyHex)
+	priKey, err := crypto.ToECDSA(input.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -56,32 +57,83 @@ func SignTransaction(signTransactionParams *adaptor.ETHSignTransactionParams) (*
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Printf("signedTx hash : 0x%x\n\n", signedTx.Hash())
-
 	//
 	rlpTXBytes, err := rlp.EncodeToBytes(signedTx)
+	if err != nil {
+		return nil, err
+	}
+
+	//signedTx.WithSignature()
+	v, r, s := signedTx.RawSignatureValues()
+	var buf bytes.Buffer
+	writeBytes(&buf, r.Bytes())
+	writeBytes(&buf, s.Bytes())
+	fmt.Println(len(v.Bytes()))
+	buf.WriteByte(v.Bytes()[0] - 27)
+	fmt.Printf("%x\n", buf.Bytes())
 
 	//save result
-	var result adaptor.ETHSignTransactionResult
-	result.TransactionHex = hexutil.Encode(rlpTXBytes)
+	var result adaptor.SignTransactionOutput
+	result.Signature = buf.Bytes()
+	result.Extra = rlpTXBytes
 
 	return &result, nil
 }
 
-func SendTransaction(sendTransactionParams *adaptor.SendTransactionParams, rpcParams *RPCParams, netID int) (*adaptor.SendTransactionResult, error) {
+func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
+	var tx types.Transaction
+	err := rlp.DecodeBytes(input.Transaction, &tx)
+	if err != nil {
+		return nil, err
+	}
+
+	signedTx, err := tx.WithSignature(types.HomesteadSigner{}, input.Signs[0])
+	if err != nil {
+		return nil, err
+	}
+
+	v, r, s := signedTx.RawSignatureValues()
+	var buf bytes.Buffer
+	writeBytes(&buf, r.Bytes())
+	writeBytes(&buf, s.Bytes())
+	buf.Write(v.Bytes())
+	fmt.Printf("%x\n", buf.Bytes())
+
+	rlpTXBytes, err := rlp.EncodeToBytes(signedTx)
+	if err != nil {
+		return nil, err
+	}
+
+	//save result
+	var result adaptor.BindTxAndSignatureOutput
+	result.SignedTx = rlpTXBytes
+
+	return &result, nil
+}
+
+func CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, error) {
+	var tx types.Transaction
+	err := rlp.DecodeBytes(input.Transaction, &tx)
+	if err != nil {
+		return nil, err
+	}
+
+	//save result
+	var result adaptor.CalcTxHashOutput
+	result.Hash = tx.Hash().Bytes()
+
+	return &result, nil
+}
+
+func SendTransaction(input *adaptor.SendTransactionInput, rpcParams *RPCParams, netID int) (*adaptor.SendTransactionOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
 		return nil, err
 	}
 
-	rlpTx, err := hexutil.Decode(sendTransactionParams.TransactionHex)
-	if err != nil {
-		return nil, err
-	}
-
 	var tx types.Transaction
-	err = rlp.DecodeBytes(rlpTx, &tx)
+	err = rlp.DecodeBytes(input.Transaction, &tx)
 	if err != nil {
 		return nil, err
 	}
@@ -89,12 +141,13 @@ func SendTransaction(sendTransactionParams *adaptor.SendTransactionParams, rpcPa
 	//
 	err = client.SendTransaction(context.Background(), &tx)
 	if err != nil {
+		//fmt.Println("client.SendTransaction failed:", err)
 		return nil, err
 	}
 
 	//save result
-	var result adaptor.SendTransactionResult
-	result.TransactionHah = tx.Hash().Hex()
+	var result adaptor.SendTransactionOutput
+	result.TxID = tx.Hash().Bytes()
 
 	return &result, nil
 

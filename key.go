@@ -18,41 +18,35 @@
 package adaptoreth
 
 import (
-	"encoding/hex"
-
 	"github.com/ethereum/go-ethereum/crypto"
 	//"github.com/palletone/adaptor"
 )
 
-func NewPrivateKey(netID int) (prikeyHex string) {
+func NewPrivateKey(netID int) ([]byte, error) {
 	privateKeyECDSA, err := crypto.GenerateKey()
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
-	priHex := hex.EncodeToString(crypto.FromECDSA(privateKeyECDSA))
-	//	fmt.Println(priHex)
 
-	return priHex
+	return crypto.FromECDSA(privateKeyECDSA), nil
 }
 
-func GetPublicKey(priKeyHex string, netID int) (pubKey string) {
-	privateKeyECDSA, err := crypto.HexToECDSA(priKeyHex)
+func GetPublicKey(priKey []byte, netID int) ([]byte, error) {
+	privateKeyECDSA, err := crypto.ToECDSA(priKey)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
-	pubHex := hex.EncodeToString(crypto.CompressPubkey(&privateKeyECDSA.PublicKey))
-	//	fmt.Println(pubHex)
 
-	return pubHex
+	return crypto.CompressPubkey(&privateKeyECDSA.PublicKey), nil
 }
 
-func GetAddress(priKeyHex string, netID int) (address string) {
-	privateKeyECDSA, err := crypto.HexToECDSA(priKeyHex)
+func GetAddress(priKey []byte, netID int) (string, error) {
+	privateKeyECDSA, err := crypto.ToECDSA(priKey)
 	if err != nil {
-		return err.Error()
+		return "", err
 	}
 	addr := crypto.PubkeyToAddress(privateKeyECDSA.PublicKey)
 	//	fmt.Println(addr.String())
 
-	return addr.String()
+	return addr.String(), nil
 }
