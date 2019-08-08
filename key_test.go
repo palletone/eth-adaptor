@@ -1,4 +1,4 @@
-package adaptoreth
+package ethadaptor
 
 import (
 	"encoding/hex"

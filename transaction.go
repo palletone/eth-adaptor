@@ -15,7 +15,7 @@
  * @author PalletOne core developers <dev@pallet.one>
  * @date 2018
  */
-package adaptoreth
+package ethadaptor
 
 import (
 	"context"

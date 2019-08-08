@@ -15,7 +15,7 @@
  * @author PalletOne core developers <dev@pallet.one>
  * @date 2018
  */
-package adaptoreth
+package ethadaptor
 
 import (
 	"errors"
@@ -67,7 +67,7 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	result := adaptor.GetAddressOutput{Address: addr}
 	return &result, nil
 }
-func (aeth *AdaptorETH) GetMappingPalletOneAddress(addr *adaptor.GetMappingPalletOneAddressInput) (*adaptor.GetMappingPalletOneAddressOutput, error){
+func (aeth *AdaptorETH) GetMappingPalletOneAddress(addr *adaptor.GetMappingPalletOneAddressInput) (*adaptor.GetMappingPalletOneAddressOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
