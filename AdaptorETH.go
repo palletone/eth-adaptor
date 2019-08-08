@@ -67,6 +67,9 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	result := adaptor.GetAddressOutput{Address: addr}
 	return &result, nil
 }
+func (aeth *AdaptorETH) GetMappingPalletOneAddress(addr *adaptor.GetMappingPalletOneAddressInput) (*adaptor.GetMappingPalletOneAddressOutput, error){
+	return nil, errors.New("todo") //todo
+}
 
 //对一条消息进行签名
 //SignMessage(addr string, message []byte, extra []byte) (signature []byte, err error)
