@@ -50,3 +50,11 @@ func GetAddress(priKey []byte, netID int) (string, error) {
 
 	return addr.String(), nil
 }
+func PubKeyToAddress(pubKey []byte) (string,error){
+	pk,err:= crypto.DecompressPubkey(pubKey)
+	if err!=nil{
+		return "",err
+	}
+	addr := crypto.PubkeyToAddress(*pk)
+	return addr.String(), nil
+}

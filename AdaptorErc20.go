@@ -27,7 +27,9 @@ type AdaptorErc20 struct {
 	NetID int
 	RPCParams
 }
-
+func NewAdaptorErc20(netID int,  rPCParams RPCParams) *AdaptorErc20{
+	return &AdaptorErc20{netID,rPCParams}
+}
 /*IUtility*/
 //创建一个新的私钥
 func (aeth *AdaptorErc20) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adaptor.NewPrivateKeyOutput, error) {
@@ -51,7 +53,7 @@ func (aeth *AdaptorErc20) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adapt
 
 //根据Key创建地址
 func (aeth *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAddressOutput, error) {
-	addr, err := GetAddress(key.Key, aeth.NetID)
+	addr, err := PubKeyToAddress(key.Key)
 	if err != nil {
 		return nil, err
 	}

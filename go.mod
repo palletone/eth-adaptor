@@ -14,4 +14,5 @@ require (
 	github.com/palletone/adaptor v0.6.1-0.20190808053946-d7f402d91359
 	github.com/palletone/go-palletone v1.0.1
 	github.com/prometheus/tsdb v0.10.0 // indirect
+	github.com/stretchr/testify v1.3.0
 )
