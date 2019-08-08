@@ -67,7 +67,7 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	result := adaptor.GetAddressOutput{Address: addr}
 	return &result, nil
 }
-func (aeth *AdaptorETH) GetMappingPalletOneAddress(addr *adaptor.GetMappingPalletOneAddressInput) (*adaptor.GetMappingPalletOneAddressOutput, error) {
+func (aeth *AdaptorETH) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 

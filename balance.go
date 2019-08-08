@@ -20,11 +20,10 @@ package ethadaptor
 import (
 	"context"
 
+	"errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/palletone/eth-adaptor/ethclient"
-
 	"github.com/palletone/adaptor"
-	"github.com/palletone/go-palletone/dag/errors"
+	"github.com/palletone/eth-adaptor/ethclient"
 	"strings"
 )
 

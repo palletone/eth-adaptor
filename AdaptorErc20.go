@@ -62,7 +62,7 @@ func (aerc20 *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.G
 	result := adaptor.GetAddressOutput{Address: addr}
 	return &result, nil
 }
-func (aerc20 *AdaptorErc20) GetMappingPalletOneAddress(addr *adaptor.GetMappingPalletOneAddressInput) (*adaptor.GetMappingPalletOneAddressOutput, error) {
+func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
