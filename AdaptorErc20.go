@@ -27,13 +27,15 @@ type AdaptorErc20 struct {
 	NetID int
 	RPCParams
 }
-func NewAdaptorErc20(netID int,  rPCParams RPCParams) *AdaptorErc20{
-	return &AdaptorErc20{netID,rPCParams}
+
+func NewAdaptorErc20(netID int, rPCParams RPCParams) *AdaptorErc20 {
+	return &AdaptorErc20{netID, rPCParams}
 }
+
 /*IUtility*/
 //创建一个新的私钥
-func (aeth *AdaptorErc20) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adaptor.NewPrivateKeyOutput, error) {
-	prikey, err := NewPrivateKey(aeth.NetID)
+func (aerc20 *AdaptorErc20) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adaptor.NewPrivateKeyOutput, error) {
+	prikey, err := NewPrivateKey(aerc20.NetID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +44,8 @@ func (aeth *AdaptorErc20) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*ada
 }
 
 //根据私钥创建公钥
-func (aeth *AdaptorErc20) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor.GetPublicKeyOutput, error) {
-	pubkey, err := GetPublicKey(input.PrivateKey, aeth.NetID)
+func (aerc20 *AdaptorErc20) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor.GetPublicKeyOutput, error) {
+	pubkey, err := GetPublicKey(input.PrivateKey, aerc20.NetID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +54,7 @@ func (aeth *AdaptorErc20) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adapt
 }
 
 //根据Key创建地址
-func (aeth *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAddressOutput, error) {
+func (aerc20 *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAddressOutput, error) {
 	addr, err := PubKeyToAddress(key.Key)
 	if err != nil {
 		return nil, err
@@ -60,33 +62,33 @@ func (aeth *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.Get
 	result := adaptor.GetAddressOutput{Address: addr}
 	return &result, nil
 }
-func (aeth *AdaptorErc20) GetMappingPalletOneAddress(addr *adaptor.GetMappingPalletOneAddressInput) (*adaptor.GetMappingPalletOneAddressOutput, error) {
+func (aerc20 *AdaptorErc20) GetMappingPalletOneAddress(addr *adaptor.GetMappingPalletOneAddressInput) (*adaptor.GetMappingPalletOneAddressOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //对一条交易进行签名，并返回签名结果
-func (aeth *AdaptorErc20) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
+func (aerc20 *AdaptorErc20) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
 	return SignTransaction(input)
 }
 
 //将未签名的原始交易与签名进行绑定，返回一个签名后的交易
-func (aeth *AdaptorErc20) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
+func (aerc20 *AdaptorErc20) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
 	return BindTxAndSignature(input)
 }
 
 //根据交易内容，计算交易Hash
-func (aeth *AdaptorErc20) CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, error) {
+func (aerc20 *AdaptorErc20) CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, error) {
 	return CalcTxHash(input)
 }
 
 //将签名后的交易广播到网络中,如果发送交易需要手续费，指定最多支付的手续费
-func (aeth *AdaptorErc20) SendTransaction(input *adaptor.SendTransactionInput) (*adaptor.SendTransactionOutput, error) {
-	return SendTransaction(input, &aeth.RPCParams, aeth.NetID)
+func (aerc20 *AdaptorErc20) SendTransaction(input *adaptor.SendTransactionInput) (*adaptor.SendTransactionOutput, error) {
+	return SendTransaction(input, &aerc20.RPCParams, aerc20.NetID)
 }
 
 //根据交易ID获得交易的基本信息
-func (aeth *AdaptorErc20) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (*adaptor.GetTxBasicInfoOutput, error) {
-	return GetTxBasicInfo(input, &aeth.RPCParams, aeth.NetID)
+func (aerc20 *AdaptorErc20) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (*adaptor.GetTxBasicInfoOutput, error) {
+	return GetTxBasicInfo(input, &aerc20.RPCParams, aerc20.NetID)
 }
 
 //获取最新区块头
@@ -94,31 +96,31 @@ func (aeth *AdaptorErc20) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (*a
 
 /*ICryptoCurrency*/
 //获取某地址下持有某资产的数量,返回数量为该资产的最小单位
-func (aeth *AdaptorErc20) GetBalance(input *adaptor.GetBalanceInput) (*adaptor.GetBalanceOutput, error) {
-	return GetBalance(input, &aeth.RPCParams, aeth.NetID)
+func (aerc20 *AdaptorErc20) GetBalance(input *adaptor.GetBalanceInput) (*adaptor.GetBalanceOutput, error) {
+	return GetBalanceToken(input, &aerc20.RPCParams, aerc20.NetID)
 }
 
 //获取某资产的小数点位数
-func (aeth *AdaptorErc20) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
+func (aerc20 *AdaptorErc20) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //创建一个转账交易，但是未签名
-func (aeth *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
+func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
-func (aeth *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
+func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //根据交易ID获得对应的转账交易
-func (aeth *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*adaptor.GetTransferTxOutput, error) {
+func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*adaptor.GetTransferTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
-func (aeth *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
+func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
 	return nil, errors.New("todo") //todo
 }

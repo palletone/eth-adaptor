@@ -19,11 +19,12 @@ package ethadaptor
 
 import (
 	"context"
-	"errors"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/palletone/eth-adaptor/ethclient"
 
 	"github.com/palletone/adaptor"
+	"github.com/palletone/go-palletone/dag/errors"
 	"strings"
 )
 
@@ -35,14 +36,43 @@ func GetClient(rpcParams *RPCParams) (*ethclient.Client, error) {
 	return client, nil
 }
 
-type GetBalanceParams struct {
-	Account string `json:"account"`
-}
-type GetBalanceResult struct {
-	Balance float64 `json:"balance"`
+func GetBalanceETH(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	//call eth rpc method
+	account := common.HexToAddress(input.Address)
+
+	balance, err := client.BalanceAt(context.Background(), account, nil)
+	if err != nil {
+		return nil, err
+	}
+	//	fmt.Println("balance : ", balance)
+
+	//convert balance
+	var result adaptor.GetBalanceOutput
+	result.Balance.Amount = *balance
+	result.Balance.Asset = input.Asset
+	return &result, nil
 }
 
-func GetBalance(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceOutput, error) {
+func GetBalanceToken(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceOutput, error) {
+	////get rpc client
+	//client, err := GetClient(rpcParams)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//call eth rpc method
+	//account := common.HexToAddress(input.Address)
+
+	return nil, errors.New("todo") //todo
+}
+
+func GetDecimal(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -67,5 +97,4 @@ func GetBalance(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int)
 	} else {
 		return nil, errors.New("todo") //todo
 	}
-
 }

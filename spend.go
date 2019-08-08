@@ -19,13 +19,14 @@ package ethadaptor
 
 import (
 	"bytes"
+	"context"
+	"errors"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
 
-	"context"
-	"fmt"
 	"github.com/palletone/adaptor"
 )
 
@@ -68,9 +69,7 @@ func SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransact
 	var buf bytes.Buffer
 	writeBytes(&buf, r.Bytes())
 	writeBytes(&buf, s.Bytes())
-	fmt.Println(len(v.Bytes()))
 	buf.WriteByte(v.Bytes()[0] - 27)
-	fmt.Printf("%x\n", buf.Bytes())
 
 	//save result
 	var result adaptor.SignTransactionOutput
@@ -91,13 +90,6 @@ func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTx
 	if err != nil {
 		return nil, err
 	}
-
-	v, r, s := signedTx.RawSignatureValues()
-	var buf bytes.Buffer
-	writeBytes(&buf, r.Bytes())
-	writeBytes(&buf, s.Bytes())
-	buf.Write(v.Bytes())
-	fmt.Printf("%x\n", buf.Bytes())
 
 	rlpTXBytes, err := rlp.EncodeToBytes(signedTx)
 	if err != nil {
@@ -151,4 +143,44 @@ func SendTransaction(input *adaptor.SendTransactionInput, rpcParams *RPCParams, 
 
 	return &result, nil
 
+}
+
+func CreateTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateTransferTokenTxOutput, error) {
+	if input.Amount == nil {
+		return nil, errors.New("input's Amount is nil")
+	}
+	if input.Fee == nil {
+		return nil, errors.New("input's Fee is nil")
+	}
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	fromAddress := common.HexToAddress(input.FromAddress)
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	gasLimit := uint64(21000) //in units
+	toAddress := common.HexToAddress(input.ToAddress)
+
+	tx := types.NewTransaction(nonce, toAddress,
+		&input.Amount.Amount, //in wei
+		gasLimit,
+		&input.Fee.Amount, //in wei
+		nil)
+
+	rlpTXBytes, err := rlp.EncodeToBytes(tx)
+	if err != nil {
+		return nil, err
+	}
+	//fmt.Printf("unsigned tx: %x\n", rlpTXBytes)
+	//save result
+	var result adaptor.CreateTransferTokenTxOutput
+	result.Transaction = rlpTXBytes
+
+	return &result, nil
 }

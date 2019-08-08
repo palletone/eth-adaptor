@@ -12,7 +12,7 @@ func TestGetBalance(t *testing.T) {
 	rpcParams := RPCParams{
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",
 	}
-	result, err := GetBalance(params, &rpcParams, NETID_MAIN)
+	result, err := GetBalanceToken(params, &rpcParams, NETID_MAIN)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {

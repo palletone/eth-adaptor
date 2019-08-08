@@ -28,6 +28,8 @@ type IUtility interface {
 	GetPublicKey(input *GetPublicKeyInput) (*GetPublicKeyOutput, error)
 	//根据Key创建地址
 	GetAddress(key *GetAddressInput) (*GetAddressOutput, error)
+	//根据原链的地址获得映射到PalletOne的地址
+	GetMappingPalletOneAddress(addr *GetMappingPalletOneAddressInput) (*GetMappingPalletOneAddressOutput, error)
 	//对一条消息进行签名
 	//SignMessage(addr string, message []byte, extra []byte) (signature []byte, err error)
 	//对一条交易进行签名，并返回签名结果
@@ -57,6 +59,12 @@ type GetAddressInput struct {
 }
 type GetAddressOutput struct {
 	Address string `json:"address"`
+}
+type GetMappingPalletOneAddressInput struct {
+	Address string `json:"address"`
+}
+type GetMappingPalletOneAddressOutput struct {
+	PalletOneAddress string `json:"palletone_address"`
 }
 type SignTransactionInput struct {
 	PrivateKey  []byte `json:"private_key"`

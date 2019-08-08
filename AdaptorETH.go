@@ -105,17 +105,18 @@ func (aeth *AdaptorETH) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (*ada
 /*ICryptoCurrency*/
 //获取某地址下持有某资产的数量,返回数量为该资产的最小单位
 func (aeth *AdaptorETH) GetBalance(input *adaptor.GetBalanceInput) (*adaptor.GetBalanceOutput, error) {
-	return GetBalance(input, &aeth.RPCParams, aeth.NetID)
+	return GetBalanceETH(input, &aeth.RPCParams, aeth.NetID)
 }
 
 //获取某资产的小数点位数
 func (aeth *AdaptorETH) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
-	return nil, errors.New("todo") //todo
+	result := adaptor.GetAssetDecimalOutput{18}
+	return &result, nil
 }
 
 //创建一个转账交易，但是未签名
 func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
-	return nil, errors.New("todo") //todo
+	return CreateTx(input, &aeth.RPCParams, aeth.NetID)
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
