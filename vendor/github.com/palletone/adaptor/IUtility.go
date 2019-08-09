@@ -28,10 +28,12 @@ type IUtility interface {
 	GetPublicKey(input *GetPublicKeyInput) (*GetPublicKeyOutput, error)
 	//根据Key创建地址
 	GetAddress(key *GetAddressInput) (*GetAddressOutput, error)
-	//根据原链的地址获得映射到PalletOne的地址
+	//获得原链的地址和PalletOne的地址的映射
 	GetPalletOneMappingAddress(addr *GetPalletOneMappingAddressInput) (*GetPalletOneMappingAddressOutput, error)
 	//对一条消息进行签名
-	//SignMessage(addr string, message []byte, extra []byte) (signature []byte, err error)
+	SignMessage(input *SignMessageInput) (*SignMessageOutput, error)
+	//对签名进行验证
+	VerifySignature(input *VerifySignatureInput) (*VerifySignatureOutput, error)
 	//对一条交易进行签名，并返回签名结果
 	SignTransaction(input *SignTransactionInput) (*SignTransactionOutput, error)
 	//将未签名的原始交易与签名进行绑定，返回一个签名后的交易
@@ -42,6 +44,8 @@ type IUtility interface {
 	SendTransaction(input *SendTransactionInput) (*SendTransactionOutput, error)
 	//根据交易ID获得交易的基本信息
 	GetTxBasicInfo(input *GetTxBasicInfoInput) (*GetTxBasicInfoOutput, error)
+
+	GetBlockInfo(input *GetBlockInfoInput) (*GetBlockInfoOutput, error)
 }
 type NewPrivateKeyInput struct {
 }
@@ -62,9 +66,27 @@ type GetAddressOutput struct {
 }
 type GetPalletOneMappingAddressInput struct {
 	PalletOneAddress string `json:"palletone_address"`
+	ChainAddress     string `json:"chain_address"`
 }
 type GetPalletOneMappingAddressOutput struct {
-	Address string `json:"address"`
+	PalletOneAddress string `json:"palletone_address"`
+	ChainAddress     string `json:"chain_address"`
+}
+type SignMessageInput struct {
+	PrivateKey []byte `json:"private_key"`
+	Message    []byte `json:"message"`
+}
+type SignMessageOutput struct {
+	Signature []byte `json:"signature"`
+}
+type VerifySignatureInput struct {
+	Message   []byte `json:"message"`
+	Signature []byte `json:"signature"`
+	PublicKey []byte `json:"public_key"`
+}
+type VerifySignatureOutput struct {
+	Pass  bool   `json:"pass"`
+	Extra []byte `json:"extra"`
 }
 type SignTransactionInput struct {
 	PrivateKey  []byte `json:"private_key"`
@@ -104,4 +126,13 @@ type GetTxBasicInfoInput struct {
 }
 type GetTxBasicInfoOutput struct {
 	Tx TxBasicInfo `json:"transaction"`
+}
+type GetBlockInfoInput struct {
+	Latest  bool   `json:"latest"`   //true表示查询最新区块
+	Height  uint64 `json:"height"`   //根据高度查询区块
+	BlockID []byte `json:"block_id"` //根据Hash查询区块
+	Extra   []byte `json:"extra"`
+}
+type GetBlockInfoOutput struct {
+	Block BlockInfo `json:"block"`
 }

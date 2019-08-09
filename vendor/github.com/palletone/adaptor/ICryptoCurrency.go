@@ -59,12 +59,13 @@ type CreateTransferTokenTxOutput struct {
 	Transaction []byte `json:"transaction"`
 }
 type GetAddrTxHistoryInput struct {
-	FromAddress string `json:"from_address"` //转账的付款方地址
-	ToAddress   string `json:"to_address"`   //转账的收款方地址
-	Asset       string `json:"asset"`
-	PageSize    uint32 `json:"page_size"`
-	PageIndex   uint32 `json:"page_index"`
-	Asc         bool   `json:"asc"` //按时间顺序从老到新
+	FromAddress       string `json:"from_address"`         //转账的付款方地址
+	ToAddress         string `json:"to_address"`           //转账的收款方地址
+	AddressLogicAndOr bool   `json:"address_logic_and_or"` //付款地址,收款地址是And=1关系还是Or=0关系
+	Asset             string `json:"asset"`
+	PageSize          uint32 `json:"page_size"`
+	PageIndex         uint32 `json:"page_index"`
+	Asc               bool   `json:"asc"` //按时间顺序从老到新
 }
 type GetAddrTxHistoryOutput struct {
 	Txs   []*SimpleTransferTokenTx `json:"transactions"`

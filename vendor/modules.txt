@@ -99,7 +99,7 @@ github.com/karalabe/usb
 github.com/mattn/go-runewidth
 # github.com/olekukonko/tablewriter v0.0.1
 github.com/olekukonko/tablewriter
-# github.com/palletone/adaptor v0.6.1-0.20190808100827-0b072ec1133a
+# github.com/palletone/adaptor v0.6.1-0.20190809094503-262dfe493ceb
 github.com/palletone/adaptor
 # github.com/pborman/uuid v1.2.0
 github.com/pborman/uuid
