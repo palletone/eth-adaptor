@@ -71,6 +71,16 @@ func (aerc20 *AdaptorErc20) SignTransaction(input *adaptor.SignTransactionInput)
 	return SignTransaction(input)
 }
 
+//对一条消息进行签名
+func (aerc20 *AdaptorErc20) SignMessage(input *adaptor.SignMessageInput) (*adaptor.SignMessageOutput, error) {
+	return nil, errors.New("todo") //todo
+}
+
+//对签名进行验证
+func (aerc20 *AdaptorErc20) VerifySignature(input *adaptor.VerifySignatureInput) (*adaptor.VerifySignatureOutput, error) {
+	return nil, errors.New("todo") //todo
+}
+
 //将未签名的原始交易与签名进行绑定，返回一个签名后的交易
 func (aerc20 *AdaptorErc20) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
 	return BindTxAndSignature(input)
@@ -90,9 +100,6 @@ func (aerc20 *AdaptorErc20) SendTransaction(input *adaptor.SendTransactionInput)
 func (aerc20 *AdaptorErc20) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (*adaptor.GetTxBasicInfoOutput, error) {
 	return GetTxBasicInfo(input, &aerc20.RPCParams, aerc20.NetID)
 }
-
-//获取最新区块头
-//GetBestHeader(*adaptor.GetTxBasicInfoOutput, error) (*adaptor.GetTxBasicInfoOutput, error)
 
 /*ICryptoCurrency*/
 //获取某地址下持有某资产的数量,返回数量为该资产的最小单位
@@ -123,4 +130,9 @@ func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*a
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
 func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
 	return nil, errors.New("todo") //todo not implement
+}
+
+//获取最新区块头
+func (aerc20 *AdaptorErc20) GetBlockInfo(input *adaptor.GetBlockInfoInput) (*adaptor.GetBlockInfoOutput, error) {
+	return nil, errors.New("todo") //todo
 }

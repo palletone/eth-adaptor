@@ -72,7 +72,14 @@ func (aeth *AdaptorETH) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMap
 }
 
 //对一条消息进行签名
-//SignMessage(addr string, message []byte, extra []byte) (signature []byte, err error)
+func (aeth *AdaptorETH) SignMessage(input *adaptor.SignMessageInput) (*adaptor.SignMessageOutput, error) {
+	return nil, errors.New("todo") //todo
+}
+
+//对签名进行验证
+func (aeth *AdaptorETH) VerifySignature(input *adaptor.VerifySignatureInput) (*adaptor.VerifySignatureOutput, error) {
+	return nil, errors.New("todo") //todo
+}
 
 //对一条交易进行签名，并返回签名结果
 func (aeth *AdaptorETH) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
@@ -100,7 +107,9 @@ func (aeth *AdaptorETH) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (*ada
 }
 
 //获取最新区块头
-//func GetBestHeader(*adaptor.GetTxBasicInfoOutput, error) (*adaptor.GetTxBasicInfoOutput, error)
+func (aeth *AdaptorETH) GetBlockInfo(input *adaptor.GetBlockInfoInput) (*adaptor.GetBlockInfoOutput, error) {
+	return nil, errors.New("todo") //todo
+}
 
 /*ICryptoCurrency*/
 //获取某地址下持有某资产的数量,返回数量为该资产的最小单位
