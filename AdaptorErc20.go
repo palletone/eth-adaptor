@@ -63,7 +63,7 @@ func (aerc20 *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.G
 	return &result, nil
 }
 func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return nil, errors.New("todo") //todo
+	return nil, errors.New("todo") //todo base58 need implement
 }
 
 //对一条交易进行签名，并返回签名结果
@@ -102,25 +102,25 @@ func (aerc20 *AdaptorErc20) GetBalance(input *adaptor.GetBalanceInput) (*adaptor
 
 //获取某资产的小数点位数
 func (aerc20 *AdaptorErc20) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
-	return nil, errors.New("todo") //todo
+	return nil, errors.New("todo") //todo query contract need implement
 }
 
 //创建一个转账交易，但是未签名
 func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
-	return nil, errors.New("todo") //todo
+	return nil, errors.New("todo") //todo invoke contract transfer need implement
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return nil, errors.New("todo") //todo
+	return nil, errors.New("todo") //todo use web api, erc20 is same too need implement
 }
 
 //根据交易ID获得对应的转账交易
 func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*adaptor.GetTransferTxOutput, error) {
-	return nil, errors.New("todo") //todo
+	return GetTransferTx(input, &aerc20.RPCParams, aerc20.NetID)
 }
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
 func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	return nil, errors.New("todo") //todo
+	return nil, errors.New("todo") //todo not implement
 }

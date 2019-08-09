@@ -146,10 +146,19 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	result.Tx.TxIndex = 0   //receipt.Logs[0].TxIndex //todo delete
 	result.Tx.Timestamp = 0 //todo delete
 
-	result.Tx.FromAddress = result.Tx.CreatorAddress
-	result.Tx.ToAddress = result.Tx.TargetAddress
-	result.Tx.Amount = &adaptor.AmountAsset{}
-	result.Tx.Amount.Amount.Set(msg.Value())
+	if len(receipt.Logs) > 0 && len(receipt.Logs[0].Topics) > 2 {
+		result.Tx.FromAddress = common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes()).String()
+		result.Tx.ToAddress = common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes()).String()
+
+		result.Tx.Amount = &adaptor.AmountAsset{}
+		result.Tx.Amount.Amount.SetBytes(receipt.Logs[0].Data)
+	} else {
+		result.Tx.FromAddress = result.Tx.CreatorAddress
+		result.Tx.ToAddress = result.Tx.TargetAddress
+		result.Tx.Amount = &adaptor.AmountAsset{}
+		result.Tx.Amount.Amount.Set(msg.Value())
+	}
+
 	result.Tx.Fee = &adaptor.AmountAsset{}
 	result.Tx.Fee.Amount.SetUint64(msg.Gas())
 	result.Tx.AttachData = msg.Data()

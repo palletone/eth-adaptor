@@ -68,7 +68,7 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	return &result, nil
 }
 func (aeth *AdaptorETH) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return nil, errors.New("todo") //todo
+	return nil, errors.New("todo") //todo base58 need implement
 }
 
 //对一条消息进行签名
@@ -121,7 +121,7 @@ func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferToken
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aeth *AdaptorETH) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return nil, errors.New("todo") //todo, use web api, erc20 is same too
+	return nil, errors.New("todo") //todo use web api, erc20 is same too need implement
 }
 
 //根据交易ID获得对应的转账交易
@@ -152,17 +152,17 @@ func (aeth *AdaptorETH) GetContractInstallTx(input *adaptor.GetContractInstallTx
 	return nil, errors.New("todo") //todo
 }
 
-//初始化合约实例 //erc20合约创建交易的生成
+//初始化合约实例 //erc20合约创建交易的生成 need implement
 func (aeth *AdaptorETH) CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput) (*adaptor.CreateContractInitialTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
-//查询初始化合约实例的交易 //查询erc20合约创建交易
+//查询初始化合约实例的交易 //查询erc20合约创建交易 need implement
 func (aeth *AdaptorETH) GetContractInitialTx(input *adaptor.GetContractInitialTxInput) (*adaptor.GetContractInitialTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
 
-//调用合约方法 //erc20合约调用交易的生成
+//调用合约方法 //erc20合约调用交易的生成 need implement
 func (aeth *AdaptorETH) CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput) (*adaptor.CreateContractInvokeTxOutput, error) {
 	return nil, errors.New("todo") //todo
 }
@@ -172,7 +172,7 @@ func (aeth *AdaptorETH) GetContractInvokeTx(input *adaptor.GetContractInvokeTxIn
 	return nil, errors.New("todo") //todo
 }
 
-//调用合约的查询方法 //rc20合约查询交易的生成
+//调用合约的查询方法 //rc20合约查询交易的生成 need implement
 func (aeth *AdaptorETH) QueryContract(input *adaptor.QueryContractInput) (*adaptor.QueryContractOutput, error) {
 	return nil, errors.New("todo") //todo
 }
