@@ -88,6 +88,75 @@ func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, ne
 	return &result, nil
 }
 
+func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netID int) (*adaptor.GetTransferTxOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	//call eth method
+	hash := common.BytesToHash(input.TxID)
+	tx, blockNumber, blockHash, err := client.TransactionsByHash(context.Background(), hash)
+	if err != nil {
+		//fmt.Println("0")//pending not found
+		return nil, err
+	}
+
+	//conver to msg for from address
+	bigIntBlockNum := new(big.Int)
+	bigIntBlockNum.SetString(blockNumber, 0)
+
+	var signer types.Signer
+	if netID == NETID_MAIN {
+		signer = types.MakeSigner(params.MainnetChainConfig, bigIntBlockNum)
+	} else {
+		signer = types.MakeSigner(params.TestnetChainConfig, bigIntBlockNum)
+	}
+
+	msg, err := tx.AsMessage(signer)
+	if err != nil {
+		return nil, err
+	}
+
+	receipt, err := client.TransactionReceipt(context.Background(), hash)
+	if err != nil {
+		return nil, err
+	}
+
+	//save result
+	var result adaptor.GetTransferTxOutput
+	result.Tx.TxID = tx.Hash().Bytes()
+	result.Tx.TxRawData = tx.Data()
+	result.Tx.CreatorAddress = msg.From().String()
+	result.Tx.TargetAddress = msg.To().String()
+	result.Tx.IsInBlock = true
+	if receipt.Status > 0 {
+		result.Tx.IsSuccess = true
+	} else {
+		result.Tx.IsSuccess = false
+	}
+	result.Tx.IsStable = true //todo delete
+	if "0x" == blockHash[:2] || "0X" == blockHash[:2] {
+		result.Tx.BlockID = Hex2Bytes(blockHash[2:])
+	} else {
+		result.Tx.BlockID = Hex2Bytes(blockHash)
+	}
+	result.Tx.BlockHeight = uint(bigIntBlockNum.Uint64())
+	result.Tx.TxIndex = 0   //receipt.Logs[0].TxIndex //todo delete
+	result.Tx.Timestamp = 0 //todo delete
+
+	result.Tx.FromAddress = result.Tx.CreatorAddress
+	result.Tx.ToAddress = result.Tx.TargetAddress
+	result.Tx.Amount = &adaptor.AmountAsset{}
+	result.Tx.Amount.Amount.Set(msg.Value())
+	result.Tx.Fee = &adaptor.AmountAsset{}
+	result.Tx.Fee.Amount.SetUint64(msg.Gas())
+	result.Tx.AttachData = msg.Data()
+
+	return &result, nil
+}
+
 //func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCParams, netID int) (*adaptor.GetErc20TxByHashResult, error) {
 //	//get rpc client
 //	client, err := GetClient(rpcParams)

@@ -9,14 +9,14 @@ import (
 
 func TestGetTxBasicInfo(t *testing.T) {
 	//params := &adaptor.GetTxBasicInfoInput{Hex2Bytes("a0826794e0381b52c49eb4e8a13d906db797165856dbdc3506bee1043117ca13")}
-	input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("5718c914399c34d6f1da2301042be0b0487ba58bce1a648c70d1f84e3a61a6b2")} //eth transfer
+	input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
 
 	rpcParams := RPCParams{
-		//Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
-		Rawurl: "https://mainnet.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
+		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
+		//Rawurl: "https://mainnet.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
 	}
-	result, err := GetTxBasicInfo(input, &rpcParams, NETID_MAIN)
+	result, err := GetTxBasicInfo(input, &rpcParams, NETID_TEST)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -24,6 +24,26 @@ func TestGetTxBasicInfo(t *testing.T) {
 		fmt.Println(result.Tx.IsInBlock)
 		fmt.Println(result.Tx.IsSuccess)
 		fmt.Println(result.Tx.TxIndex)
+	}
+}
+
+func TestGetTransferTx(t *testing.T) {
+	//params := &adaptor.GetTxBasicInfoInput{Hex2Bytes("a0826794e0381b52c49eb4e8a13d906db797165856dbdc3506bee1043117ca13")}
+	input := &adaptor.GetTransferTxInput{Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
+	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
+
+	rpcParams := RPCParams{
+		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
+		//Rawurl: "https://mainnet.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
+	}
+	result, err := GetTransferTx(input, &rpcParams, NETID_TEST)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		//fmt.Println(result)
+		fmt.Println(result.Tx.FromAddress)
+		fmt.Println(result.Tx.ToAddress)
+		fmt.Println(result.Tx.Amount.Amount)
 	}
 }
 
