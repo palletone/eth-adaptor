@@ -19,11 +19,11 @@ matrix:
       go: 1.12.x
       env: UT
       script:
-        - go test  ./...  
+        - go test  .
     - os: osx
       go: 1.12.x
       env: UT
       script:
-        - go test   ./...  
+        - go test .
 
 

@@ -11,6 +11,7 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/btcsuite/btcd v0.0.0-20190807005414-4063feeff79a h1:We35J+0yvVFrEXbtViYUW8H/wNOhqjIF3PsrW4yYmGw=
 github.com/btcsuite/btcd v0.0.0-20190807005414-4063feeff79a/go.mod h1:3J08xEfcugPacsc34/LKRU2yO7YmuT8yt28J8k2+rrI=
 github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f/go.mod h1:TdznJufoqS23FtqVCzL0ZqgP5MqXbb4fg/WgDys70nA=
+github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d h1:yJzD/yFppdVCf6ApMkVy8cUxV0XrxdP9rVf6D87/Mng=
 github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d/go.mod h1:+5NJ2+qvTyV9exUAL/rxXi3DcLg2Ts+ymUAY5y4NvMg=
 github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd/go.mod h1:HHNXQzUsZCxOoE+CPiyCTO6x34Zs86zZUiwtpXoGdtg=
 github.com/btcsuite/goleveldb v0.0.0-20160330041536-7834afc9e8cd/go.mod h1:F+uVaaLLH7j4eDXPRvw78tMflu7Ie2bzYOH4Y8rRKBY=
@@ -88,6 +89,8 @@ github.com/palletone/adaptor v0.6.1-0.20190808100827-0b072ec1133a h1:Q+ZNDoMD26/
 github.com/palletone/adaptor v0.6.1-0.20190808100827-0b072ec1133a/go.mod h1:QEQCGkFY+hr6E4chfOgpJx8NKpUxmxyRBrEdu5nZ1DE=
 github.com/palletone/adaptor v0.6.1-0.20190809094503-262dfe493ceb h1:XriSjSK63Y3OyMEl7Ia4dg1Y4bJo1ZvgcWpqRbh2K1I=
 github.com/palletone/adaptor v0.6.1-0.20190809094503-262dfe493ceb/go.mod h1:QEQCGkFY+hr6E4chfOgpJx8NKpUxmxyRBrEdu5nZ1DE=
+github.com/palletone/adaptor v0.6.1-0.20190812091852-a770cd7adc9b h1:N1uRDCibUE4Kiy61+Mfddpe3iztuHFSG+sm49NiBVQ4=
+github.com/palletone/adaptor v0.6.1-0.20190812091852-a770cd7adc9b/go.mod h1:QEQCGkFY+hr6E4chfOgpJx8NKpUxmxyRBrEdu5nZ1DE=
 github.com/pborman/uuid v1.2.0 h1:J7Q5mO4ysT1dv8hyrUGHb9+ooztCXu1D8MY8DZYsu3g=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
