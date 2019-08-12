@@ -68,30 +68,40 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	return &result, nil
 }
 func (aeth *AdaptorETH) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return nil, errors.New("todo") //todo base58 need implement
+	return GetPalletOneMappingAddress(addr)
 }
 
 //对一条消息进行签名
 func (aeth *AdaptorETH) SignMessage(input *adaptor.SignMessageInput) (*adaptor.SignMessageOutput, error) {
-	return nil, errors.New("todo") //todo
+	return SignMessage(input)
 }
 
 //对签名进行验证
 func (aeth *AdaptorETH) VerifySignature(input *adaptor.VerifySignatureInput) (*adaptor.VerifySignatureOutput, error) {
-	return nil, errors.New("todo") //todo
+	return VerifySignature(input)
 }
 
-//对一条交易进行签名，并返回签名结果
+//对一条交易进行签名，并返回签名结果 //call SignMessage
 func (aeth *AdaptorETH) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
+	if 'm' == input.Transaction[0] {
+		inputNew := &adaptor.SignMessageInput{}
+		inputNew.PrivateKey = input.PrivateKey
+		inputNew.Message = input.Transaction[1:]
+		result, err := SignMessage(inputNew)
+		if err != nil {
+			return nil, err
+		}
+		return &adaptor.SignTransactionOutput{Signature: result.Signature}, nil
+	}
 	return SignTransaction(input)
 }
 
-//将未签名的原始交易与签名进行绑定，返回一个签名后的交易
+//将未签名的原始交易与签名进行绑定，返回一个签名后的交易 //产生 contractTx input data
 func (aeth *AdaptorETH) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
-	return BindTxAndSignature(input)
+	return BindTxAndSignature(input) //first append methodID, then msg[33:], then pack signatures
 }
 
-//根据交易内容，计算交易Hash
+//根据交易内容，计算交易Hash //need implement simple hash
 func (aeth *AdaptorETH) CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, error) {
 	return CalcTxHash(input)
 }
@@ -123,9 +133,9 @@ func (aeth *AdaptorETH) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*a
 	return &result, nil
 }
 
-//创建一个转账交易，但是未签名
+//创建一个转账交易，但是未签名 //contract tx pack --> packed msg
 func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
-	return CreateTx(input, &aeth.RPCParams, aeth.NetID)
+	return CreateTx(input) //add m and pack, return msg
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列

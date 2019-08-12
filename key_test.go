@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/palletone/adaptor"
 )
 
 func TestNewPrivateKey(t *testing.T) {
@@ -40,4 +42,11 @@ func TestGetAddress(t *testing.T) {
 		t.Errorf("unexpected address - got: %s, "+
 			"want: %s", addrLower, testAddr)
 	}
+}
+
+func TestGetPalletOneMappingAddress(t *testing.T) {
+	var input adaptor.GetPalletOneMappingAddressInput
+	input.ChainAddress = "0x1a9ed32dec553511158595375d62a8aa8784bc5b"
+	result, _ := GetPalletOneMappingAddress(&input)
+	fmt.Println(result.PalletOneAddress)
 }

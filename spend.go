@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 
 	"github.com/palletone/adaptor"
+	"github.com/palletone/eth-adaptor/ethclient"
 )
 
 func writeBytes(buf *bytes.Buffer, appendBytes []byte) {
@@ -79,7 +80,7 @@ func SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransact
 	return &result, nil
 }
 
-func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
+func BindETHTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
 	var tx types.Transaction
 	err := rlp.DecodeBytes(input.Transaction, &tx)
 	if err != nil {
@@ -99,6 +100,26 @@ func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTx
 	//save result
 	var result adaptor.BindTxAndSignatureOutput
 	result.SignedTx = rlpTXBytes
+
+	return &result, nil
+}
+
+func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
+	var data []byte
+	//method ID, example, 0xa9059cbb transfer(address,uint256)
+	hash := crypto.Keccak256Hash(input.Extra)
+	data = append(data, hash[:4]...)
+	//receiver amount token extra
+	data = append(data, input.Transaction[33:]...) //m+from=33
+	//signatures
+	for i := range input.Signs {
+		sigPadded := common.LeftPadBytes(input.Signs[i], 32)
+		data = append(data, sigPadded...)
+	}
+
+	//save result
+	var result adaptor.BindTxAndSignatureOutput
+	result.SignedTx = data
 
 	return &result, nil
 }
@@ -145,7 +166,7 @@ func SendTransaction(input *adaptor.SendTransactionInput, rpcParams *RPCParams, 
 
 }
 
-func CreateTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateTransferTokenTxOutput, error) {
+func CreateETHTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateTransferTokenTxOutput, error) {
 	if input.Amount == nil {
 		return nil, errors.New("input's Amount is nil")
 	}
@@ -180,7 +201,131 @@ func CreateTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams, n
 	//fmt.Printf("unsigned tx: %x\n", rlpTXBytes)
 	//save result
 	var result adaptor.CreateTransferTokenTxOutput
-	result.Transaction = rlpTXBytes
+	result.Transaction = append(result.Transaction, 't')
+	result.Transaction = append(result.Transaction, rlpTXBytes...)
+
+	return &result, nil
+}
+
+func CreateContractMsg(input *adaptor.CreateTransferTokenTxInput, client *ethclient.Client, fromAddress common.Address) (*adaptor.CreateTransferTokenTxOutput, error) {
+	gasLimit := uint64(21000) //in units
+	toAddress := common.HexToAddress(input.ToAddress)
+
+	var extra []byte
+	extra = append(extra, fromAddress.Bytes()...)
+	//extra = append(extra, input.Extra...)
+
+	tx := types.NewTransaction(0, toAddress,
+		&input.Amount.Amount, //in wei
+		gasLimit,
+		&input.Fee.Amount, //in wei
+		extra)
+
+	rlpTXBytes, err := rlp.EncodeToBytes(tx)
+	if err != nil {
+		return nil, err
+	}
+	//fmt.Printf("unsigned tx: %x\n", rlpTXBytes)
+	//save result
+	var result adaptor.CreateTransferTokenTxOutput
+	result.Transaction = append(result.Transaction, 'm')
+	result.Transaction = append(result.Transaction, rlpTXBytes...)
+
+	return &result, nil
+}
+
+func CreateTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
+	if input.Amount == nil {
+		return nil, errors.New("input's Amount is nil")
+	}
+	//if input.Fee == nil {
+	//	return nil, errors.New("input's Fee is nil")
+	//}
+
+	var data []byte
+	data = append(data, 'm')
+	//from
+	fromAddress := common.HexToAddress(input.FromAddress)
+	fromAddressPadded := common.LeftPadBytes(fromAddress.Bytes(), 32)
+	data = append(data, fromAddressPadded...)
+	//to
+	toAddress := common.HexToAddress(input.ToAddress)
+	toAddressPadded := common.LeftPadBytes(toAddress.Bytes(), 32)
+	data = append(data, toAddressPadded...)
+	//amount
+	amountPadded := common.LeftPadBytes(input.Amount.Amount.Bytes(), 32)
+	data = append(data, amountPadded...)
+	//asset empty is eth, other is erc20
+	if input.Amount.Asset != "" {
+		token := common.HexToAddress(input.Amount.Asset)
+		tokenPadded := common.LeftPadBytes(token.Bytes(), 32)
+		data = append(data, tokenPadded...)
+	}
+	//extra, example: reqid
+	extraPadded := common.LeftPadBytes(input.Extra, 32)
+	data = append(data, extraPadded...)
+
+	var result adaptor.CreateTransferTokenTxOutput
+	result.Transaction = data
+
+	return &result, nil
+
+	////get rpc client
+	//client, err := GetClient(rpcParams)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//fromAddress := common.HexToAddress(input.FromAddress)
+	//code, err := client.CodeAt(context.Background(), fromAddress, nil)
+	//if len(code) > 0 {
+	//	return CreateContractMsg(input, client, fromAddress)
+	//} else {
+	//	return CreateETHTx(input, client, fromAddress)
+	//}
+}
+
+func SignMessage(input *adaptor.SignMessageInput) (*adaptor.SignMessageOutput, error) {
+	priKey, err := crypto.ToECDSA(input.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	hash := crypto.Keccak256Hash(input.Message)
+	//fmt.Printf("%x\n", hash.Bytes())
+
+	sig, err := crypto.Sign(hash.Bytes(), priKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var result adaptor.SignMessageOutput
+	result.Signature = sig
+
+	return &result, nil
+}
+
+func VerifySignature(input *adaptor.VerifySignatureInput) (*adaptor.VerifySignatureOutput, error) {
+	//
+	hash := crypto.Keccak256Hash(input.Message)
+	//fmt.Printf("%x\n", hash.Bytes())
+
+	//
+	pubkeyByte, err := crypto.Ecrecover(hash.Bytes(), input.Signature)
+	if err != nil {
+		return nil, err
+	}
+	//fmt.Printf("%x\n", pubkeyByte)
+
+	var result adaptor.VerifySignatureOutput
+	if len(pubkeyByte) == len(input.PublicKey) {
+		result.Pass = bytes.Equal(pubkeyByte, input.PublicKey)
+	} else {
+		pubkey, err := crypto.UnmarshalPubkey(pubkeyByte)
+		if err != nil {
+			return nil, err
+		}
+		result.Pass = bytes.Equal(crypto.CompressPubkey(pubkey), input.PublicKey)
+	}
 
 	return &result, nil
 }

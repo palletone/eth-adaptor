@@ -18,8 +18,10 @@
 package ethadaptor
 
 import (
+	base58 "github.com/btcsuite/btcutil/base58"
 	"github.com/ethereum/go-ethereum/crypto"
-	//"github.com/palletone/adaptor"
+
+	"github.com/palletone/adaptor"
 )
 
 func NewPrivateKey(netID int) ([]byte, error) {
@@ -50,11 +52,22 @@ func GetAddress(priKey []byte, netID int) (string, error) {
 
 	return addr.String(), nil
 }
-func PubKeyToAddress(pubKey []byte) (string,error){
-	pk,err:= crypto.DecompressPubkey(pubKey)
-	if err!=nil{
-		return "",err
+func PubKeyToAddress(pubKey []byte) (string, error) {
+	pk, err := crypto.DecompressPubkey(pubKey)
+	if err != nil {
+		return "", err
 	}
 	addr := crypto.PubkeyToAddress(*pk)
 	return addr.String(), nil
+}
+func GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
+	var addrBytes []byte
+	if "0x" == addr.ChainAddress[:2] || "0X" == addr.ChainAddress[:2] {
+		addrBytes = Hex2Bytes(addr.ChainAddress[2:])
+	} else {
+		addrBytes = Hex2Bytes(addr.ChainAddress[:])
+	}
+	var result adaptor.GetPalletOneMappingAddressOutput
+	result.PalletOneAddress = "P" + base58.CheckEncode(addrBytes, 0)
+	return &result, nil
 }
