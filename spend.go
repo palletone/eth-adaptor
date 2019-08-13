@@ -106,7 +106,7 @@ func BindETHTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.Bin
 
 func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
 	var data []byte
-	//method ID, example, 0xa9059cbb transfer(address,uint256)
+	//method ID, example, 0xa9059cbb withdraw(address,uint,string,bytes,bytes,bytes)
 	hash := crypto.Keccak256Hash(input.Extra)
 	data = append(data, hash[:4]...)
 	//receiver amount token extra
@@ -125,15 +125,11 @@ func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTx
 }
 
 func CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, error) {
-	var tx types.Transaction
-	err := rlp.DecodeBytes(input.Transaction, &tx)
-	if err != nil {
-		return nil, err
-	}
+	hash := crypto.Keccak256Hash(input.Transaction)
 
 	//save result
 	var result adaptor.CalcTxHashOutput
-	result.Hash = tx.Hash().Bytes()
+	result.Hash = hash.Bytes()
 
 	return &result, nil
 }

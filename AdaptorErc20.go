@@ -144,5 +144,5 @@ func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigA
 
 //获取最新区块头
 func (aerc20 *AdaptorErc20) GetBlockInfo(input *adaptor.GetBlockInfoInput) (*adaptor.GetBlockInfoOutput, error) {
-	return nil, errors.New("todo") //todo need implement
+	return GetBlockInfo(input, &aerc20.RPCParams, aerc20.NetID)
 }

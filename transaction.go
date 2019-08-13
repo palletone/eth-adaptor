@@ -358,31 +358,42 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 //
 //	return &result, nil
 //}
-//
-//func GetBestHeader(getBestHeaderParams *adaptor.GetBestHeaderParams, rpcParams *RPCParams, netID int) (*adaptor.GetBestHeaderResult, error) {
-//	//get rpc client
-//	client, err := GetClient(rpcParams)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//call eth rpc method
-//	var heder *types.Header
-//	number := new(big.Int)
-//	_, isNum := number.SetString(getBestHeaderParams.Number, 10)
-//	if isNum {
-//		heder, err = client.HeaderByNumber(context.Background(), number)
-//	} else { //get best header
-//		heder, err = client.HeaderByNumber(context.Background(), nil)
-//	}
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//
-//	var result adaptor.GetBestHeaderResult
-//	result.TxHash = heder.TxHash.String()
-//	result.Number = heder.Number.String()
-//
-//	return &result, nil
-//}
+
+func GetBlockInfo(input *adaptor.GetBlockInfoInput, rpcParams *RPCParams, netID int) (*adaptor.GetBlockInfoOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	//call eth rpc method
+	var heder *types.Header
+	if input.Latest {
+		heder, err = client.HeaderByNumber(context.Background(), nil)
+	} else if input.Height > 0 {
+		number := new(big.Int)
+		number.SetUint64(input.Height)
+		heder, err = client.HeaderByNumber(context.Background(), number)
+	} else if len(input.BlockID) > 0 {
+		hash := common.BytesToHash(input.BlockID)
+		heder, err = client.HeaderByHash(context.Background(), hash)
+	} else {
+		heder, err = client.HeaderByNumber(context.Background(), nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	var result adaptor.GetBlockInfoOutput
+	result.Block.BlockID = heder.TxHash.Bytes()
+	result.Block.BlockHeight = uint(heder.Number.Uint64())
+	result.Block.Timestamp = heder.Time
+	result.Block.ParentBlockID = heder.ParentHash.Bytes()
+	result.Block.HeaderRawData = heder.Extra
+	//result.Block.TxsRoot = //todo delete
+	//result.Block.ProducerAddress=//todo delete
+	//result.Block.IsStable=//todo delete
+
+	return &result, nil
+}
