@@ -63,22 +63,32 @@ func (aerc20 *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.G
 	return &result, nil
 }
 func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return nil, errors.New("todo") //todo base58 need implement
+	return GetPalletOneMappingAddress(addr)
 }
 
 //对一条交易进行签名，并返回签名结果
 func (aerc20 *AdaptorErc20) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
+	if 'm' == input.Transaction[0] {
+		inputNew := &adaptor.SignMessageInput{}
+		inputNew.PrivateKey = input.PrivateKey
+		inputNew.Message = input.Transaction[1:]
+		result, err := SignMessage(inputNew)
+		if err != nil {
+			return nil, err
+		}
+		return &adaptor.SignTransactionOutput{Signature: result.Signature}, nil
+	}
 	return SignTransaction(input)
 }
 
 //对一条消息进行签名
 func (aerc20 *AdaptorErc20) SignMessage(input *adaptor.SignMessageInput) (*adaptor.SignMessageOutput, error) {
-	return nil, errors.New("todo") //todo
+	return SignMessage(input)
 }
 
 //对签名进行验证
 func (aerc20 *AdaptorErc20) VerifySignature(input *adaptor.VerifySignatureInput) (*adaptor.VerifySignatureOutput, error) {
-	return nil, errors.New("todo") //todo
+	return VerifySignature(input)
 }
 
 //将未签名的原始交易与签名进行绑定，返回一个签名后的交易
@@ -114,12 +124,12 @@ func (aerc20 *AdaptorErc20) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput)
 
 //创建一个转账交易，但是未签名
 func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
-	return nil, errors.New("todo") //todo invoke contract transfer need implement
+	return CreateTx(input) //add m and pack, return msg
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return nil, errors.New("todo") //todo use web api, erc20 is same too need implement
+	return GetAddrTxHistoryHttp(input, aerc20.NetID) // use web api
 }
 
 //根据交易ID获得对应的转账交易
@@ -134,5 +144,5 @@ func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigA
 
 //获取最新区块头
 func (aerc20 *AdaptorErc20) GetBlockInfo(input *adaptor.GetBlockInfoInput) (*adaptor.GetBlockInfoOutput, error) {
-	return nil, errors.New("todo") //todo
+	return nil, errors.New("todo") //todo need implement
 }

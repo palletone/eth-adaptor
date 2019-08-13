@@ -19,13 +19,168 @@ package ethadaptor
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"math/big"
+	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+
 	"github.com/palletone/adaptor"
 )
+
+func httpGet(url string) (string, error, int) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err, 0
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err, 0
+	}
+
+	return string(body), nil, resp.StatusCode
+}
+
+func httpPost(url string, params string) (string, error, int) {
+	resp, err := http.Post(url, "application/json", strings.NewReader(params))
+	if err != nil {
+		return "", err, 0
+	}
+	defer resp.Body.Close()
+
+	//fmt.Println(resp.StatusCode)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err, 0
+	}
+
+	return string(body), nil, resp.StatusCode
+}
+
+const base = "https://api.etherscan.io/api"
+const base_test = "https://api-ropsten.etherscan.io/api"
+
+type Tx struct {
+	BlockNumber       string `json:"blockNumber"`
+	TimeStamp         string `json:"timeStamp"`
+	Hash              string `json:"hash"`
+	Nonce             string `json:"nonce"`
+	BlockHash         string `json:"blockHash"`
+	TransactionIndex  string `json:"transactionIndex"`
+	From              string `json:"from"`
+	To                string `json:"to"`
+	Value             string `json:"value"`
+	Gas               string `json:"gas"`
+	GasPrice          string `json:"gasPrice"`
+	IsError           string `json:"isError"`
+	TxreceiptStatus   string `json:"txreceipt_status"`
+	Input             string `json:"input"`
+	ContractAddress   string `json:"contractAddress"`
+	CumulativeGasUsed string `json:"cumulativeGasUsed"`
+	GasUsed           string `json:"gasUsed"`
+	Confirmations     string `json:"confirmations"`
+}
+type GetAddrTxHistoryResult struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Result  []Tx   `json:"result"`
+}
+
+//https://api-ropsten.etherscan.io/api?module=account&action=txlist&address=0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a&startblock=0&endblock=99999999&page=1&offset=10&sort=asc&apikey=YourApiKeyToken
+func GetAddrTxHistoryHttp(input *adaptor.GetAddrTxHistoryInput, netID int) (*adaptor.GetAddrTxHistoryOutput, error) {
+	var request string
+	if netID == NETID_MAIN {
+		request = base + "?module=account&action=txlist&address=" + input.FromAddress + "&startblock=0&endblock=99999999"
+	} else {
+		request = base_test + "?module=account&action=txlist&address=" + input.FromAddress + "&startblock=0&endblock=99999999"
+	}
+	if input.PageIndex != 0 && input.PageSize != 0 {
+		request = request + "&page=" + fmt.Sprintf("%d", input.PageIndex)
+		request = request + "&offset=" + fmt.Sprintf("%d", input.PageSize)
+	}
+	if input.Asc {
+		request = request + "&sort=asc"
+	} else {
+		request = request + "&sort=desc"
+	}
+	request = request + "&apikey=YourApiKeyToken"
+
+	//
+	strRespose, err, _ := httpGet(request)
+	if err != nil {
+		return nil, err
+	}
+
+	var txResult GetAddrTxHistoryResult
+	err = json.Unmarshal([]byte(strRespose), &txResult)
+	if err != nil {
+		return nil, err
+	}
+
+	//result for return
+	var result adaptor.GetAddrTxHistoryOutput
+	if input.AddressLogicAndOr {
+		for i := range txResult.Result {
+			toAddr := strings.ToLower(input.ToAddress)
+			if txResult.Result[i].To == toAddr || txResult.Result[i].ContractAddress == toAddr {
+				tx := convertSimpleTx(&txResult.Result[i])
+				result.Txs = append(result.Txs, tx)
+			}
+		}
+	} else {
+		for i := range txResult.Result {
+			tx := convertSimpleTx(&txResult.Result[i])
+			result.Txs = append(result.Txs, tx)
+		}
+	}
+	result.Count = uint32(len(result.Txs))
+
+	return &result, nil
+}
+func convertSimpleTx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
+	tx := &adaptor.SimpleTransferTokenTx{}
+	tx.TxID = common.Hex2Bytes(txResult.Hash[2:])
+	if len(txResult.Input) > 2 {
+		tx.TxRawData = common.Hex2Bytes(txResult.Input[2:])
+	}
+	tx.CreatorAddress = txResult.From
+	if txResult.To == "" {
+		tx.TargetAddress = txResult.ContractAddress
+	}
+	tx.IsInBlock = true
+	if txResult.IsError == "0" {
+		tx.IsSuccess = true
+	} else {
+		tx.IsSuccess = false
+	}
+	confirms, _ := strconv.ParseUint(txResult.Confirmations, 10, 64)
+	if confirms > 15 {
+		tx.IsStable = true
+	}
+	tx.BlockID = common.Hex2Bytes(txResult.BlockHash[2:])
+	blockNum, _ := strconv.ParseUint(txResult.BlockNumber, 10, 64)
+	tx.BlockHeight = uint(blockNum)
+	tx.TxIndex = 0 //todo delete
+	timeStamp, _ := strconv.ParseUint(txResult.TimeStamp, 10, 64)
+	tx.Timestamp = timeStamp
+	tx.Amount = &adaptor.AmountAsset{}
+	tx.Amount.Amount.SetString(txResult.Value, 10)
+	tx.Fee = &adaptor.AmountAsset{}
+	tx.Fee.Amount.SetString(txResult.GasUsed, 10)
+	tx.FromAddress = tx.CreatorAddress
+	tx.ToAddress = txResult.To
+	tx.AttachData = tx.TxRawData //todo
+
+	return tx
+}
 
 func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, netID int) (*adaptor.GetTxBasicInfoOutput, error) {
 	//get rpc client

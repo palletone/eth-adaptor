@@ -140,7 +140,7 @@ func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferToken
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aeth *AdaptorETH) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return nil, errors.New("todo") //todo use web api, erc20 is same too need implement
+	return GetAddrTxHistoryHttp(input, aeth.NetID) // use web api
 }
 
 //根据交易ID获得对应的转账交易
@@ -152,13 +152,6 @@ func (aeth *AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adapt
 func (aeth *AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
 	return nil, errors.New("todo") //todo not implemet
 }
-
-//func (aeth *AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
-//	return Keccak256HashPackedSig(params)
-//}
-//func (aeth *AdaptorETH) RecoverAddr(params *adaptor.RecoverParams) (*adaptor.RecoverResult, error) {
-//	return RecoverAddr(params)
-//}
 
 /*ISmartContract*/
 //创建一个安装合约的交易，未签名 //erc20合约没有安装， not implement
@@ -195,55 +188,3 @@ func (aeth *AdaptorETH) GetContractInvokeTx(input *adaptor.GetContractInvokeTxIn
 func (aeth *AdaptorETH) QueryContract(input *adaptor.QueryContractInput) (*adaptor.QueryContractOutput, error) {
 	return nil, errors.New("todo") //todo
 }
-
-//func (aeth *AdaptorETH) NewPrivateKey() (prikeyHex string) {
-//	return NewPrivateKey(aeth.NetID)
-//}
-//func (aeth *AdaptorETH) GetPublicKey(prikeyHex string) (pubKey string) {
-//	return GetPublicKey(prikeyHex, aeth.NetID)
-//}
-//func (aeth *AdaptorETH) GetAddress(prikeyHex string) (address string) {
-//	return GetAddress(prikeyHex, aeth.NetID)
-//}
-//
-//func (aeth *AdaptorETH) GetBalance(params *adaptor.GetBalanceParams) (*adaptor.GetBalanceResult, error) {
-//	return GetBalance(params, &aeth.RPCParams, aeth.NetID)
-//}
-//func (aeth *AdaptorETH) GetTransactionByHash(params *adaptor.GetTransactionParams) (*adaptor.GetTransactionResult, error) {
-//	return GetTransactionByHash(params, &aeth.RPCParams, aeth.NetID)
-//}
-//func (aeth *AdaptorETH) GetErc20TxByHash(params *adaptor.GetErc20TxByHashParams) (*adaptor.GetErc20TxByHashResult, error) {
-//	return GetErc20TxByHash(params, &aeth.RPCParams, aeth.NetID)
-//}
-//
-//func (aeth *AdaptorETH) Keccak256HashPackedSig(params *adaptor.Keccak256HashPackedSigParams) (*adaptor.Keccak256HashPackedSigResult, error) {
-//	return Keccak256HashPackedSig(params)
-//}
-//func (aeth *AdaptorETH) RecoverAddr(params *adaptor.RecoverParams) (*adaptor.RecoverResult, error) {
-//	return RecoverAddr(params)
-//}
-//
-//func (aeth *AdaptorETH) SignTransaction(params *adaptor.ETHSignTransactionParams) (*adaptor.ETHSignTransactionResult, error) {
-//	return SignTransaction(params)
-//}
-//func (aeth *AdaptorETH) SendTransaction(params *adaptor.SendTransactionParams) (*adaptor.SendTransactionResult, error) {
-//	return SendTransaction(params, &aeth.RPCParams, aeth.NetID)
-//}
-//
-//func (aeth *AdaptorETH) QueryContract(params *adaptor.QueryContractParams) (*adaptor.QueryContractResult, error) {
-//	return QueryContract(params, &aeth.RPCParams, aeth.NetID)
-//}
-//func (aeth *AdaptorETH) GenInvokeContractTX(params *adaptor.GenInvokeContractTXParams) (*adaptor.GenInvokeContractTXResult, error) {
-//	return GenInvokeContractTX(params, &aeth.RPCParams, aeth.NetID)
-//}
-//func (aeth *AdaptorETH) GenDeployContractTX(params *adaptor.GenDeployContractTXParams) (*adaptor.GenDeployContractTXResult, error) {
-//	return GenDeployContractTX(params, &aeth.RPCParams, aeth.NetID)
-//}
-//
-//func (aeth *AdaptorETH) GetEventByAddress(params *adaptor.GetEventByAddressParams) (*adaptor.GetEventByAddressResult, error) {
-//	return GetEventByAddress(params, &aeth.RPCParams, aeth.NetID)
-//}
-//
-//func (aeth *AdaptorETH) GetBestHeader(params *adaptor.GetBestHeaderParams) (*adaptor.GetBestHeaderResult, error) {
-//	return GetBestHeader(params, &aeth.RPCParams, aeth.NetID)
-//}
