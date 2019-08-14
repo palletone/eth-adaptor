@@ -31,7 +31,18 @@ type AdaptorETH struct {
 	NetID int
 	RPCParams
 }
-
+func NewAdaptorETHTestnet() *AdaptorETH{
+	return &AdaptorETH{
+		NetID:NETID_TEST,
+		RPCParams:RPCParams{Rawurl:"https://ropsten.infura.io"},
+		}
+}
+func NewAdaptorETHMainnet() *AdaptorETH{
+	return &AdaptorETH{
+		NetID:NETID_MAIN,
+		RPCParams:RPCParams{Rawurl:"https://mainnet.infura.io"},
+	}
+}
 const (
 	NETID_MAIN = iota
 	NETID_TEST
@@ -50,7 +61,7 @@ func (aeth *AdaptorETH) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adapt
 
 //根据私钥创建公钥
 func (aeth *AdaptorETH) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor.GetPublicKeyOutput, error) {
-	pubkey, err := GetPublicKey(input.PrivateKey, aeth.NetID)
+	pubkey, err := GetPublicKey(input.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +161,11 @@ func (aeth *AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adapt
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁 //eth没有多签，not implement
 func (aeth *AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	return nil, errors.New("todo") //todo not implemet
+	multiSignContractAddr:="0x12585fe00f896fdc0807e4e415faaf538a1e1e0f"//Testnet
+	if aeth.NetID== NETID_MAIN{
+		multiSignContractAddr="0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"//TODO Mainnet
+	}
+	return &adaptor.CreateMultiSigAddressOutput{Address:multiSignContractAddr},nil
 }
 
 /*ISmartContract*/

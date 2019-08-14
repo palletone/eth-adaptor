@@ -20,7 +20,9 @@
 
 package adaptor
 
+//ISmartContract 智能合约的相关操作接口
 type ISmartContract interface {
+	IUtility
 	//创建一个安装合约的交易，未签名
 	CreateContractInstallTx(input *CreateContractInstallTxInput) (*CreateContractInstallTxOutput, error)
 	//查询合约安装的结果的交易

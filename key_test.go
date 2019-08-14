@@ -21,7 +21,7 @@ func TestGetPublicKey(t *testing.T) {
 	testPubkey := "021c183161f5d96f59d6078d0123021876b5a0982b131ffa021b4437f49b93588a"
 
 	key := Hex2Bytes(keyHex)
-	pubkey, _ := GetPublicKey(key, NETID_TEST)
+	pubkey, _ := GetPublicKey(key)
 	pubkeyHex := hex.EncodeToString(pubkey)
 	if testPubkey != pubkeyHex {
 		t.Errorf("unexpected pubkey bytes - got: %s, "+

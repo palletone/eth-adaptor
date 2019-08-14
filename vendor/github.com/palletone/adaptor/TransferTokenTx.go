@@ -20,7 +20,11 @@
 
 package adaptor
 
-//一个简单的Token转账交易
+import (
+	"encoding/json"
+)
+
+//SimpleTransferTokenTx 一个简单的Token转账交易
 type SimpleTransferTokenTx struct {
 	TxBasicInfo
 	FromAddress string       `json:"from_address"` //转出地址
@@ -28,6 +32,11 @@ type SimpleTransferTokenTx struct {
 	Amount      *AmountAsset `json:"amount"`       //转账金额
 	Fee         *AmountAsset `json:"fee"`          //转账交易费
 	AttachData  []byte       `json:"attach_data"`  //附加的数据（备注之类的）
+}
+
+func (tx *SimpleTransferTokenTx) String() string {
+	d, _ := json.Marshal(tx)
+	return string(d)
 }
 
 //多地址对多地址的转账交易

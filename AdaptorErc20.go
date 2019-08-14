@@ -45,7 +45,7 @@ func (aerc20 *AdaptorErc20) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*a
 
 //根据私钥创建公钥
 func (aerc20 *AdaptorErc20) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor.GetPublicKeyOutput, error) {
-	pubkey, err := GetPublicKey(input.PrivateKey, aerc20.NetID)
+	pubkey, err := GetPublicKey(input.PrivateKey)
 	if err != nil {
 		return nil, err
 	}

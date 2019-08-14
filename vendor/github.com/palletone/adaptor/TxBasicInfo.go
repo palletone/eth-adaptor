@@ -20,6 +20,11 @@
 
 package adaptor
 
+import (
+	"encoding/json"
+)
+
+//TxBasicInfo 一个交易的基本信息
 type TxBasicInfo struct {
 	TxID           []byte `json:"tx_id"`           //交易的ID，Hash
 	TxRawData      []byte `json:"tx_raw"`          //交易的二进制数据
@@ -32,4 +37,9 @@ type TxBasicInfo struct {
 	BlockHeight    uint   `json:"block_height"`    //交易被打包到的区块的高度
 	TxIndex        uint   `json:"tx_index"`        //Tx在区块中的位置
 	Timestamp      uint64 `json:"timestamp"`       //交易被打包的时间戳
+}
+
+func (tx *TxBasicInfo) String() string {
+	d, _ := json.Marshal(tx)
+	return string(d)
 }

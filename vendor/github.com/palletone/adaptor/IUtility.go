@@ -20,7 +20,7 @@
 
 package adaptor
 
-//钱包相关的API接口,区块链相关API接口
+//IUtility 钱包相关的API接口,区块链相关API接口
 type IUtility interface {
 	//创建一个新的私钥
 	NewPrivateKey(input *NewPrivateKeyInput) (*NewPrivateKeyOutput, error)
@@ -44,7 +44,7 @@ type IUtility interface {
 	SendTransaction(input *SendTransactionInput) (*SendTransactionOutput, error)
 	//根据交易ID获得交易的基本信息
 	GetTxBasicInfo(input *GetTxBasicInfoInput) (*GetTxBasicInfoOutput, error)
-
+	//查询获得一个区块的信息
 	GetBlockInfo(input *GetBlockInfoInput) (*GetBlockInfoOutput, error)
 }
 type NewPrivateKeyInput struct {

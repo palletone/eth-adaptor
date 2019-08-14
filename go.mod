@@ -20,7 +20,7 @@ require (
 	github.com/karalabe/usb v0.0.0-20190703133951-9be757f914c0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
-	github.com/palletone/adaptor v0.6.1-0.20190812091852-a770cd7adc9b
+	github.com/palletone/adaptor v0.6.1-0.20190814104948-3b42ad3b6d62
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/prometheus/tsdb v0.10.0 // indirect

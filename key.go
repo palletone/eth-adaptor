@@ -33,7 +33,7 @@ func NewPrivateKey(netID int) ([]byte, error) {
 	return crypto.FromECDSA(privateKeyECDSA), nil
 }
 
-func GetPublicKey(priKey []byte, netID int) ([]byte, error) {
+func GetPublicKey(priKey []byte) ([]byte, error) {
 	privateKeyECDSA, err := crypto.ToECDSA(priKey)
 	if err != nil {
 		return nil, err

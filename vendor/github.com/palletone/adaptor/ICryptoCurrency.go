@@ -20,8 +20,9 @@
 
 package adaptor
 
-//加密货币相关的API
+//ICryptoCurrency 加密货币相关的API
 type ICryptoCurrency interface {
+	IUtility
 	//获取某地址下持有某资产的数量,返回数量为该资产的最小单位
 	GetBalance(input *GetBalanceInput) (*GetBalanceOutput, error)
 	//获取某资产的小数点位数
@@ -35,17 +36,25 @@ type ICryptoCurrency interface {
 	//创建一个多签地址，该地址必须要满足signCount个签名才能解锁
 	CreateMultiSigAddress(input *CreateMultiSigAddressInput) (*CreateMultiSigAddressOutput, error)
 }
+
+//查询余额时的输入参数
 type GetBalanceInput struct {
 	Address string `json:"address"`
 	Asset   string `json:"asset"`
 }
+
+//查询余额的返回值
 type GetBalanceOutput struct {
 	Balance AmountAsset `json:"balance"`
 }
+
+//获得某种资产小数位数时的输入
 type GetAssetDecimalInput struct {
-	Asset string `json:"asset"`
+	Asset string `json:"asset"` //资产标识
 	Extra []byte `json:"extra"`
 }
+
+//获得的资产的小数位数
 type GetAssetDecimalOutput struct {
 	Decimal uint `json:"decimal"`
 }
@@ -54,22 +63,23 @@ type CreateTransferTokenTxInput struct {
 	ToAddress   string       `json:"to_address"`
 	Amount      *AmountAsset `json:"amount"`
 	Fee         *AmountAsset `json:"fee"`
+	Extra       []byte       `json:"extra"`
 }
 type CreateTransferTokenTxOutput struct {
 	Transaction []byte `json:"transaction"`
 }
 type GetAddrTxHistoryInput struct {
-	FromAddress       string `json:"from_address"`         //转账的付款方地址
-	ToAddress         string `json:"to_address"`           //转账的收款方地址
+	FromAddress       string `json:"from_address"` //转账的付款方地址
+	ToAddress         string `json:"to_address"`   //转账的收款方地址
+	Asset             string `json:"asset"` //资产标识
+	PageSize          uint32 `json:"page_size"` //分页大小，0表示不分页
+	PageIndex         uint32 `json:"page_index"` //分页后的第几页数据
 	AddressLogicAndOr bool   `json:"address_logic_and_or"` //付款地址,收款地址是And=1关系还是Or=0关系
-	Asset             string `json:"asset"`
-	PageSize          uint32 `json:"page_size"`
-	PageIndex         uint32 `json:"page_index"`
-	Asc               bool   `json:"asc"` //按时间顺序从老到新
+	Asc               bool   `json:"asc"`                  //按时间顺序从老到新
 }
 type GetAddrTxHistoryOutput struct {
-	Txs   []*SimpleTransferTokenTx `json:"transactions"`
-	Count uint32                   `json:"count"` //忽略分页，有多少条记录
+	Txs   []*SimpleTransferTokenTx `json:"transactions"` //返回的交易列表
+	Count uint32                   `json:"count"`        //忽略分页，有多少条记录
 }
 type CreateMultiSigAddressInput struct {
 	Keys      [][]byte `json:"keys"`
