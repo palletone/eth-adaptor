@@ -247,13 +247,20 @@ func TestQueryContract(t *testing.T) {
 
 	//
 	var input adaptor.QueryContractInput
-	input.Address = invokeAddr
+	//input.Address = invokeAddr
 	//input.Fee = &adaptor.AmountAsset{}
 	//input.Fee.Amount.SetString("21000000000000000", 10) //10000000000 10gwei*2100000
-	input.ContractAddress = "0xef37aba8a6379a2aaad5a90f9b39c940265cda93"
-	input.Function = "getptnhex"
-	input.Args = append(input.Args, []byte(invokeAddr))
-	input.Extra = []byte(PTNMapABI)
+
+	//input.ContractAddress = "0xef37aba8a6379a2aaad5a90f9b39c940265cda93"
+	//input.Function = "getptnhex"
+	//input.Args = append(input.Args, []byte(invokeAddr))
+	//input.Extra = []byte(PTNMapABI)
+
+	const ERC20ABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
+	input.ContractAddress = "0xa54880da9a63cdd2ddacf25af68daf31a1bcc0c9"
+	input.Function = "decimals"
+	input.Extra = []byte(ERC20ABI)
+	_ = invokeAddr
 
 	//
 	result, err := QueryContract(&input, &rpcParams, NETID_TEST)
@@ -261,6 +268,5 @@ func TestQueryContract(t *testing.T) {
 		fmt.Println("QueryContract failed: ", err.Error())
 	} else {
 		fmt.Printf("%s\n", string(result.QueryResult))
-
 	}
 }

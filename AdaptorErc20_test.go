@@ -1,6 +1,7 @@
 package ethadaptor
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/palletone/adaptor"
@@ -24,4 +25,12 @@ func newTestAdaptorErc20() *AdaptorErc20 {
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
 	}
 	return NewAdaptorErc20(NETID_TEST, rpcParams)
+}
+
+func TestGetAssetDecimal(t *testing.T) {
+	ada := newTestAdaptorErc20()
+	asset := &adaptor.GetAssetDecimalInput{Asset: "0xa54880da9a63cdd2ddacf25af68daf31a1bcc0c9"}
+	output, err := ada.GetAssetDecimal(asset)
+	assert.Nil(t, err)
+	fmt.Println(output.Decimal)
 }

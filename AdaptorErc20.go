@@ -19,6 +19,7 @@ package ethadaptor
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/palletone/adaptor"
 )
@@ -119,7 +120,24 @@ func (aerc20 *AdaptorErc20) GetBalance(input *adaptor.GetBalanceInput) (*adaptor
 
 //获取某资产的小数点位数
 func (aerc20 *AdaptorErc20) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
-	return nil, errors.New("todo") //todo query contract need implement
+	const ERC20ABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
+
+	var input adaptor.QueryContractInput
+	input.ContractAddress = asset.Asset
+	input.Function = "decimals"
+	input.Extra = []byte(ERC20ABI)
+
+	//
+	resultQuery, err := QueryContract(&input, &aerc20.RPCParams, aerc20.NetID)
+	if err != nil {
+		return nil, err
+	}
+	decimalStr := string(resultQuery.QueryResult)
+	decimal, _ := strconv.ParseUint(decimalStr[1:len(decimalStr)-1], 10, 64)
+	var result adaptor.GetAssetDecimalOutput
+	result.Decimal = uint(decimal)
+
+	return &result, nil
 }
 
 //创建一个转账交易，但是未签名
