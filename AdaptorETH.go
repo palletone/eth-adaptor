@@ -164,19 +164,19 @@ func (aeth *AdaptorETH) GetContractInstallTx(input *adaptor.GetContractInstallTx
 	return nil, errors.New("todo") //todo
 }
 
-//初始化合约实例 //erc20合约创建交易的生成 need implement
+//初始化合约实例 //erc20合约创建交易的生成
 func (aeth *AdaptorETH) CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput) (*adaptor.CreateContractInitialTxOutput, error) {
-	return nil, errors.New("todo") //todo
+	return CreateContractInitialTx(input, &aeth.RPCParams, aeth.NetID)
 }
 
-//查询初始化合约实例的交易 //查询erc20合约创建交易 need implement
+//查询初始化合约实例的交易 //查询erc20合约创建交易
 func (aeth *AdaptorETH) GetContractInitialTx(input *adaptor.GetContractInitialTxInput) (*adaptor.GetContractInitialTxOutput, error) {
-	return nil, errors.New("todo") //todo
+	return GetContractInitialTx(input, &aeth.RPCParams, aeth.NetID)
 }
 
-//调用合约方法 //erc20合约调用交易的生成 need implement
+//调用合约方法 //erc20合约调用交易的生成
 func (aeth *AdaptorETH) CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput) (*adaptor.CreateContractInvokeTxOutput, error) {
-	return nil, errors.New("todo") //todo
+	return CreateContractInvokeTx(input, &aeth.RPCParams, aeth.NetID)
 }
 
 //查询调用合约方法的交易 //erc20合约查询不用产生交易， not implement
@@ -184,7 +184,7 @@ func (aeth *AdaptorETH) GetContractInvokeTx(input *adaptor.GetContractInvokeTxIn
 	return nil, errors.New("todo") //todo
 }
 
-//调用合约的查询方法 //rc20合约查询交易的生成 need implement
+//调用合约的查询方法 //rc20合约查询交易的生成
 func (aeth *AdaptorETH) QueryContract(input *adaptor.QueryContractInput) (*adaptor.QueryContractOutput, error) {
-	return nil, errors.New("todo") //todo
+	return QueryContract(input, &aeth.RPCParams, aeth.NetID)
 }

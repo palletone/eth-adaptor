@@ -35,14 +35,7 @@ import (
 )
 
 func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI,
-	method string, args []byte) error {
-
-	var params []string
-	err := json.Unmarshal(args, &params)
-	if err != nil {
-		return err
-	}
-
+	method string, params [][]byte) error {
 	var theMethod abi.Method
 	if "" == method {
 		theMethod = parsed.Constructor
@@ -51,19 +44,19 @@ func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI,
 	}
 
 	if len(params) == len(theMethod.Inputs) {
-		for i, arg := range params {
+		for i := range params {
 			switch theMethod.Inputs[i].Type.T {
 			case abi.IntTy:
 				fallthrough
 			case abi.UintTy:
 				paramInt := new(big.Int)
-				paramInt.SetString(arg, 10)
+				paramInt.SetString(string(params[i]), 10)
 				*paramsNew = append(*paramsNew, paramInt)
 			case abi.BoolTy:
-				paramBool, _ := strconv.ParseBool(arg)
+				paramBool, _ := strconv.ParseBool(string(params[i]))
 				*paramsNew = append(*paramsNew, paramBool)
 			case abi.StringTy:
-				*paramsNew = append(*paramsNew, arg)
+				*paramsNew = append(*paramsNew, string(params[i]))
 
 			case abi.SliceTy: //#zxl#
 				//				//client 	[]--->string--->[][i]byte...[]byte(arg)
@@ -77,13 +70,14 @@ func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI,
 				fmt.Println("Not support")
 			case abi.ArrayTy: //#zxl#
 			case abi.AddressTy:
-				paramBytes := common.HexToAddress(arg)
+				paramBytes := common.HexToAddress(string(params[i]))
 				*paramsNew = append(*paramsNew, paramBytes)
 			case abi.FixedBytesTy:
-				if "0x" == arg[0:2] {
-					arg = arg[2:]
+				str := string(params[i])
+				if "0x" == str[0:2] {
+					str = str[2:]
 				}
-				paramBytes := common.Hex2Bytes(arg)
+				paramBytes := common.Hex2Bytes(str)
 				inputSize := parsed.Methods[method].Inputs[i].Type.Size
 				if len(paramBytes) == inputSize {
 					switch inputSize {
@@ -99,10 +93,11 @@ func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI,
 			case abi.BytesTy:
 				fallthrough
 			case abi.HashTy:
-				if "0x" == arg[0:2] {
-					arg = arg[2:]
+				str := string(params[i])
+				if "0x" == str[0:2] {
+					str = str[2:]
 				}
-				paramBytes := common.Hex2Bytes(arg)
+				paramBytes := common.Hex2Bytes(str)
 				*paramsNew = append(*paramsNew, paramBytes[:])
 			case abi.FixedPointTy: //#zxl#
 			case abi.FunctionTy: //#zxl#
@@ -185,117 +180,6 @@ func parseResults(outs *[]interface{}) []interface{} {
 	return results
 }
 
-//func QueryContract(queryContractParams *adaptor.QueryContractParams, rpcParams *RPCParams, netID int) (*adaptor.QueryContractResult, error) {
-//	//get rpc client
-//	client, err := GetClient(rpcParams)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//
-//	parsed, err := abi.JSON(strings.NewReader(queryContractParams.ContractABI))
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//
-//	contractAddr := common.HexToAddress(queryContractParams.ContractAddr)
-//	contract := bind.NewBoundContract(contractAddr, parsed, client, client, client)
-//
-//	//
-//	var results []interface{}
-//	if queryContractParams.Params != "" {
-//		//
-//		var paramsNew []interface{}
-//		err = convertContractParams(&paramsNew, &parsed,
-//			queryContractParams.Method, queryContractParams.Params)
-//		if err != nil {
-//			return nil, err
-//		}
-//		//
-//		results, err = contract.CallZXL(&bind.CallOpts{Pending: false},
-//			queryContractParams.Method, paramsNew...)
-//	} else {
-//		//
-//		results, err = contract.CallZXL(&bind.CallOpts{Pending: false},
-//			queryContractParams.Method, queryContractParams.ParamsArray...)
-//	}
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//
-//	resultsJson, err := json.Marshal(results)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//save result
-//	var result adaptor.QueryContractResult
-//	result.Result = string(resultsJson)
-//
-//	return &result, nil
-//}
-
-//func GenInvokeContractTX(invokeContractParams *adaptor.GenInvokeContractTXParams, rpcParams *RPCParams, netID int) (*adaptor.GenInvokeContractTXResult, error) {
-//	//get rpc client
-//	client, err := GetClient(rpcParams)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	parsed, err := abi.JSON(strings.NewReader(invokeContractParams.ContractABI))
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//
-//	addrContract := common.HexToAddress(invokeContractParams.ContractAddr)
-//	addrCallFrom := common.HexToAddress(invokeContractParams.CallerAddr)
-//
-//	//
-//	value := new(big.Int)
-//	value.SetString(invokeContractParams.Value, 10)
-//	gasPrice := new(big.Int)
-//	gasPrice.SetString(invokeContractParams.GasPrice, 10)
-//	gasLimit, err := strconv.ParseUint(invokeContractParams.GasLimit, 10, 64)
-//	if err != nil {
-//		gasLimit = 2100000
-//	}
-//
-//	//
-//	var tx *types.Transaction
-//	if invokeContractParams.Params != "" {
-//		//
-//		var paramsNew []interface{}
-//		convertContractParams(&paramsNew, &parsed,
-//			invokeContractParams.Method, invokeContractParams.Params)
-//
-//		//
-//		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimit},
-//			parsed, client, addrContract,
-//			invokeContractParams.Method, paramsNew...)
-//	} else {
-//		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimit},
-//			parsed, client, addrContract,
-//			invokeContractParams.Method, invokeContractParams.ParamsArray...)
-//	}
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	rlpTXBytes, err := rlp.EncodeToBytes(tx)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//save result
-//	var result adaptor.GenInvokeContractTXResult
-//	result.TransactionHex = hexutil.Encode(rlpTXBytes)
-//
-//	return &result, nil
-//}
-
 func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateContractInitialTxOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
@@ -324,7 +208,7 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 		//
 		var paramsNew []interface{}
 		convertContractParams(&paramsNew, &parsed,
-			"", input.Args[0])
+			"", input.Args)
 
 		//
 		_, tx, _, err = bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice, GasLimit: gasLimitU64}, parsed,
@@ -349,6 +233,126 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 
 	return &result, nil
 
+}
+
+func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateContractInvokeTxOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	parsed, err := abi.JSON(strings.NewReader(string(input.Extra)))
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	var addrContract common.Address
+	if "0x" == input.ContractAddress[0:2] || "0X" == input.ContractAddress[0:2] {
+		addrContract = common.HexToAddress(input.ContractAddress[2:])
+	} else {
+		addrContract = common.HexToAddress(input.ContractAddress)
+	}
+	var addrCallFrom common.Address
+	if "0x" == input.Address[0:2] || "0X" == input.Address[0:2] {
+		addrCallFrom = common.HexToAddress(input.Address[2:])
+	} else {
+		addrCallFrom = common.HexToAddress(input.Address)
+	}
+
+	//
+	value := new(big.Int)
+	gasLimitU64 := uint64(2100000)
+	gasLimit := big.NewInt(2100000)
+	gasPrice := input.Fee.Amount.Div(&input.Fee.Amount, gasLimit)
+
+	//
+	var tx *types.Transaction
+	if len(input.Args) != 0 {
+		//
+		var paramsNew []interface{}
+		convertContractParams(&paramsNew, &parsed,
+			input.Function, input.Args)
+
+		//
+		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimitU64},
+			parsed, client, addrContract,
+			input.Function, paramsNew...)
+	} else {
+		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimitU64},
+			parsed, client, addrContract,
+			input.Function)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	rlpTXBytes, err := rlp.EncodeToBytes(tx)
+	if err != nil {
+		return nil, err
+	}
+
+	//save result
+	var result adaptor.CreateContractInvokeTxOutput
+	result.RawTranaction = rlpTXBytes
+
+	return &result, nil
+}
+
+func QueryContract(input *adaptor.QueryContractInput, rpcParams *RPCParams, netID int) (*adaptor.QueryContractOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	parsed, err := abi.JSON(strings.NewReader(string(input.Extra)))
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	var contractAddr common.Address
+	if "0x" == input.ContractAddress[0:2] || "0X" == input.ContractAddress[0:2] {
+		contractAddr = common.HexToAddress(input.ContractAddress[2:])
+	} else {
+		contractAddr = common.HexToAddress(input.ContractAddress)
+	}
+	contract := bind.NewBoundContract(contractAddr, parsed, client, client, client)
+
+	//
+	var results []interface{}
+	if len(input.Args) != 0 {
+		//
+		var paramsNew []interface{}
+		err = convertContractParams(&paramsNew, &parsed,
+			input.Function, input.Args)
+		if err != nil {
+			return nil, err
+		}
+		//
+		results, err = contract.CallZXL(&bind.CallOpts{Pending: false}, input.Function, paramsNew...)
+	} else {
+		//
+		results, err = contract.CallZXL(&bind.CallOpts{Pending: false}, input.Function)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	resultsJson, err := json.Marshal(results)
+	if err != nil {
+		return nil, err
+	}
+
+	//save result
+	var result adaptor.QueryContractOutput
+	result.QueryResult = resultsJson
+
+	return &result, nil
 }
 
 func UnpackInput() (string, error) {

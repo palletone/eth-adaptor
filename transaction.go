@@ -152,9 +152,7 @@ func convertSimpleTx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 		tx.TxRawData = common.Hex2Bytes(txResult.Input[2:])
 	}
 	tx.CreatorAddress = txResult.From
-	if txResult.To == "" {
-		tx.TargetAddress = txResult.ContractAddress
-	}
+	tx.TargetAddress = txResult.To
 	tx.IsInBlock = true
 	if txResult.IsError == "0" {
 		tx.IsSuccess = true
@@ -168,7 +166,8 @@ func convertSimpleTx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 	tx.BlockID = common.Hex2Bytes(txResult.BlockHash[2:])
 	blockNum, _ := strconv.ParseUint(txResult.BlockNumber, 10, 64)
 	tx.BlockHeight = uint(blockNum)
-	tx.TxIndex = 0 //todo delete
+	index, _ := strconv.ParseUint(txResult.TransactionIndex, 10, 64)
+	tx.TxIndex = uint(index)
 	timeStamp, _ := strconv.ParseUint(txResult.TimeStamp, 10, 64)
 	tx.Timestamp = timeStamp
 	tx.Amount = &adaptor.AmountAsset{}
@@ -176,7 +175,11 @@ func convertSimpleTx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 	tx.Fee = &adaptor.AmountAsset{}
 	tx.Fee.Amount.SetString(txResult.GasUsed, 10)
 	tx.FromAddress = tx.CreatorAddress
-	tx.ToAddress = txResult.To
+	if txResult.To == "" {
+		tx.ToAddress = txResult.ContractAddress
+	} else {
+		tx.ToAddress = txResult.To
+	}
 	tx.AttachData = tx.TxRawData //todo
 
 	return tx
@@ -223,7 +226,10 @@ func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, ne
 	result.Tx.TxID = tx.Hash().Bytes()
 	result.Tx.TxRawData = tx.Data()
 	result.Tx.CreatorAddress = msg.From().String()
-	result.Tx.TargetAddress = msg.To().String()
+	toAddr := msg.To()
+	if toAddr != nil {
+		result.Tx.TargetAddress = msg.To().String()
+	}
 	result.Tx.IsInBlock = true
 	if receipt.Status > 0 {
 		result.Tx.IsSuccess = true
@@ -284,7 +290,10 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	result.Tx.TxID = tx.Hash().Bytes()
 	result.Tx.TxRawData = tx.Data()
 	result.Tx.CreatorAddress = msg.From().String()
-	result.Tx.TargetAddress = msg.To().String()
+	toAddr := msg.To()
+	if toAddr != nil {
+		result.Tx.TargetAddress = msg.To().String()
+	}
 	result.Tx.IsInBlock = true
 	if receipt.Status > 0 {
 		result.Tx.IsSuccess = true
@@ -309,7 +318,12 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 		result.Tx.Amount.Amount.SetBytes(receipt.Logs[0].Data)
 	} else {
 		result.Tx.FromAddress = result.Tx.CreatorAddress
-		result.Tx.ToAddress = result.Tx.TargetAddress
+		receiptAddr := receipt.ContractAddress.String()
+		if receiptAddr == "0x0000000000000000000000000000000000000000" {
+			result.Tx.ToAddress = result.Tx.TargetAddress
+		} else {
+			result.Tx.ToAddress = receiptAddr
+		}
 		result.Tx.Amount = &adaptor.AmountAsset{}
 		result.Tx.Amount.Amount.Set(msg.Value())
 	}
@@ -321,43 +335,70 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	return &result, nil
 }
 
-//func GetErc20TxByHash(txParams *adaptor.GetErc20TxByHashParams, rpcParams *RPCParams, netID int) (*adaptor.GetErc20TxByHashResult, error) {
-//	//get rpc client
-//	client, err := GetClient(rpcParams)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//call eth method
-//	hash := common.HexToHash(txParams.Hash)
-//	receipt, err := client.TransactionReceipt(context.Background(), hash)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//save result
-//	var result adaptor.GetErc20TxByHashResult
-//	result.Hash = receipt.TxHash.String()
-//	result.Status = fmt.Sprintf("%d", receipt.Status)
-//	if len(receipt.Logs) > 0 {
-//		result.BlockHash = receipt.Logs[0].BlockHash.String()
-//		bigIntBlockNum := new(big.Int)
-//		bigIntBlockNum.SetUint64(receipt.Logs[0].BlockNumber)
-//		result.BlockNumber = bigIntBlockNum.String()
-//
-//		result.ContractAddr = receipt.Logs[0].Address.String()
-//		if len(receipt.Logs[0].Topics) > 2 {
-//			result.From = common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes()).String()
-//			result.To = common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes()).String()
-//		}
-//
-//		bigIntAmount := new(big.Int)
-//		bigIntAmount, _ = bigIntAmount.SetString(hexutil.Encode(receipt.Logs[0].Data), 0)
-//		result.Amount = bigIntAmount.String()
-//	}
-//
-//	return &result, nil
-//}
+func GetContractInitialTx(input *adaptor.GetContractInitialTxInput, rpcParams *RPCParams, netID int) (*adaptor.GetContractInitialTxOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	//call eth method
+	hash := common.BytesToHash(input.TxID)
+	tx, blockNumber, blockHash, err := client.TransactionsByHash(context.Background(), hash)
+	if err != nil {
+		//fmt.Println("0")//pending not found
+		return nil, err
+	}
+
+	//conver to msg for from address
+	bigIntBlockNum := new(big.Int)
+	bigIntBlockNum.SetString(blockNumber, 0)
+
+	var signer types.Signer
+	if netID == NETID_MAIN {
+		signer = types.MakeSigner(params.MainnetChainConfig, bigIntBlockNum)
+	} else {
+		signer = types.MakeSigner(params.TestnetChainConfig, bigIntBlockNum)
+	}
+
+	msg, err := tx.AsMessage(signer)
+	if err != nil {
+		return nil, err
+	}
+
+	receipt, err := client.TransactionReceipt(context.Background(), hash)
+	if err != nil {
+		return nil, err
+	}
+
+	//save result
+	var result adaptor.GetContractInitialTxOutput
+	result.TxID = tx.Hash().Bytes()
+	result.TxRawData = tx.Data()
+	result.CreatorAddress = msg.From().String()
+	toAddr := msg.To()
+	if toAddr != nil {
+		result.TargetAddress = msg.To().String()
+	}
+	result.IsInBlock = true
+	if receipt.Status > 0 {
+		result.IsSuccess = true
+	} else {
+		result.IsSuccess = false
+	}
+	result.IsStable = true //todo delete
+	if "0x" == blockHash[:2] || "0X" == blockHash[:2] {
+		result.BlockID = Hex2Bytes(blockHash[2:])
+	} else {
+		result.BlockID = Hex2Bytes(blockHash)
+	}
+	result.BlockHeight = uint(bigIntBlockNum.Uint64())
+	result.TxIndex = 0   //receipt.Logs[0].TxIndex //todo delete
+	result.Timestamp = 0 //todo delete
+	result.ContractAddress = receipt.ContractAddress.String()
+
+	return &result, nil
+}
 
 func GetBlockInfo(input *adaptor.GetBlockInfoInput, rpcParams *RPCParams, netID int) (*adaptor.GetBlockInfoOutput, error) {
 	//get rpc client
