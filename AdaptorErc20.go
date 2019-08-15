@@ -18,7 +18,6 @@
 package ethadaptor
 
 import (
-	"errors"
 	"strconv"
 
 	"github.com/palletone/adaptor"
@@ -32,7 +31,18 @@ type AdaptorErc20 struct {
 func NewAdaptorErc20(netID int, rPCParams RPCParams) *AdaptorErc20 {
 	return &AdaptorErc20{netID, rPCParams}
 }
-
+func NewAdaptorErc20Testnet() *AdaptorErc20{
+	return &AdaptorErc20{
+		NetID:NETID_TEST,
+		RPCParams:RPCParams{Rawurl:"https://ropsten.infura.io"},
+	}
+}
+func NewAdaptorErc20Mainnet() *AdaptorErc20{
+	return &AdaptorErc20{
+		NetID:NETID_MAIN,
+		RPCParams:RPCParams{Rawurl:"https://mainnet.infura.io"},
+	}
+}
 /*IUtility*/
 //创建一个新的私钥
 func (aerc20 *AdaptorErc20) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adaptor.NewPrivateKeyOutput, error) {
@@ -147,7 +157,7 @@ func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferT
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return GetAddrTxHistoryHttp(input, aerc20.NetID) // use web api
+	return GetAddrTxHistoryHttp(input, aerc20.NetID,true) // use web api
 }
 
 //根据交易ID获得对应的转账交易
@@ -157,7 +167,11 @@ func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*a
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
 func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	return nil, errors.New("todo") //todo not implement
+	multiSignContractAddr:="0x1989a21eb0f28063e47e6b448e8d76774bc9b493"//Testnet
+	if aerc20.NetID== NETID_MAIN{
+		multiSignContractAddr="0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"//TODO Mainnet
+	}
+	return &adaptor.CreateMultiSigAddressOutput{Address:multiSignContractAddr},nil
 }
 
 //获取最新区块头

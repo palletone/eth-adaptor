@@ -24,7 +24,7 @@ var(
 	ptnAddr="P1KJSodB2vzJ1A7jyqWVGb9NN7pCSt9ZZnN"
 )
 
-func TestDeposit(t *testing.T) {
+func TestDepositETH(t *testing.T) {
 	var aeth adaptor.ICryptoCurrency = NewAdaptorETHTestnet()
 	input := &adaptor.CreateMultiSigAddressInput{}
 	input.Keys = make([][]byte, 4)
@@ -45,6 +45,37 @@ func TestDeposit(t *testing.T) {
 	//User1通过自己的ETH钱包转账到多签地址
 	//接下来申请提PETH
 	txHistoryOut, err := aeth.GetAddrTxHistory(&adaptor.GetAddrTxHistoryInput{FromAddress: u1EthAddr, ToAddress: multiSignAddr, PageSize: 5,AddressLogicAndOr:true,Asset:"ETH"})
+	assert.Nil(t, err)
+	for _, txHist := range txHistoryOut.Txs {
+		t.Logf("History tx:%v", txHist.String())
+		if txHist.IsInBlock&& txHist.IsStable&&txHist.IsSuccess{
+			t.Logf("用户%s充值:%s对应Txid：%x,可以发放PETH",txHist.FromAddress,txHist.Amount.String(),txHist.TxID)
+		}
+	}
+}
+
+func TestDepositErc20(t *testing.T) {
+	var aeth adaptor.ICryptoCurrency = NewAdaptorErc20Testnet()
+	erc20Asset:="0xa54880da9a63cdd2ddacf25af68daf31a1bcc0c9"
+	input := &adaptor.CreateMultiSigAddressInput{}
+	input.Keys = make([][]byte, 4)
+	input.Keys[0] = j1pubKey
+	input.Keys[1] = j2pubKey
+	input.Keys[2] = j3pubKey
+	input.Keys[3] = j4pubKey
+	input.SignCount = 3
+	output, err := aeth.CreateMultiSigAddress(input)
+	t.Logf("Jury pub keys:%x", input.Keys)
+	t.Logf("Jury addresss:%s", [...]string{j1Addr, j2Addr, j3Addr, j4Addr})
+	assert.Nil(t, err)
+	multiSignAddr := output.Address
+	t.Logf("MutiSign Address:%s", multiSignAddr)
+	addrOut, err := aeth.GetPalletOneMappingAddress(&adaptor.GetPalletOneMappingAddressInput{ChainAddress: u1EthAddr})
+	assert.Nil(t, err)
+	t.Logf("PalletOne Address:%s,%x", addrOut.PalletOneAddress,[]byte(addrOut.PalletOneAddress))
+	//User1通过自己的ETH钱包转账到多签地址
+	//接下来申请提PETH
+	txHistoryOut, err := aeth.GetAddrTxHistory(&adaptor.GetAddrTxHistoryInput{FromAddress: u1EthAddr, ToAddress: multiSignAddr, PageSize: 5,AddressLogicAndOr:true,Asset:erc20Asset})
 	assert.Nil(t, err)
 	for _, txHist := range txHistoryOut.Txs {
 		t.Logf("History tx:%v", txHist.String())

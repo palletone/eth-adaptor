@@ -95,13 +95,18 @@ type GetAddrTxHistoryResult struct {
 }
 
 //https://api-ropsten.etherscan.io/api?module=account&action=txlist&address=0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a&startblock=0&endblock=99999999&page=1&offset=10&sort=asc&apikey=YourApiKeyToken
-func GetAddrTxHistoryHttp(input *adaptor.GetAddrTxHistoryInput, netID int) (*adaptor.GetAddrTxHistoryOutput, error) {
+func GetAddrTxHistoryHttp(input *adaptor.GetAddrTxHistoryInput, netID int,isErc20 bool) (*adaptor.GetAddrTxHistoryOutput, error) {
 	var request string
 	if netID == NETID_MAIN {
-		request = base + "?module=account&action=txlist&address=" + input.FromAddress + "&startblock=0&endblock=99999999"
+		request = base
 	} else {
-		request = base_test + "?module=account&action=txlist&address=" + input.FromAddress + "&startblock=0&endblock=99999999"
+		request = base_test
 	}
+	action:="txlist"
+	if isErc20{
+		action="tokentx"
+	}
+	request+= "?module=account&action="+action+"&address=" + input.FromAddress + "&startblock=0&endblock=99999999"
 	if input.PageIndex != 0 && input.PageSize != 0 {
 		request = request + "&page=" + fmt.Sprintf("%d", input.PageIndex)
 		request = request + "&offset=" + fmt.Sprintf("%d", input.PageSize)
@@ -112,7 +117,7 @@ func GetAddrTxHistoryHttp(input *adaptor.GetAddrTxHistoryInput, netID int) (*ada
 		request = request + "&sort=desc"
 	}
 	request = request + "&apikey=YourApiKeyToken"
-
+	fmt.Println(request)
 	//
 	strRespose, err, _ := httpGet(request)
 	if err != nil {
