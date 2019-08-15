@@ -197,7 +197,6 @@ func CreateETHTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams
 	//fmt.Printf("unsigned tx: %x\n", rlpTXBytes)
 	//save result
 	var result adaptor.CreateTransferTokenTxOutput
-	result.Transaction = append(result.Transaction, 't')
 	result.Transaction = append(result.Transaction, rlpTXBytes...)
 
 	return &result, nil
@@ -239,7 +238,7 @@ func CreateTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransfe
 	//}
 
 	var data []byte
-	data = append(data, 'm')
+	data = append(data, []byte("msg")...)
 	//from
 	fromAddress := common.HexToAddress(input.FromAddress)
 	fromAddressPadded := common.LeftPadBytes(fromAddress.Bytes(), 32)
