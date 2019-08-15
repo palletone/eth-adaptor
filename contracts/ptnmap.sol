@@ -83,8 +83,8 @@ contract PTNMap is IERC20 {
     string constant public symbol = "PTNMap";
 
 
-    constructor() public {
-       ptnToken = IERC20(0xa54880da9a63cdd2ddacf25af68daf31a1bcc0c9);
+    constructor(address _erc20Addr) public {
+       ptnToken = IERC20(_erc20Addr);
     }
     
     function transfer(address _ptnhex, uint256 _amt) external returns (bool) {
@@ -127,9 +127,14 @@ contract PTNMap is IERC20 {
     }
 
 
-    function getptnhex(address addr) external view returns (string){
+    function getMapPtnAddr(address addr) external view returns (string){
         return encodeBase58(addrmap[addr]);
-    }  
+    }
+    function getMapEthAddr(address ptnAddr) external view returns (address){
+        return addrmapPTN[ptnAddr];
+    }
+
+
     function bytesConcat(bytes _b) internal returns (string){
         string memory ret = new string(2 + _b.length);
         bytes memory bret = bytes(ret);
@@ -204,6 +209,6 @@ contract PTNMap is IERC20 {
         return output;
     }
     function () payable {
-            // 可接收ETH
+        // can receive eth
     }
 }
