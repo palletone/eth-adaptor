@@ -31,18 +31,20 @@ type AdaptorETH struct {
 	NetID int
 	RPCParams
 }
-func NewAdaptorETHTestnet() *AdaptorETH{
+
+func NewAdaptorETHTestnet() *AdaptorETH {
 	return &AdaptorETH{
-		NetID:NETID_TEST,
-		RPCParams:RPCParams{Rawurl:"https://ropsten.infura.io"},
-		}
-}
-func NewAdaptorETHMainnet() *AdaptorETH{
-	return &AdaptorETH{
-		NetID:NETID_MAIN,
-		RPCParams:RPCParams{Rawurl:"https://mainnet.infura.io"},
+		NetID:     NETID_TEST,
+		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io"},
 	}
 }
+func NewAdaptorETHMainnet() *AdaptorETH {
+	return &AdaptorETH{
+		NetID:     NETID_MAIN,
+		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io"},
+	}
+}
+
 const (
 	NETID_MAIN = iota
 	NETID_TEST
@@ -71,7 +73,7 @@ func (aeth *AdaptorETH) GetPublicKey(input *adaptor.GetPublicKeyInput) (*adaptor
 
 //根据Key创建地址
 func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAddressOutput, error) {
-	addr, err := GetAddress(key.Key, aeth.NetID)
+	addr, err := PubKeyToAddress(key.Key)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +96,7 @@ func (aeth *AdaptorETH) VerifySignature(input *adaptor.VerifySignatureInput) (*a
 
 //对一条交易进行签名，并返回签名结果 //call SignMessage
 func (aeth *AdaptorETH) SignTransaction(input *adaptor.SignTransactionInput) (*adaptor.SignTransactionOutput, error) {
-	if 'm' == input.Transaction[0] {
+	if 'm' == input.Transaction[0] && 's' == input.Transaction[1] && 'g' == input.Transaction[2] {
 		inputNew := &adaptor.SignMessageInput{}
 		inputNew.PrivateKey = input.PrivateKey
 		inputNew.Message = input.Transaction[1:]
@@ -161,11 +163,11 @@ func (aeth *AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adapt
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁 //eth没有多签，not implement
 func (aeth *AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	multiSignContractAddr:="0x1989a21eb0f28063e47e6b448e8d76774bc9b493"//Testnet
-	if aeth.NetID== NETID_MAIN{
-		multiSignContractAddr="0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"//TODO Mainnet
+	multiSignContractAddr := "0x1989a21eb0f28063e47e6b448e8d76774bc9b493" //Testnet
+	if aeth.NetID == NETID_MAIN {
+		multiSignContractAddr = "0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9" //TODO Mainnet
 	}
-	return &adaptor.CreateMultiSigAddressOutput{Address:multiSignContractAddr},nil
+	return &adaptor.CreateMultiSigAddressOutput{Address: multiSignContractAddr}, nil
 }
 
 /*ISmartContract*/
