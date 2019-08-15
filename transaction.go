@@ -170,9 +170,9 @@ func convertSimpleTx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 	tx.TxIndex = uint(index)
 	timeStamp, _ := strconv.ParseUint(txResult.TimeStamp, 10, 64)
 	tx.Timestamp = timeStamp
-	tx.Amount = &adaptor.AmountAsset{}
+	tx.Amount = &adaptor.AmountAsset{Asset:"ETH"}
 	tx.Amount.Amount.SetString(txResult.Value, 10)
-	tx.Fee = &adaptor.AmountAsset{}
+	tx.Fee = &adaptor.AmountAsset{Asset:"ETH"}
 	tx.Fee.Amount.SetString(txResult.GasUsed, 10)
 	tx.FromAddress = tx.CreatorAddress
 	if txResult.To == "" {

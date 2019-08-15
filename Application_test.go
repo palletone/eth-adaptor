@@ -20,7 +20,8 @@ var(
 	j4prvKey,_=hex.DecodeString("e128bfee7ca58ab329a1ec14892ec80f0ff563f4b8829b2f806c4412231c113c")
 	j4pubKey,_=GetPublicKey(j4prvKey)
 	j4Addr,_=PubKeyToAddress(j4pubKey)
-	u1EthAddr="0x7D7116A8706Ae08bAA7F4909e26728fa7A5f0365"
+	u1EthAddr="0xd051ECF5BbA0ecFB11E25a75453f948994D420a4"
+	ptnAddr="P1KJSodB2vzJ1A7jyqWVGb9NN7pCSt9ZZnN"
 )
 
 func TestDeposit(t *testing.T) {
@@ -40,12 +41,15 @@ func TestDeposit(t *testing.T) {
 	t.Logf("MutiSign Address:%s", multiSignAddr)
 	addrOut, err := aeth.GetPalletOneMappingAddress(&adaptor.GetPalletOneMappingAddressInput{ChainAddress: u1EthAddr})
 	assert.Nil(t, err)
-	t.Logf("PalletOne Address:%s", addrOut.PalletOneAddress)
+	t.Logf("PalletOne Address:%s,%x", addrOut.PalletOneAddress,[]byte(addrOut.PalletOneAddress))
 	//User1通过自己的ETH钱包转账到多签地址
 	//接下来申请提PETH
-	txHistoryOut, err := aeth.GetAddrTxHistory(&adaptor.GetAddrTxHistoryInput{FromAddress: u1EthAddr, ToAddress: multiSignAddr, PageSize: 5,AddressLogicAndOr:true})
+	txHistoryOut, err := aeth.GetAddrTxHistory(&adaptor.GetAddrTxHistoryInput{FromAddress: u1EthAddr, ToAddress: multiSignAddr, PageSize: 5,AddressLogicAndOr:true,Asset:"ETH"})
 	assert.Nil(t, err)
 	for _, txHist := range txHistoryOut.Txs {
 		t.Logf("History tx:%v", txHist.String())
+		if txHist.IsInBlock&& txHist.IsStable&&txHist.IsSuccess{
+			t.Logf("用户%s充值:%s对应Txid：%x,可以发放PETH",txHist.FromAddress,txHist.Amount.String(),txHist.TxID)
+		}
 	}
 }

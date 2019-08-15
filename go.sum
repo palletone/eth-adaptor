@@ -97,6 +97,8 @@ github.com/palletone/adaptor v0.6.1-0.20190814083901-f37da6ea8f96 h1:zThOObne7Ta
 github.com/palletone/adaptor v0.6.1-0.20190814083901-f37da6ea8f96/go.mod h1:i3uPE54wSkO/xB5yAtAReUk/YO1JZUQZMCa1WP71/AQ=
 github.com/palletone/adaptor v0.6.1-0.20190814104948-3b42ad3b6d62 h1:c6IwKpi5aWj6zER7sHqtjP0nRheMdNEBCYHt18Iwq5c=
 github.com/palletone/adaptor v0.6.1-0.20190814104948-3b42ad3b6d62/go.mod h1:i3uPE54wSkO/xB5yAtAReUk/YO1JZUQZMCa1WP71/AQ=
+github.com/palletone/adaptor v0.6.1-0.20190815044631-e334757bd57b h1:/gJhhJLSitP+lptBpk00k1Ht7YdN5js+pL8upHnUhA8=
+github.com/palletone/adaptor v0.6.1-0.20190815044631-e334757bd57b/go.mod h1:k6ZNhpJIeCj4ycLncQy6ww9MdyWva3f7xPgSwaTdyoU=
 github.com/pborman/uuid v1.2.0 h1:J7Q5mO4ysT1dv8hyrUGHb9+ooztCXu1D8MY8DZYsu3g=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

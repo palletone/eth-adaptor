@@ -161,7 +161,7 @@ func (aeth *AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adapt
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁 //eth没有多签，not implement
 func (aeth *AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	multiSignContractAddr:="0x12585fe00f896fdc0807e4e415faaf538a1e1e0f"//Testnet
+	multiSignContractAddr:="0x1989a21eb0f28063e47e6b448e8d76774bc9b493"//Testnet
 	if aeth.NetID== NETID_MAIN{
 		multiSignContractAddr="0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"//TODO Mainnet
 	}

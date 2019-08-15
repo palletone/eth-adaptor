@@ -34,3 +34,17 @@ type AmountAsset struct {
 func (aa *AmountAsset) String() string {
 	return fmt.Sprintf("%s %s", aa.Amount.String(), aa.Asset)
 }
+func NewAmountAsset(amount big.Int,asset string) *AmountAsset{
+	return &AmountAsset{
+		Amount: amount,
+		Asset:  asset,
+	}
+}
+func NewAmountAssetUint64(amount uint64,asset string) *AmountAsset{
+	a:=big.Int{}
+	a.SetUint64(amount)
+	return &AmountAsset{
+		Amount: a,
+		Asset:  asset,
+	}
+}
