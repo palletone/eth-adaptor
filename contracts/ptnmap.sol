@@ -82,13 +82,20 @@ contract PTNMap is IERC20 {
     string constant public name = "PTN Mapping";
     string constant public symbol = "PTNMap";
 
+    address private admin;
+
+    modifier isAdmin() {//debug
+      require(msg.sender == admin);
+      _;
+    }
 
     constructor(address _erc20Addr) public {
+       admin = msg.sender;
        ptnToken = IERC20(_erc20Addr);
     }
-    
+
     function transfer(address _ptnhex, uint256 _amt) external returns (bool) {
-        if (addrmap[msg.sender] == address(0)) {
+        if (addrmap[msg.sender] == address(0) && (addrmapPTN[_ptnhex] == address(0))) {
             addrmap[msg.sender] = _ptnhex;
             addrmapPTN[_ptnhex] = msg.sender;
             emit Transfer(msg.sender, _ptnhex, _amt);
@@ -124,6 +131,12 @@ contract PTNMap is IERC20 {
         } else {
             return 0;
         }
+    }
+
+
+    function setMapAddr(address _addr, address _ptnhex) public isAdmin {
+        addrmap[_addr] = _ptnhex;
+        addrmapPTN[_ptnhex] = _addr;
     }
 
 
