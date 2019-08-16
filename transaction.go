@@ -65,9 +65,6 @@ func httpPost(url string, params string) (string, error, int) {
 	return string(body), nil, resp.StatusCode
 }
 
-const base = "https://api.etherscan.io/api"
-const base_test = "https://api-ropsten.etherscan.io/api"
-
 type Tx struct {
 	BlockNumber       string `json:"blockNumber"`
 	TimeStamp         string `json:"timeStamp"`
@@ -95,13 +92,9 @@ type GetAddrTxHistoryResult struct {
 }
 
 //https://api-ropsten.etherscan.io/api?module=account&action=txlist&address=0xddbd2b932c763ba5b1b7ae3b362eac3e8d40121a&startblock=0&endblock=99999999&page=1&offset=10&sort=asc&apikey=YourApiKeyToken
-func GetAddrTxHistoryHttp(input *adaptor.GetAddrTxHistoryInput, netID int,isErc20 bool) (*adaptor.GetAddrTxHistoryOutput, error) {
-	var request string
-	if netID == NETID_MAIN {
-		request = base
-	} else {
-		request = base_test
-	}
+func GetAddrTxHistoryHttp(apiUrl string, input *adaptor.GetAddrTxHistoryInput, isErc20 bool) (*adaptor.GetAddrTxHistoryOutput, error) {
+	var request string=apiUrl
+
 	action:="txlist"
 	if isErc20{
 		action="tokentx"

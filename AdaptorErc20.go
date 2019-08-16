@@ -26,21 +26,26 @@ import (
 type AdaptorErc20 struct {
 	NetID int
 	RPCParams
+	lockContractAddress string
 }
 
-func NewAdaptorErc20(netID int, rPCParams RPCParams) *AdaptorErc20 {
-	return &AdaptorErc20{netID, rPCParams}
+func NewAdaptorErc20(netID int, rPCParams RPCParams,lockAddress string) *AdaptorErc20 {
+	return &AdaptorErc20{netID, rPCParams,lockAddress}
 }
 func NewAdaptorErc20Testnet() *AdaptorErc20{
 	return &AdaptorErc20{
-		NetID:NETID_TEST,
-		RPCParams:RPCParams{Rawurl:"https://ropsten.infura.io"},
+		NetID:     NETID_TEST,
+		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
+			TxQueryUrl: "https://api-ropsten.etherscan.io/api"},
+		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
 func NewAdaptorErc20Mainnet() *AdaptorErc20{
 	return &AdaptorErc20{
-		NetID:NETID_MAIN,
-		RPCParams:RPCParams{Rawurl:"https://mainnet.infura.io"},
+		NetID:     NETID_MAIN,
+		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io",
+			TxQueryUrl:"https://api.etherscan.io/api"},
+		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
 /*IUtility*/
@@ -157,7 +162,7 @@ func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferT
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return GetAddrTxHistoryHttp(input, aerc20.NetID,true) // use web api
+	return GetAddrTxHistoryHttp(aerc20.TxQueryUrl,input,true) // use web api
 }
 
 //根据交易ID获得对应的转账交易
@@ -167,11 +172,7 @@ func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*a
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
 func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	multiSignContractAddr:="0x1989a21eb0f28063e47e6b448e8d76774bc9b493"//Testnet
-	if aerc20.NetID== NETID_MAIN{
-		multiSignContractAddr="0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"//TODO Mainnet
-	}
-	return &adaptor.CreateMultiSigAddressOutput{Address:multiSignContractAddr},nil
+	return &adaptor.CreateMultiSigAddressOutput{Address:aerc20.lockContractAddress},nil
 }
 
 //获取最新区块头

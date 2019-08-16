@@ -25,23 +25,29 @@ import (
 
 type RPCParams struct {
 	Rawurl string `json:"rawurl"`
+	TxQueryUrl string
 }
 
 type AdaptorETH struct {
 	NetID int
 	RPCParams
+	lockContractAddress string
 }
 
 func NewAdaptorETHTestnet() *AdaptorETH {
 	return &AdaptorETH{
 		NetID:     NETID_TEST,
-		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io"},
+		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
+			TxQueryUrl: "https://api-ropsten.etherscan.io/api"},
+		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
 func NewAdaptorETHMainnet() *AdaptorETH {
 	return &AdaptorETH{
 		NetID:     NETID_MAIN,
-		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io"},
+		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io",
+			TxQueryUrl:"https://api.etherscan.io/api"},
+		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
 
@@ -153,7 +159,7 @@ func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferToken
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aeth *AdaptorETH) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return GetAddrTxHistoryHttp(input, aeth.NetID,false) // use web api
+	return GetAddrTxHistoryHttp(aeth.TxQueryUrl, input,false) // use web api
 }
 
 //根据交易ID获得对应的转账交易
@@ -163,11 +169,8 @@ func (aeth *AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adapt
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁 //eth没有多签，not implement
 func (aeth *AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	multiSignContractAddr := "0x1989a21eb0f28063e47e6b448e8d76774bc9b493" //Testnet
-	if aeth.NetID == NETID_MAIN {
-		multiSignContractAddr = "0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9" //TODO Mainnet
-	}
-	return &adaptor.CreateMultiSigAddressOutput{Address: multiSignContractAddr}, nil
+
+	return &adaptor.CreateMultiSigAddressOutput{Address: aeth.lockContractAddress}, nil
 }
 
 /*ISmartContract*/
