@@ -40,7 +40,7 @@ func TestAdaptorErc20_GetPalletOneMappingAddress(t *testing.T) {
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//0xfb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
 	}
 
-	ada := NewAdaptorErc20(NETID_TEST, rpcParams, "0x90fd6ffccaf2543480a34ed746902c298a86a405")
+	ada := NewAdaptorErc20(NETID_TEST, rpcParams, "0xa840d94b1ef4c326c370e84d108d539d31d52e84")
 
 	addrETH := &adaptor.GetPalletOneMappingAddressInput{ChainAddress: "0x7D7116A8706Ae08bAA7F4909e26728fa7A5f0365"}
 	outputPTN, err := ada.GetPalletOneMappingAddress(addrETH)

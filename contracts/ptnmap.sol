@@ -145,6 +145,9 @@ contract PTNMap is IERC20 {
 
 
     function getMapPtnAddr(address addr) external view returns (string){
+        if (addrmap[addr] == address(0)) {
+            return "";
+        }
         return encodeBase58(addrmap[addr]);
     }
     function getMapEthAddr(address ptnAddr) external view returns (address){
