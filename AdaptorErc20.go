@@ -32,23 +32,23 @@ type AdaptorErc20 struct {
 	lockContractAddress string
 }
 
-func NewAdaptorErc20(netID int, rPCParams RPCParams,lockAddress string) *AdaptorErc20 {
-	return &AdaptorErc20{netID, rPCParams,lockAddress}
+func NewAdaptorErc20(netID int, rPCParams RPCParams, lockAddress string) *AdaptorErc20 {
+	return &AdaptorErc20{netID, rPCParams, lockAddress}
 }
 func NewAdaptorErc20Testnet() *AdaptorErc20 {
 	return &AdaptorErc20{
-		NetID:     NETID_TEST,
+		NetID: NETID_TEST,
 		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
 			TxQueryUrl: "https://api-ropsten.etherscan.io/api"},
-		lockContractAddress:"0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
+		lockContractAddress: "0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
 	}
 }
 func NewAdaptorErc20Mainnet() *AdaptorErc20 {
 	return &AdaptorErc20{
-		NetID:     NETID_MAIN,
+		NetID: NETID_MAIN,
 		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io",
-			TxQueryUrl:"https://api.etherscan.io/api"},
-		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
+			TxQueryUrl: "https://api.etherscan.io/api"},
+		lockContractAddress: "0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
 
@@ -84,7 +84,7 @@ func (aerc20 *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.G
 }
 
 func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
-	rpcParams *RPCParams,queryContractAddr string) (
+	rpcParams *RPCParams, queryContractAddr string) (
 	*adaptor.GetPalletOneMappingAddressOutput, error) {
 	const MapAddrABI = `[
 	{
@@ -160,7 +160,7 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 	return &result, nil
 }
 func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return GetMappAddr(addr, &aerc20.RPCParams,aerc20.lockContractAddress)
+	return GetMappAddr(addr, &aerc20.RPCParams, aerc20.lockContractAddress)
 }
 
 //对一条交易进行签名，并返回签名结果
@@ -211,7 +211,24 @@ func (aerc20 *AdaptorErc20) GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput) (
 /*ICryptoCurrency*/
 //获取某地址下持有某资产的数量,返回数量为该资产的最小单位
 func (aerc20 *AdaptorErc20) GetBalance(input *adaptor.GetBalanceInput) (*adaptor.GetBalanceOutput, error) {
-	return GetBalanceToken(input, &aerc20.RPCParams, aerc20.NetID)
+	const ERC20ABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"who\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
+
+	var inputQuery adaptor.QueryContractInput
+	inputQuery.ContractAddress = input.Asset
+	inputQuery.Function = "balanceOf"
+	inputQuery.Args = append(inputQuery.Args, []byte(input.Address))
+	inputQuery.Extra = []byte(ERC20ABI)
+
+	//
+	resultQuery, err := QueryContract(&inputQuery, &aerc20.RPCParams)
+	if err != nil {
+		return nil, err
+	}
+	balanceStr := string(resultQuery.QueryResult)
+	var result adaptor.GetBalanceOutput
+	result.Balance.Amount.SetString(balanceStr[1:len(balanceStr)-1], 10)
+
+	return &result, nil
 }
 
 //获取某资产的小数点位数
@@ -243,7 +260,7 @@ func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferT
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return GetAddrErc20TxHistoryHttp(aerc20.TxQueryUrl,input) // use web api
+	return GetAddrErc20TxHistoryHttp(aerc20.TxQueryUrl, input) // use web api
 }
 
 //根据交易ID获得对应的转账交易
@@ -253,7 +270,7 @@ func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*a
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
 func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	return &adaptor.CreateMultiSigAddressOutput{Address:aerc20.lockContractAddress},nil
+	return &adaptor.CreateMultiSigAddressOutput{Address: aerc20.lockContractAddress}, nil
 }
 
 //获取最新区块头

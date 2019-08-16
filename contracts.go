@@ -314,6 +314,9 @@ func QueryContract(input *adaptor.QueryContractInput, rpcParams *RPCParams) (*ad
 	}
 
 	//
+	if len(input.ContractAddress) == 0 {
+		return nil, fmt.Errorf("ContractAddress is empty")
+	}
 	var contractAddr common.Address
 	if "0x" == input.ContractAddress[0:2] || "0X" == input.ContractAddress[0:2] {
 		contractAddr = common.HexToAddress(input.ContractAddress[2:])

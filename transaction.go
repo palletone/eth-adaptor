@@ -179,9 +179,9 @@ func convertSimpleTx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 }
 
 //https://api-ropsten.etherscan.io/api?module=account&action=tokentx&address=0x588eb98f8814aedb056d549c0bafd5ef4963069c&startblock=0&endblock=99999999&sort=desc&apikey=YourApiKeyToken
-func GetAddrErc20TxHistoryHttp(apiUrl string,input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	var request string=apiUrl
-	
+func GetAddrErc20TxHistoryHttp(apiUrl string, input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
+	var request string = apiUrl
+
 	request += "?module=account&action=tokentx&address=" + input.FromAddress + "&startblock=0&endblock=99999999"
 	if input.PageIndex != 0 && input.PageSize != 0 {
 		request = request + "&page=" + fmt.Sprintf("%d", input.PageIndex)
@@ -211,6 +211,9 @@ func GetAddrErc20TxHistoryHttp(apiUrl string,input *adaptor.GetAddrTxHistoryInpu
 	if input.AddressLogicAndOr {
 		for i := range txResult.Result {
 			toAddr := strings.ToLower(input.ToAddress)
+			if len(input.Asset) != 0 && txResult.Result[i].ContractAddress != input.Asset {
+				continue
+			}
 			if txResult.Result[i].To == toAddr || txResult.Result[i].ContractAddress == toAddr {
 				tx := convertSimpleErc20Tx(&txResult.Result[i])
 				result.Txs = append(result.Txs, tx)
@@ -218,6 +221,9 @@ func GetAddrErc20TxHistoryHttp(apiUrl string,input *adaptor.GetAddrTxHistoryInpu
 		}
 	} else {
 		for i := range txResult.Result {
+			if len(input.Asset) != 0 && txResult.Result[i].ContractAddress != input.Asset {
+				continue
+			}
 			tx := convertSimpleErc20Tx(&txResult.Result[i])
 			result.Txs = append(result.Txs, tx)
 		}
@@ -257,7 +263,7 @@ func convertSimpleErc20Tx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 	} else {
 		tx.ToAddress = txResult.To
 	}
-	tx.AttachData = tx.TxRawData //todo
+	//tx.AttachData = tx.TxRawData //
 
 	return tx
 }

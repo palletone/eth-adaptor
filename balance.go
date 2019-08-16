@@ -20,11 +20,9 @@ package ethadaptor
 import (
 	"context"
 
-	"errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/palletone/adaptor"
 	"github.com/palletone/eth-adaptor/ethclient"
-	"strings"
 )
 
 func GetClient(rpcParams *RPCParams) (*ethclient.Client, error) {
@@ -56,44 +54,4 @@ func GetBalanceETH(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID i
 	result.Balance.Amount = *balance
 	result.Balance.Asset = input.Asset
 	return &result, nil
-}
-
-func GetBalanceToken(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceOutput, error) {
-	////get rpc client
-	//client, err := GetClient(rpcParams)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//call eth rpc method
-	//account := common.HexToAddress(input.Address)
-
-	return nil, errors.New("todo") //todo
-}
-
-func GetDecimal(input *adaptor.GetBalanceInput, rpcParams *RPCParams, netID int) (*adaptor.GetBalanceOutput, error) {
-	//get rpc client
-	client, err := GetClient(rpcParams)
-	if err != nil {
-		return nil, err
-	}
-
-	//call eth rpc method
-	account := common.HexToAddress(input.Address)
-	Asset := strings.ToUpper(input.Asset)
-	if Asset == "ETH" {
-		balance, err := client.BalanceAt(context.Background(), account, nil)
-		if err != nil {
-			return nil, err
-		}
-		//	fmt.Println("balance : ", balance)
-
-		//convert balance
-		var result adaptor.GetBalanceOutput
-		result.Balance.Amount = *balance
-		result.Balance.Asset = input.Asset
-		return &result, nil
-	} else {
-		return nil, errors.New("todo") //todo
-	}
 }
