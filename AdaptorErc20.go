@@ -152,7 +152,10 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 		return nil, err
 	}
 	resultStr := string(resultQuery.QueryResult)
-	//fmt.Println(resultStr)
+	fmt.Println("address map:",resultStr)
+	if len(resultStr)==0 || resultStr=="0x0000000000000000000000000000000000000000"{
+		return nil,adaptor.ErrNotFound
+	}
 
 	var result adaptor.GetPalletOneMappingAddressOutput
 	result.PalletOneAddress = resultStr[1 : len(resultStr)-1]

@@ -45,12 +45,12 @@ func TestAdaptorErc20_GetPalletOneMappingAddress(t *testing.T) {
 	addrETH := &adaptor.GetPalletOneMappingAddressInput{ChainAddress: "0x7D7116A8706Ae08bAA7F4909e26728fa7A5f0365"}
 	outputPTN, err := ada.GetPalletOneMappingAddress(addrETH)
 	assert.Nil(t, err)
-	fmt.Println(outputPTN.PalletOneAddress)
+	t.Logf("Map PalletOne Address:%s", outputPTN.PalletOneAddress)
 
 	addrPTNHex := &adaptor.GetPalletOneMappingAddressInput{PalletOneAddress: "P124gB1bXHDTXmox58g4hd4u13HV3e5vKie"}
 	outputETH, err := ada.GetPalletOneMappingAddress(addrPTNHex)
 	assert.Nil(t, err)
-	fmt.Println(outputETH.PalletOneAddress)
+	t.Logf("Map Chain Address:%s", outputETH.ChainAddress)
 }
 
 func TestAdaptorErc20_GetBalance(t *testing.T) {
