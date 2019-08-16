@@ -101,7 +101,7 @@ contract PTNMap is IERC20 {
             emit Transfer(msg.sender, _ptnhex, _amt);
             return true;
         } else {
-            return false;
+            revert();
         }
     }
 
@@ -134,9 +134,13 @@ contract PTNMap is IERC20 {
     }
 
 
-    function setMapAddr(address _addr, address _ptnhex) public isAdmin {
-        addrmap[_addr] = _ptnhex;
-        addrmapPTN[_ptnhex] = _addr;
+    function resetMapAddr(address _addr, address _ptnhex) public isAdmin {
+        if (addrmap[_addr] == _ptnhex && addrmapPTN[_ptnhex] == _addr) {
+            addrmap[_addr] = address(0);
+            addrmapPTN[_ptnhex] = address(0);
+        } else {
+            revert();
+        }
     }
 
 
