@@ -34,3 +34,17 @@ func TestGetAssetDecimal(t *testing.T) {
 	assert.Nil(t, err)
 	fmt.Println(output.Decimal)
 }
+
+func TestAdaptorErc20_GetPalletOneMappingAddress(t *testing.T) {
+	ada := newTestAdaptorErc20()
+
+	addrETH := &adaptor.GetPalletOneMappingAddressInput{ChainAddress: "0x7D7116A8706Ae08bAA7F4909e26728fa7A5f0365"}
+	outputPTN, err := ada.GetPalletOneMappingAddress(addrETH)
+	assert.Nil(t, err)
+	fmt.Println(outputPTN.PalletOneAddress)
+
+	addrPTNHex := &adaptor.GetPalletOneMappingAddressInput{PalletOneAddress: "P124gB1bXHDTXmox58g4hd4u13HV3e5vKie"}
+	outputETH, err := ada.GetPalletOneMappingAddress(addrPTNHex)
+	assert.Nil(t, err)
+	fmt.Println(outputETH.PalletOneAddress)
+}

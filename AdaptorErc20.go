@@ -18,7 +18,10 @@
 package ethadaptor
 
 import (
+	"fmt"
 	"strconv"
+
+	base58 "github.com/btcsuite/btcutil/base58"
 
 	"github.com/palletone/adaptor"
 )
@@ -32,7 +35,7 @@ type AdaptorErc20 struct {
 func NewAdaptorErc20(netID int, rPCParams RPCParams,lockAddress string) *AdaptorErc20 {
 	return &AdaptorErc20{netID, rPCParams,lockAddress}
 }
-func NewAdaptorErc20Testnet() *AdaptorErc20{
+func NewAdaptorErc20Testnet() *AdaptorErc20 {
 	return &AdaptorErc20{
 		NetID:     NETID_TEST,
 		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
@@ -40,7 +43,7 @@ func NewAdaptorErc20Testnet() *AdaptorErc20{
 		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
-func NewAdaptorErc20Mainnet() *AdaptorErc20{
+func NewAdaptorErc20Mainnet() *AdaptorErc20 {
 	return &AdaptorErc20{
 		NetID:     NETID_MAIN,
 		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io",
@@ -48,6 +51,7 @@ func NewAdaptorErc20Mainnet() *AdaptorErc20{
 		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
+
 /*IUtility*/
 //创建一个新的私钥
 func (aerc20 *AdaptorErc20) NewPrivateKey(input *adaptor.NewPrivateKeyInput) (*adaptor.NewPrivateKeyOutput, error) {
@@ -78,8 +82,83 @@ func (aerc20 *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.G
 	result := adaptor.GetAddressOutput{Address: addr}
 	return &result, nil
 }
+
+func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput, rpcParams *RPCParams, netID int) (*adaptor.GetPalletOneMappingAddressOutput, error) {
+	const ERC20ABI = `[
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "ptnAddr",
+				"type": "address"
+			}
+		],
+		"name": "getMapEthAddr",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "addr",
+				"type": "address"
+			}
+		],
+		"name": "getMapPtnAddr",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+]`
+
+	var input adaptor.QueryContractInput
+	input.ContractAddress = "0x90fd6ffccaf2543480a34ed746902c298a86a405"
+	if len(addr.ChainAddress) != 0 { //ETH地址
+		input.Function = "getMapPtnAddr"
+		input.Args = append(input.Args, []byte(addr.ChainAddress))
+	} else { //PTN地址 P开头
+		input.Function = "getMapEthAddr"
+		if addr.PalletOneAddress[0] != byte('P') {
+			return nil, fmt.Errorf("PalletOne address must start with 'P'")
+		}
+		addrBytes, _, err := base58.CheckDecode(addr.PalletOneAddress[1:])
+		if err != nil {
+			return nil, err
+		}
+		addrHex := fmt.Sprintf("%x", addrBytes)
+		input.Args = append(input.Args, []byte(addrHex))
+	}
+	input.Extra = []byte(ERC20ABI)
+
+	//
+	resultQuery, err := QueryContract(&input, rpcParams, netID)
+	if err != nil {
+		return nil, err
+	}
+	resultStr := string(resultQuery.QueryResult)
+	//fmt.Println(resultStr)
+
+	var result adaptor.GetPalletOneMappingAddressOutput
+	result.PalletOneAddress = resultStr[1 : len(resultStr)-1]
+
+	return &result, nil
+}
 func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return GetPalletOneMappingAddress(addr)
+	return GetMappAddr(addr, &aerc20.RPCParams, aerc20.NetID)
 }
 
 //对一条交易进行签名，并返回签名结果
@@ -162,7 +241,7 @@ func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferT
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return GetAddrTxHistoryHttp(aerc20.TxQueryUrl,input,true) // use web api
+	return GetAddrErc20TxHistoryHttp(aerc20.TxQueryUrl,input) // use web api
 }
 
 //根据交易ID获得对应的转账交易

@@ -87,7 +87,7 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	return &result, nil
 }
 func (aeth *AdaptorETH) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return GetPalletOneMappingAddress(addr)
+	return GetMappAddr(addr, &aeth.RPCParams, aeth.NetID)
 }
 
 //对一条消息进行签名
@@ -159,7 +159,7 @@ func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferToken
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aeth *AdaptorETH) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return GetAddrTxHistoryHttp(aeth.TxQueryUrl, input,false) // use web api
+	return GetAddrTxHistoryHttp(aeth.TxQueryUrl, input) // use web api
 }
 
 //根据交易ID获得对应的转账交易

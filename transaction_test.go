@@ -9,7 +9,7 @@ import (
 
 func TestGetAddrTxHistoryHttp(t *testing.T) {
 	input := &adaptor.GetAddrTxHistoryInput{FromAddress: "0x588eb98f8814aedb056d549c0bafd5ef4963069c", ToAddress: "0x5dcB84Ff1785579440f1b0F84b37f8B54204d5f3", AddressLogicAndOr: true}
-	result, err := GetAddrTxHistoryHttp("https://api-ropsten.etherscan.io/api",input,false)
+	result, err := GetAddrTxHistoryHttp("https://api-ropsten.etherscan.io/api",input)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
