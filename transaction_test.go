@@ -8,8 +8,8 @@ import (
 )
 
 func TestGetAddrTxHistoryHttp(t *testing.T) {
-	input := &adaptor.GetAddrTxHistoryInput{FromAddress: "0x588eb98f8814aedb056d549c0bafd5ef4963069c", ToAddress: "0x5dcB84Ff1785579440f1b0F84b37f8B54204d5f3", AddressLogicAndOr: true}
-	result, err := GetAddrTxHistoryHttp(input, NETID_TEST,false)
+	input := &adaptor.GetAddrTxHistoryInput{FromAddress: "0x7d7116a8706ae08baa7f4909e26728fa7a5f0365", ToAddress: "0x5dcB84Ff1785579440f1b0F84b37f8B54204d5f3", AddressLogicAndOr: false}
+	result, err := GetAddrTxHistoryHttp(input, NETID_TEST)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
