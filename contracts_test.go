@@ -263,7 +263,7 @@ func TestQueryContract(t *testing.T) {
 	_ = invokeAddr
 
 	//
-	result, err := QueryContract(&input, &rpcParams, NETID_TEST)
+	result, err := QueryContract(&input, &rpcParams)
 	if err != nil {
 		fmt.Println("QueryContract failed: ", err.Error())
 	} else {

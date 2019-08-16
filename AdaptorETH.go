@@ -39,7 +39,7 @@ func NewAdaptorETHTestnet() *AdaptorETH {
 		NetID:     NETID_TEST,
 		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
 			TxQueryUrl: "https://api-ropsten.etherscan.io/api"},
-		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
+		lockContractAddress:"0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
 	}
 }
 func NewAdaptorETHMainnet() *AdaptorETH {
@@ -87,7 +87,7 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	return &result, nil
 }
 func (aeth *AdaptorETH) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return GetMappAddr(addr, &aeth.RPCParams, aeth.NetID)
+	return GetMappAddr(addr, &aeth.RPCParams, aeth.lockContractAddress)
 }
 
 //对一条消息进行签名
@@ -206,5 +206,5 @@ func (aeth *AdaptorETH) GetContractInvokeTx(input *adaptor.GetContractInvokeTxIn
 
 //调用合约的查询方法 //rc20合约查询交易的生成
 func (aeth *AdaptorETH) QueryContract(input *adaptor.QueryContractInput) (*adaptor.QueryContractOutput, error) {
-	return QueryContract(input, &aeth.RPCParams, aeth.NetID)
+	return QueryContract(input, &aeth.RPCParams)
 }

@@ -300,7 +300,7 @@ func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParam
 	return &result, nil
 }
 
-func QueryContract(input *adaptor.QueryContractInput, rpcParams *RPCParams, netID int) (*adaptor.QueryContractOutput, error) {
+func QueryContract(input *adaptor.QueryContractInput, rpcParams *RPCParams) (*adaptor.QueryContractOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {

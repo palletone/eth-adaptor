@@ -40,7 +40,7 @@ func NewAdaptorErc20Testnet() *AdaptorErc20 {
 		NetID:     NETID_TEST,
 		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
 			TxQueryUrl: "https://api-ropsten.etherscan.io/api"},
-		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
+		lockContractAddress:"0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
 	}
 }
 func NewAdaptorErc20Mainnet() *AdaptorErc20 {
@@ -83,8 +83,10 @@ func (aerc20 *AdaptorErc20) GetAddress(key *adaptor.GetAddressInput) (*adaptor.G
 	return &result, nil
 }
 
-func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput, rpcParams *RPCParams, netID int) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	const ERC20ABI = `[
+func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
+	rpcParams *RPCParams,queryContractAddr string) (
+	*adaptor.GetPalletOneMappingAddressOutput, error) {
+	const MapAddrABI = `[
 	{
 		"constant": true,
 		"inputs": [
@@ -126,7 +128,7 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput, rpcParams *RPCPa
 ]`
 
 	var input adaptor.QueryContractInput
-	input.ContractAddress = "0x90fd6ffccaf2543480a34ed746902c298a86a405"
+	input.ContractAddress = queryContractAddr
 	if len(addr.ChainAddress) != 0 { //ETH地址
 		input.Function = "getMapPtnAddr"
 		input.Args = append(input.Args, []byte(addr.ChainAddress))
@@ -142,10 +144,10 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput, rpcParams *RPCPa
 		addrHex := fmt.Sprintf("%x", addrBytes)
 		input.Args = append(input.Args, []byte(addrHex))
 	}
-	input.Extra = []byte(ERC20ABI)
+	input.Extra = []byte(MapAddrABI)
 
 	//
-	resultQuery, err := QueryContract(&input, rpcParams, netID)
+	resultQuery, err := QueryContract(&input, rpcParams)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +160,7 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput, rpcParams *RPCPa
 	return &result, nil
 }
 func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return GetMappAddr(addr, &aerc20.RPCParams, aerc20.NetID)
+	return GetMappAddr(addr, &aerc20.RPCParams,aerc20.lockContractAddress)
 }
 
 //对一条交易进行签名，并返回签名结果
@@ -222,7 +224,7 @@ func (aerc20 *AdaptorErc20) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput)
 	input.Extra = []byte(ERC20ABI)
 
 	//
-	resultQuery, err := QueryContract(&input, &aerc20.RPCParams, aerc20.NetID)
+	resultQuery, err := QueryContract(&input, &aerc20.RPCParams)
 	if err != nil {
 		return nil, err
 	}
