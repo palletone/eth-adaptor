@@ -271,7 +271,7 @@ func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferT
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
 func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput,
 	error) {
-	return GetAddrErc20TxHistoryH(aerc20.TxQueryUrl, input) // use web api
+	return GetAddrErc20TxHistoryHTTP(aerc20.TxQueryUrl, input) // use web api
 }
 
 //根据交易ID获得对应的转账交易
