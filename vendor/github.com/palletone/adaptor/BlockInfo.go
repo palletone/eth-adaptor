@@ -41,6 +41,7 @@ func (block *BlockInfo) String() string {
 	d, _ := json.Marshal(block)
 	return string(d)
 }
+
 type blockInfo4Json struct {
 	BlockID         string `json:"block_id"`         //交易被打包到了哪个区块ID
 	BlockHeight     uint   `json:"block_height"`     //交易被打包到的区块的高度
@@ -51,7 +52,8 @@ type blockInfo4Json struct {
 	ProducerAddress string `json:"producer_address"` //生产者地址
 	IsStable        bool   `json:"is_stable"`        //是否已经稳定不可逆
 }
-func convertBlockInfo2Json(b BlockInfo) blockInfo4Json{
+
+func convertBlockInfo2Json(b BlockInfo) blockInfo4Json {
 	return blockInfo4Json{
 		BlockID:         hex.EncodeToString(b.BlockID),
 		BlockHeight:     b.BlockHeight,
@@ -63,26 +65,26 @@ func convertBlockInfo2Json(b BlockInfo) blockInfo4Json{
 		IsStable:        b.IsStable,
 	}
 }
-func setBlockInfoFromJson(b *BlockInfo,bjson blockInfo4Json){
-	b.BlockID,_=hex.DecodeString(bjson.BlockID)
-	b.BlockHeight=bjson.BlockHeight
-	b.Timestamp=bjson.Timestamp
-	b.ParentBlockID,_=hex.DecodeString(bjson.ParentBlockID)
-	b.HeaderRawData,_=hex.DecodeString(bjson.HeaderRawData)
-	b.TxsRoot,_=hex.DecodeString(bjson.TxsRoot)
-	 b.ProducerAddress=bjson.ProducerAddress
-	 b.IsStable=bjson.IsStable
+func setBlockInfoFromJson(b *BlockInfo, bjson blockInfo4Json) {
+	b.BlockID, _ = hex.DecodeString(bjson.BlockID)
+	b.BlockHeight = bjson.BlockHeight
+	b.Timestamp = bjson.Timestamp
+	b.ParentBlockID, _ = hex.DecodeString(bjson.ParentBlockID)
+	b.HeaderRawData, _ = hex.DecodeString(bjson.HeaderRawData)
+	b.TxsRoot, _ = hex.DecodeString(bjson.TxsRoot)
+	b.ProducerAddress = bjson.ProducerAddress
+	b.IsStable = bjson.IsStable
 }
 func (b *BlockInfo) MarshalJSON() ([]byte, error) {
-	b4json:=convertBlockInfo2Json(*b)
+	b4json := convertBlockInfo2Json(*b)
 	return json.Marshal(b4json)
 }
 func (b *BlockInfo) UnmarshalJSON(input []byte) error {
-	b4Json:=blockInfo4Json{}
-	err:= json.Unmarshal(input,&b4Json)
-	if err!=nil{
+	b4Json := blockInfo4Json{}
+	err := json.Unmarshal(input, &b4Json)
+	if err != nil {
 		return err
 	}
-	setBlockInfoFromJson(b,b4Json)
+	setBlockInfoFromJson(b, b4Json)
 	return nil
 }

@@ -41,11 +41,13 @@ type ICryptoCurrency interface {
 type GetBalanceInput struct {
 	Address string `json:"address"`
 	Asset   string `json:"asset"`
+	Extra   []byte `json:"extra"`
 }
 
 //查询余额的返回值
 type GetBalanceOutput struct {
 	Balance AmountAsset `json:"balance"`
+	Extra   []byte      `json:"extra"`
 }
 
 //获得某种资产小数位数时的输入
@@ -56,7 +58,8 @@ type GetAssetDecimalInput struct {
 
 //获得的资产的小数位数
 type GetAssetDecimalOutput struct {
-	Decimal uint `json:"decimal"`
+	Decimal uint   `json:"decimal"`
+	Extra   []byte `json:"extra"`
 }
 type CreateTransferTokenTxInput struct {
 	FromAddress string       `json:"from_address"`
@@ -67,19 +70,22 @@ type CreateTransferTokenTxInput struct {
 }
 type CreateTransferTokenTxOutput struct {
 	Transaction []byte `json:"transaction"`
+	Extra       []byte `json:"extra"`
 }
 type GetAddrTxHistoryInput struct {
-	FromAddress       string `json:"from_address"` //转账的付款方地址
-	ToAddress         string `json:"to_address"`   //转账的收款方地址
-	Asset             string `json:"asset"` //资产标识
-	PageSize          uint32 `json:"page_size"` //分页大小，0表示不分页
-	PageIndex         uint32 `json:"page_index"` //分页后的第几页数据
+	FromAddress       string `json:"from_address"`         //转账的付款方地址
+	ToAddress         string `json:"to_address"`           //转账的收款方地址
+	Asset             string `json:"asset"`                //资产标识
+	PageSize          uint32 `json:"page_size"`            //分页大小，0表示不分页
+	PageIndex         uint32 `json:"page_index"`           //分页后的第几页数据
 	AddressLogicAndOr bool   `json:"address_logic_and_or"` //付款地址,收款地址是And=1关系还是Or=0关系
 	Asc               bool   `json:"asc"`                  //按时间顺序从老到新
+	Extra             []byte `json:"extra"`
 }
 type GetAddrTxHistoryOutput struct {
 	Txs   []*SimpleTransferTokenTx `json:"transactions"` //返回的交易列表
 	Count uint32                   `json:"count"`        //忽略分页，有多少条记录
+	Extra []byte                   `json:"extra"`
 }
 type CreateMultiSigAddressInput struct {
 	Keys      [][]byte `json:"keys"`
@@ -91,8 +97,10 @@ type CreateMultiSigAddressOutput struct {
 	Extra   []byte `json:"extra"`
 }
 type GetTransferTxInput struct {
-	TxID []byte `json:"tx_id"`
+	TxID  []byte `json:"tx_id"`
+	Extra []byte `json:"extra"`
 }
 type GetTransferTxOutput struct {
-	Tx SimpleTransferTokenTx `json:"transaction"`
+	Tx    SimpleTransferTokenTx `json:"transaction"`
+	Extra []byte                `json:"extra"`
 }

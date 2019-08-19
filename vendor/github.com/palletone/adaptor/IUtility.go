@@ -51,38 +51,48 @@ type NewPrivateKeyInput struct {
 }
 type NewPrivateKeyOutput struct {
 	PrivateKey []byte `json:"private_key"`
+	Extra      []byte `json:"extra"`
 }
 type GetPublicKeyInput struct {
 	PrivateKey []byte `json:"private_key"`
+	Extra      []byte `json:"extra"`
 }
 type GetPublicKeyOutput struct {
 	PublicKey []byte `json:"public_key"`
+	Extra     []byte `json:"extra"`
 }
 type GetAddressInput struct {
-	Key []byte `json:"key"`
+	Key   []byte `json:"key"`
+	Extra []byte `json:"extra"`
 }
 type GetAddressOutput struct {
 	Address string `json:"address"`
+	Extra   []byte `json:"extra"`
 }
 type GetPalletOneMappingAddressInput struct {
 	PalletOneAddress string `json:"palletone_address"`
 	ChainAddress     string `json:"chain_address"`
+	Extra            []byte `json:"extra"`
 }
 type GetPalletOneMappingAddressOutput struct {
 	PalletOneAddress string `json:"palletone_address"`
 	ChainAddress     string `json:"chain_address"`
+	Extra            []byte `json:"extra"`
 }
 type SignMessageInput struct {
 	PrivateKey []byte `json:"private_key"`
 	Message    []byte `json:"message"`
+	Extra      []byte `json:"extra"`
 }
 type SignMessageOutput struct {
 	Signature []byte `json:"signature"`
+	Extra     []byte `json:"extra"`
 }
 type VerifySignatureInput struct {
 	Message   []byte `json:"message"`
 	Signature []byte `json:"signature"`
 	PublicKey []byte `json:"public_key"`
+	Extra     []byte `json:"extra"`
 }
 type VerifySignatureOutput struct {
 	Pass  bool   `json:"pass"`
@@ -111,7 +121,8 @@ type CalcTxHashInput struct {
 	Extra       []byte `json:"extra"`
 }
 type CalcTxHashOutput struct {
-	Hash []byte `json:"hash"`
+	Hash  []byte `json:"hash"`
+	Extra []byte `json:"extra"`
 }
 type SendTransactionInput struct {
 	Transaction []byte       `json:"transaction"`
@@ -119,13 +130,16 @@ type SendTransactionInput struct {
 	Extra       []byte       `json:"extra"`
 }
 type SendTransactionOutput struct {
-	TxID []byte `json:"tx_id"`
+	TxID  []byte `json:"tx_id"`
+	Extra []byte `json:"extra"`
 }
 type GetTxBasicInfoInput struct {
-	TxID []byte `json:"tx_id"`
+	TxID  []byte `json:"tx_id"`
+	Extra []byte `json:"extra"`
 }
 type GetTxBasicInfoOutput struct {
-	Tx TxBasicInfo `json:"transaction"`
+	Tx    TxBasicInfo `json:"transaction"`
+	Extra []byte      `json:"extra"`
 }
 type GetBlockInfoInput struct {
 	Latest  bool   `json:"latest"`   //true表示查询最新区块
@@ -135,4 +149,5 @@ type GetBlockInfoInput struct {
 }
 type GetBlockInfoOutput struct {
 	Block BlockInfo `json:"block"`
+	Extra []byte    `json:"extra"`
 }

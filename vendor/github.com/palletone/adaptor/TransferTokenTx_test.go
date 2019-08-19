@@ -26,19 +26,19 @@ import (
 )
 
 func TestSimpleTransferTokenTx_String(t *testing.T) {
-	tx:=&SimpleTransferTokenTx{
-		TxBasicInfo: TxBasicInfo{TxID: []byte("123456"),BlockHeight:123,IsStable:true},
+	tx := &SimpleTransferTokenTx{
+		TxBasicInfo: TxBasicInfo{TxID: []byte("123456"), BlockHeight: 123, IsStable: true},
 		FromAddress: "P15c2tpiRj7AZgQi3i8SHUZGwwDNF7zZSD8",
 		ToAddress:   "P1NzevLMVCFJKWr4KAcHxyyh9xXaVU8yv3N",
-		Amount:      NewAmountAssetUint64(1234,"BTC"),
+		Amount:      NewAmountAssetUint64(1234, "BTC"),
 		Fee:         nil,
 		AttachData:  []byte("Hello"),
 	}
-	data,err:=	json.Marshal(tx)
-	assert.Nil(t,err)
-	t.Logf("Json tx:%s",string(data))
-	newTx:=SimpleTransferTokenTx{}
-	err=json.Unmarshal(data,&newTx)
-	assert.Nil(t,err)
-	t.Logf("Unmarshal tx:%s",newTx.String())
+	data, err := json.Marshal(tx)
+	assert.Nil(t, err)
+	t.Logf("Json tx:%s", string(data))
+	newTx := SimpleTransferTokenTx{}
+	err = json.Unmarshal(data, &newTx)
+	assert.Nil(t, err)
+	t.Logf("Unmarshal tx:%s", newTx.String())
 }

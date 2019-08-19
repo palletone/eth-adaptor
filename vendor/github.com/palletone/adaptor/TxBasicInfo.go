@@ -44,6 +44,7 @@ func (tx *TxBasicInfo) String() string {
 	d, _ := json.Marshal(tx)
 	return string(d)
 }
+
 type txBasicInfo4Json struct {
 	TxID           string `json:"tx_id"`           //交易的ID，Hash
 	TxRawData      string `json:"tx_raw"`          //交易的二进制数据
@@ -57,44 +58,45 @@ type txBasicInfo4Json struct {
 	TxIndex        uint   `json:"tx_index"`        //Tx在区块中的位置
 	Timestamp      uint64 `json:"timestamp"`       //交易被打包的时间戳
 }
+
 func (tx *TxBasicInfo) UnmarshalJSON(input []byte) error {
-	tx4json:=txBasicInfo4Json{}
-	err:=json.Unmarshal(input,&tx4json)
-	if err!=nil{
+	tx4json := txBasicInfo4Json{}
+	err := json.Unmarshal(input, &tx4json)
+	if err != nil {
 		return err
 	}
-	setTxBasicInfoFromJson(tx,tx4json)
+	setTxBasicInfoFromJson(tx, tx4json)
 	return nil
 }
-func setTxBasicInfoFromJson(tx *TxBasicInfo, tx4json txBasicInfo4Json){
-	tx.TxID,_=hex.DecodeString(tx4json.TxID)
-	tx.TxRawData,_=hex.DecodeString(tx4json.TxRawData)
-	tx.CreatorAddress=tx4json.CreatorAddress
-	tx.TargetAddress=tx4json.TargetAddress
-	tx.IsInBlock=tx4json.IsInBlock
-	tx.IsSuccess=tx4json.IsSuccess
-	tx.IsStable=tx4json.IsStable
-	tx.BlockID,_=hex.DecodeString(tx4json.BlockID)
-	tx.BlockHeight=tx4json.BlockHeight
-	tx.TxIndex=tx4json.TxIndex
-	tx.Timestamp=tx4json.Timestamp
+func setTxBasicInfoFromJson(tx *TxBasicInfo, tx4json txBasicInfo4Json) {
+	tx.TxID, _ = hex.DecodeString(tx4json.TxID)
+	tx.TxRawData, _ = hex.DecodeString(tx4json.TxRawData)
+	tx.CreatorAddress = tx4json.CreatorAddress
+	tx.TargetAddress = tx4json.TargetAddress
+	tx.IsInBlock = tx4json.IsInBlock
+	tx.IsSuccess = tx4json.IsSuccess
+	tx.IsStable = tx4json.IsStable
+	tx.BlockID, _ = hex.DecodeString(tx4json.BlockID)
+	tx.BlockHeight = tx4json.BlockHeight
+	tx.TxIndex = tx4json.TxIndex
+	tx.Timestamp = tx4json.Timestamp
 }
-func convertTxBasicInfo2Json(tx TxBasicInfo) txBasicInfo4Json{
+func convertTxBasicInfo2Json(tx TxBasicInfo) txBasicInfo4Json {
 	return txBasicInfo4Json{
-		TxID:hex.EncodeToString( tx.TxID),
-		TxRawData:hex.EncodeToString(tx.TxRawData),
-		CreatorAddress:tx.CreatorAddress,
-		TargetAddress:tx.TargetAddress,
-		IsInBlock:tx.IsInBlock,
-		IsSuccess:tx.IsSuccess,
-		IsStable:tx.IsStable,
-		BlockID:hex.EncodeToString(tx.BlockID),
-		BlockHeight:tx.BlockHeight,
-		TxIndex:tx.TxIndex,
-		Timestamp:tx.Timestamp,
+		TxID:           hex.EncodeToString(tx.TxID),
+		TxRawData:      hex.EncodeToString(tx.TxRawData),
+		CreatorAddress: tx.CreatorAddress,
+		TargetAddress:  tx.TargetAddress,
+		IsInBlock:      tx.IsInBlock,
+		IsSuccess:      tx.IsSuccess,
+		IsStable:       tx.IsStable,
+		BlockID:        hex.EncodeToString(tx.BlockID),
+		BlockHeight:    tx.BlockHeight,
+		TxIndex:        tx.TxIndex,
+		Timestamp:      tx.Timestamp,
 	}
 }
 func (tx *TxBasicInfo) MarshalJSON() ([]byte, error) {
-	tx4json:=convertTxBasicInfo2Json(*tx)
+	tx4json := convertTxBasicInfo2Json(*tx)
 	return json.Marshal(tx4json)
 }

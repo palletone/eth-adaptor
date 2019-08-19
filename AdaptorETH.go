@@ -148,7 +148,7 @@ func (aeth *AdaptorETH) GetBalance(input *adaptor.GetBalanceInput) (*adaptor.Get
 
 //获取某资产的小数点位数
 func (aeth *AdaptorETH) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (*adaptor.GetAssetDecimalOutput, error) {
-	result := adaptor.GetAssetDecimalOutput{18}
+	result := adaptor.GetAssetDecimalOutput{Decimal:18}
 	return &result, nil
 }
 

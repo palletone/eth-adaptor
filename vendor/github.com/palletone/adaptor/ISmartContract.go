@@ -49,6 +49,7 @@ type CreateContractInstallTxInput struct {
 }
 type CreateContractInstallTxOutput struct {
 	RawTranaction []byte `json:"raw_transaction"`
+	Extra         []byte `json:"extra"`
 }
 type CreateContractInitialTxInput struct {
 	Address  string       `json:"address"`
@@ -59,6 +60,7 @@ type CreateContractInitialTxInput struct {
 }
 type CreateContractInitialTxOutput struct {
 	RawTranaction []byte `json:"raw_transaction"`
+	Extra         []byte `json:"extra"`
 }
 type CreateContractInvokeTxInput struct {
 	Address         string       `json:"address"`
@@ -70,6 +72,7 @@ type CreateContractInvokeTxInput struct {
 }
 type CreateContractInvokeTxOutput struct {
 	RawTranaction []byte `json:"raw_transaction"`
+	Extra         []byte `json:"extra"`
 }
 type QueryContractInput struct {
 	Address         string       `json:"address"`
@@ -81,27 +84,33 @@ type QueryContractInput struct {
 }
 type QueryContractOutput struct {
 	QueryResult []byte `json:"query_result"`
+	Extra       []byte `json:"extra"`
 }
 
 type GetContractInstallTxInput struct {
-	TxID []byte `json:"tx_id"`
+	TxID  []byte `json:"tx_id"`
+	Extra []byte `json:"extra"`
 }
 type GetContractInstallTxOutput struct {
 	TxBasicInfo
 	TemplateID []byte `json:"template_id"`
 }
 type GetContractInitialTxInput struct {
-	TxID []byte `json:"tx_id"`
+	TxID  []byte `json:"tx_id"`
+	Extra []byte `json:"extra"`
 }
 type GetContractInitialTxOutput struct {
 	TxBasicInfo
 	ContractAddress string `json:"contract_address"`
+	Extra           []byte `json:"extra"`
 }
 type GetContractInvokeTxInput struct {
-	TxID []byte `json:"tx_id"`
+	TxID  []byte `json:"tx_id"`
+	Extra []byte `json:"extra"`
 }
 type GetContractInvokeTxOutput struct {
 	TxBasicInfo
 	UpdateStateSuccess bool   `json:"update_state_success"` //读写集一致，成功更新StateDB
 	InvokeResult       []byte `json:"invoke_result"`
+	Extra              []byte `json:"extra"`
 }
