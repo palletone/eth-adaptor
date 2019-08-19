@@ -87,6 +87,8 @@ github.com/onsi/ginkgo v1.7.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+W
 github.com/onsi/gomega v1.4.3/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/palletone/adaptor v0.6.0 h1:9qfgEplJ17322zB4SzT+ukY1iwzUJ5futy7/pdFs8yY=
 github.com/palletone/adaptor v0.6.0/go.mod h1:ekDTVgVdZefQLLzWD+Fu9g8W9A8a6Mkp7kkHRg2M4w4=
+github.com/palletone/adaptor v0.6.1-0.20190805084246-f849b550fb8f h1:z7ohdUsUzFy4L7hgpJuK7PANe4B9IgSg1+FxlH5aKS8=
+github.com/palletone/adaptor v0.6.1-0.20190805084246-f849b550fb8f/go.mod h1:ekDTVgVdZefQLLzWD+Fu9g8W9A8a6Mkp7kkHRg2M4w4=
 github.com/palletone/adaptor v0.6.1-0.20190808100827-0b072ec1133a h1:Q+ZNDoMD26/2Y3KmZnx60hy54D6gPhgSq4DvUlDfmbk=
 github.com/palletone/adaptor v0.6.1-0.20190808100827-0b072ec1133a/go.mod h1:QEQCGkFY+hr6E4chfOgpJx8NKpUxmxyRBrEdu5nZ1DE=
 github.com/palletone/adaptor v0.6.1-0.20190809094503-262dfe493ceb h1:XriSjSK63Y3OyMEl7Ia4dg1Y4bJo1ZvgcWpqRbh2K1I=
@@ -103,6 +105,8 @@ github.com/palletone/adaptor v0.6.1-0.20190816094532-a7bce0de1a73 h1:PTq9YZDBJMq
 github.com/palletone/adaptor v0.6.1-0.20190816094532-a7bce0de1a73/go.mod h1:k6ZNhpJIeCj4ycLncQy6ww9MdyWva3f7xPgSwaTdyoU=
 github.com/palletone/adaptor v0.6.1-0.20190819060536-b22d95408e82 h1:Jjj8TxrYXwcmPmlANRVxKviBjh3BYsoPWpzVKEJJTgU=
 github.com/palletone/adaptor v0.6.1-0.20190819060536-b22d95408e82/go.mod h1:k6ZNhpJIeCj4ycLncQy6ww9MdyWva3f7xPgSwaTdyoU=
+github.com/palletone/adaptor v0.6.1-0.20190819065448-7b9df99d0a84 h1:g3NprnFNqsBPFb+/MwyndG9CN6OLZ2v94TLv/Dd8Rz0=
+github.com/palletone/adaptor v0.6.1-0.20190819065448-7b9df99d0a84/go.mod h1:k6ZNhpJIeCj4ycLncQy6ww9MdyWva3f7xPgSwaTdyoU=
 github.com/pborman/uuid v1.2.0 h1:J7Q5mO4ysT1dv8hyrUGHb9+ooztCXu1D8MY8DZYsu3g=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
