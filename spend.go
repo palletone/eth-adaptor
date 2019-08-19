@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 
 	"github.com/palletone/adaptor"
+
 	"github.com/palletone/eth-adaptor/ethclient"
 )
 
@@ -105,7 +106,7 @@ func BindETHTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.Bin
 }
 
 func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
-	var data []byte
+	data := make([]byte, 0)
 	//method ID, example, 0xa9059cbb withdraw(address,uint,string,bytes,bytes,bytes)
 	hash := crypto.Keccak256Hash(input.Extra)
 	data = append(data, hash[:4]...)
@@ -134,7 +135,8 @@ func CalcTxHash(input *adaptor.CalcTxHashInput) (*adaptor.CalcTxHashOutput, erro
 	return &result, nil
 }
 
-func SendTransaction(input *adaptor.SendTransactionInput, rpcParams *RPCParams, netID int) (*adaptor.SendTransactionOutput, error) {
+func SendTransaction(input *adaptor.SendTransactionInput, rpcParams *RPCParams, netID int) (
+	*adaptor.SendTransactionOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -162,7 +164,8 @@ func SendTransaction(input *adaptor.SendTransactionInput, rpcParams *RPCParams, 
 
 }
 
-func CreateETHTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateTransferTokenTxOutput, error) {
+func CreateETHTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams, netID int) (
+	*adaptor.CreateTransferTokenTxOutput, error) {
 	if input.Amount == nil {
 		return nil, errors.New("input's Amount is nil")
 	}
@@ -202,7 +205,8 @@ func CreateETHTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams
 	return &result, nil
 }
 
-func CreateContractMsg(input *adaptor.CreateTransferTokenTxInput, client *ethclient.Client, fromAddress common.Address) (*adaptor.CreateTransferTokenTxOutput, error) {
+func CreateContractMsg(input *adaptor.CreateTransferTokenTxInput, client *ethclient.Client,
+	fromAddress common.Address) (*adaptor.CreateTransferTokenTxOutput, error) {
 	gasLimit := uint64(21000) //in units
 	toAddress := common.HexToAddress(input.ToAddress)
 

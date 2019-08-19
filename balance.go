@@ -21,7 +21,9 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/palletone/adaptor"
+
 	"github.com/palletone/eth-adaptor/ethclient"
 )
 

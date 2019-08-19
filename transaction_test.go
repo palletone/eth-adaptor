@@ -9,7 +9,7 @@ import (
 
 func TestGetAddrTxHistoryHttp(t *testing.T) {
 	input := &adaptor.GetAddrTxHistoryInput{FromAddress: "0x588eb98f8814aedb056d549c0bafd5ef4963069c", ToAddress: "0x5dcB84Ff1785579440f1b0F84b37f8B54204d5f3", AddressLogicAndOr: true}
-	result, err := GetAddrTxHistoryHttp("https://api-ropsten.etherscan.io/api",input)
+	result, err := GetAddrTxHistoryHTTP("https://api-ropsten.etherscan.io/api", input)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -30,7 +30,7 @@ func TestGetAddrTxHistoryHttp(t *testing.T) {
 func TestGetTxBasicInfo(t *testing.T) {
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df ")} //pannz transfer
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
-	input := &adaptor.GetTxBasicInfoInput{TxID:Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
+	input := &adaptor.GetTxBasicInfoInput{TxID: Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
 
 	rpcParams := RPCParams{
@@ -54,7 +54,7 @@ func TestGetTxBasicInfo(t *testing.T) {
 
 func TestGetTransferTx(t *testing.T) {
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df")} //pannz transfer
-	input := &adaptor.GetTransferTxInput{TxID:Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
+	input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
 
@@ -84,7 +84,7 @@ func TestGetTransferTx(t *testing.T) {
 }
 
 func TestGetContractInitialTx(t *testing.T) {
-	input := &adaptor.GetContractInitialTxInput{TxID:Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
+	input := &adaptor.GetContractInitialTxInput{TxID: Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
 
 	rpcParams := RPCParams{
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df

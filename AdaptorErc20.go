@@ -33,7 +33,7 @@ type AdaptorErc20 struct {
 	//lockContractAddress string
 }
 
-func NewAdaptorErc20(netID int, rPCParams RPCParams ) *AdaptorErc20 {
+func NewAdaptorErc20(netID int, rPCParams RPCParams) *AdaptorErc20 {
 	return &AdaptorErc20{netID, rPCParams}
 }
 func NewAdaptorErc20Testnet() *AdaptorErc20 {
@@ -153,9 +153,9 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 		return nil, err
 	}
 	resultStr := string(resultQuery.QueryResult)
-	fmt.Println("address map:",resultStr)
-	if len(resultStr)==0 || resultStr=="0x0000000000000000000000000000000000000000"{
-		return nil,adaptor.ErrNotFound
+	fmt.Println("address map:", resultStr)
+	if len(resultStr) == 0 || resultStr == "0x0000000000000000000000000000000000000000" {
+		return nil, adaptor.ErrNotFound
 	}
 
 	var result adaptor.GetPalletOneMappingAddressOutput
@@ -163,9 +163,10 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 
 	return &result, nil
 }
-func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	if len(addr.MappingDataSource)==0{
-		return nil,errors.New("You must define mapping contract address in MappingDataSource")
+func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (
+	*adaptor.GetPalletOneMappingAddressOutput, error) {
+	if len(addr.MappingDataSource) == 0 {
+		return nil, errors.New("You must define mapping contract address in MappingDataSource")
 	}
 	return GetMappAddr(addr, &aerc20.RPCParams, addr.MappingDataSource)
 }
@@ -196,7 +197,8 @@ func (aerc20 *AdaptorErc20) VerifySignature(input *adaptor.VerifySignatureInput)
 }
 
 //将未签名的原始交易与签名进行绑定，返回一个签名后的交易
-func (aerc20 *AdaptorErc20) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTxAndSignatureOutput, error) {
+func (aerc20 *AdaptorErc20) BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (
+	*adaptor.BindTxAndSignatureOutput, error) {
 	return BindTxAndSignature(input)
 }
 
@@ -261,13 +263,15 @@ func (aerc20 *AdaptorErc20) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput)
 }
 
 //创建一个转账交易，但是未签名
-func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransferTokenTxOutput, error) {
+func (aerc20 *AdaptorErc20) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (
+	*adaptor.CreateTransferTokenTxOutput, error) {
 	return CreateTx(input) //add m and pack, return msg
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列
-func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput, error) {
-	return GetAddrErc20TxHistoryHttp(aerc20.TxQueryUrl, input) // use web api
+func (aerc20 *AdaptorErc20) GetAddrTxHistory(input *adaptor.GetAddrTxHistoryInput) (*adaptor.GetAddrTxHistoryOutput,
+	error) {
+	return GetAddrErc20TxHistoryH(aerc20.TxQueryUrl, input) // use web api
 }
 
 //根据交易ID获得对应的转账交易
@@ -276,7 +280,8 @@ func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*a
 }
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
-func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
+func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (
+	*adaptor.CreateMultiSigAddressOutput, error) {
 	//return &adaptor.CreateMultiSigAddressOutput{Address: aerc20.lockContractAddress}, nil
 	return nil, errors.New("Please deploy multi-sign contract yourself.")
 }

@@ -19,7 +19,6 @@ package ethadaptor
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math/big"
 	"strconv"
@@ -29,13 +28,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
+
 	"github.com/palletone/eth-adaptor/bind"
 
 	"github.com/palletone/adaptor"
 )
 
-func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI,
-	method string, params [][]byte) error {
+func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI, method string, params [][]byte) {
 	var theMethod abi.Method
 	if "" == method {
 		theMethod = parsed.Constructor
@@ -97,15 +96,13 @@ func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI,
 				if "0x" == str[0:2] {
 					str = str[2:]
 				}
-				paramBytes := common.Hex2Bytes(str)
-				*paramsNew = append(*paramsNew, paramBytes[:])
+				*paramsNew = append(*paramsNew, common.Hex2Bytes(str))
 			case abi.FixedPointTy: //#zxl#
 			case abi.FunctionTy: //#zxl#
 
 			}
 		}
 	}
-	return nil
 }
 
 func prepareResults(outs *[]interface{}, parsed *abi.ABI, method string) {
@@ -171,7 +168,7 @@ func parseResults(outs *[]interface{}) []interface{} {
 			results = append(results, addrResult.String())
 		case *[]uint8:
 			bytesResult := *out.(*[]byte)
-			results = append(results, common.Bytes2Hex(bytesResult[:]))
+			results = append(results, common.Bytes2Hex(bytesResult))
 		case *[32]uint8:
 			bytesResult := *out.(*[32]byte)
 			results = append(results, common.Bytes2Hex(bytesResult[:]))
@@ -180,7 +177,8 @@ func parseResults(outs *[]interface{}) []interface{} {
 	return results
 }
 
-func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateContractInitialTxOutput, error) {
+func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcParams *RPCParams, netID int) (
+	*adaptor.CreateContractInitialTxOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -211,11 +209,11 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 			"", input.Args)
 
 		//
-		_, tx, _, err = bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice, GasLimit: gasLimitU64}, parsed,
-			input.Extra, client, paramsNew...)
+		_, tx, _, err = bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice,
+			GasLimit: gasLimitU64}, parsed, input.Extra, client, paramsNew...)
 	} else {
-		_, tx, _, err = bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice, GasLimit: gasLimitU64}, parsed,
-			input.Extra, client)
+		_, tx, _, err = bind.DeployContractZXL(&bind.TransactOpts{From: deployerAddr, Value: value, GasPrice: gasPrice,
+			GasLimit: gasLimitU64}, parsed, input.Extra, client)
 	}
 	if err != nil {
 		return nil, err
@@ -235,7 +233,8 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 
 }
 
-func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParams *RPCParams, netID int) (*adaptor.CreateContractInvokeTxOutput, error) {
+func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParams *RPCParams, netID int) (
+	*adaptor.CreateContractInvokeTxOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
 	if err != nil {
@@ -276,13 +275,11 @@ func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParam
 			input.Function, input.Args)
 
 		//
-		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimitU64},
-			parsed, client, addrContract,
-			input.Function, paramsNew...)
+		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice,
+			GasLimit: gasLimitU64}, parsed, client, addrContract, input.Function, paramsNew...)
 	} else {
-		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice, GasLimit: gasLimitU64},
-			parsed, client, addrContract,
-			input.Function)
+		tx, err = bind.InvokeZXL(&bind.TransactOpts{From: addrCallFrom, Value: value, GasPrice: gasPrice,
+			GasLimit: gasLimitU64}, parsed, client, addrContract, input.Function)
 	}
 	if err != nil {
 		return nil, err
@@ -330,11 +327,8 @@ func QueryContract(input *adaptor.QueryContractInput, rpcParams *RPCParams) (*ad
 	if len(input.Args) != 0 {
 		//
 		var paramsNew []interface{}
-		err = convertContractParams(&paramsNew, &parsed,
-			input.Function, input.Args)
-		if err != nil {
-			return nil, err
-		}
+		convertContractParams(&paramsNew, &parsed, input.Function, input.Args)
+
 		//
 		results, err = contract.CallZXL(&bind.CallOpts{Pending: false}, input.Function, paramsNew...)
 	} else {
@@ -346,21 +340,44 @@ func QueryContract(input *adaptor.QueryContractInput, rpcParams *RPCParams) (*ad
 	}
 
 	//
-	resultsJson, err := json.Marshal(results)
+	resultsJSON, err := json.Marshal(results)
 	if err != nil {
 		return nil, err
 	}
 
 	//save result
 	var result adaptor.QueryContractOutput
-	result.QueryResult = resultsJson
+	result.QueryResult = resultsJSON
 
 	return &result, nil
 }
 
 func UnpackInput() (string, error) {
-	//const PANZABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_owner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_spender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"}]"
-	const PANZABI = "[{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+	const PANZABI = `[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_ptnhex",
+				"type": "address"
+			},
+			{
+				"name": "_amt",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+	]`
 	parsed, err := abi.JSON(strings.NewReader(PANZABI))
 	if err != nil {
 		fmt.Println(err)
@@ -370,9 +387,10 @@ func UnpackInput() (string, error) {
 	method, exist := parsed.Methods[methodName]
 	if !exist {
 		fmt.Println("Not exist method")
-		return "", errors.New("Not exist method")
+		return "", fmt.Errorf("Not exist method")
 	}
-	inputData := "000000000000000000000000c5b8f9336bf26f0f931c97d17e9376c4933ab6c800000000000000000000000000000000000000000000001b1ae4d6e2ef500000"
+	inputData := "000000000000000000000000c5b8f9336bf26f0f931c97d17e9376c4933ab6c8" +
+		"00000000000000000000000000000000000000000000001b1ae4d6e2ef500000"
 	result, err := method.Inputs.UnpackValues([]byte(inputData))
 	if err != nil {
 		fmt.Println(err)

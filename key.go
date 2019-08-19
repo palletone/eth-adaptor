@@ -60,12 +60,13 @@ func PubKeyToAddress(pubKey []byte) (string, error) {
 	addr := crypto.PubkeyToAddress(*pk)
 	return addr.String(), nil
 }
-func GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
+func GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (
+	*adaptor.GetPalletOneMappingAddressOutput, error) {
 	var addrBytes []byte
 	if "0x" == addr.ChainAddress[:2] || "0X" == addr.ChainAddress[:2] {
 		addrBytes = Hex2Bytes(addr.ChainAddress[2:])
 	} else {
-		addrBytes = Hex2Bytes(addr.ChainAddress[:])
+		addrBytes = Hex2Bytes(addr.ChainAddress)
 	}
 	var result adaptor.GetPalletOneMappingAddressOutput
 	result.PalletOneAddress = "P" + base58.CheckEncode(addrBytes, 0)
