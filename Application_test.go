@@ -26,6 +26,7 @@ var (
 
 func TestDepositETH(t *testing.T) {
 	var aeth adaptor.ICryptoCurrency = NewAdaptorETHTestnet()
+	multiSignAddr:="0x4d736ed88459b2db85472aab13a9d0ce2a6ea676"
 	input := &adaptor.CreateMultiSigAddressInput{}
 	input.Keys = make([][]byte, 4)
 	input.Keys[0] = j1pubKey
@@ -33,13 +34,16 @@ func TestDepositETH(t *testing.T) {
 	input.Keys[2] = j3pubKey
 	input.Keys[3] = j4pubKey
 	input.SignCount = 3
-	output, err := aeth.CreateMultiSigAddress(input)
+	_, err := aeth.CreateMultiSigAddress(input)
 	t.Logf("Jury pub keys:%x", input.Keys)
 	t.Logf("Jury addresss:%s", [...]string{j1Addr, j2Addr, j3Addr, j4Addr})
-	assert.Nil(t, err)
-	multiSignAddr := output.Address
+	assert.NotNil(t, err)
+
 	t.Logf("MutiSign Address:%s", multiSignAddr)
-	addrOut, err := aeth.GetPalletOneMappingAddress(&adaptor.GetPalletOneMappingAddressInput{ChainAddress: u1EthAddr})
+	addrOut, err := aeth.GetPalletOneMappingAddress(
+		&adaptor.GetPalletOneMappingAddressInput{
+			ChainAddress: u1EthAddr,
+		MappingDataSource:multiSignAddr})
 	assert.Nil(t, err)
 	t.Logf("PalletOne Address:%s,%x", addrOut.PalletOneAddress, []byte(addrOut.PalletOneAddress))
 	//User1通过自己的ETH钱包转账到多签地址
@@ -57,6 +61,7 @@ func TestDepositETH(t *testing.T) {
 func TestDepositErc20(t *testing.T) {
 	var aeth adaptor.ICryptoCurrency = NewAdaptorErc20Testnet()
 	erc20Asset := "0xa54880da9a63cdd2ddacf25af68daf31a1bcc0c9"
+	multiSignAddr:="0x4d736ed88459b2db85472aab13a9d0ce2a6ea676"
 	input := &adaptor.CreateMultiSigAddressInput{}
 	input.Keys = make([][]byte, 4)
 	input.Keys[0] = j1pubKey
@@ -64,13 +69,16 @@ func TestDepositErc20(t *testing.T) {
 	input.Keys[2] = j3pubKey
 	input.Keys[3] = j4pubKey
 	input.SignCount = 3
-	output, err := aeth.CreateMultiSigAddress(input)
+	_, err := aeth.CreateMultiSigAddress(input)
 	t.Logf("Jury pub keys:%x", input.Keys)
 	t.Logf("Jury addresss:%s", [...]string{j1Addr, j2Addr, j3Addr, j4Addr})
-	assert.Nil(t, err)
-	multiSignAddr := output.Address
+	assert.NotNil(t, err)
+	//multiSignAddr := output.Address
 	t.Logf("MutiSign Address:%s", multiSignAddr)
-	addrOut, err := aeth.GetPalletOneMappingAddress(&adaptor.GetPalletOneMappingAddressInput{ChainAddress: u1EthAddr})
+	addrOut, err := aeth.GetPalletOneMappingAddress(
+		&adaptor.GetPalletOneMappingAddressInput{
+			ChainAddress: u1EthAddr,
+		MappingDataSource:multiSignAddr})
 	assert.Nil(t, err)
 	t.Logf("PalletOne Address:%s,%x", addrOut.PalletOneAddress, []byte(addrOut.PalletOneAddress))
 	//User1通过自己的ETH钱包转账到多签地址

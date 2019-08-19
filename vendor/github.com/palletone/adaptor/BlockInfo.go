@@ -75,16 +75,16 @@ func setBlockInfoFromJson(b *BlockInfo, bjson blockInfo4Json) {
 	b.ProducerAddress = bjson.ProducerAddress
 	b.IsStable = bjson.IsStable
 }
-func (b *BlockInfo) MarshalJSON() ([]byte, error) {
-	b4json := convertBlockInfo2Json(*b)
+func (block *BlockInfo) MarshalJSON() ([]byte, error) {
+	b4json := convertBlockInfo2Json(*block)
 	return json.Marshal(b4json)
 }
-func (b *BlockInfo) UnmarshalJSON(input []byte) error {
+func (block *BlockInfo) UnmarshalJSON(input []byte) error {
 	b4Json := blockInfo4Json{}
 	err := json.Unmarshal(input, &b4Json)
 	if err != nil {
 		return err
 	}
-	setBlockInfoFromJson(b, b4Json)
+	setBlockInfoFromJson(block, b4Json)
 	return nil
 }

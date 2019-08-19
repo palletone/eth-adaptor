@@ -31,7 +31,7 @@ type RPCParams struct {
 type AdaptorETH struct {
 	NetID int
 	RPCParams
-	lockContractAddress string
+	//lockContractAddress string
 }
 
 func NewAdaptorETHTestnet() *AdaptorETH {
@@ -39,7 +39,7 @@ func NewAdaptorETHTestnet() *AdaptorETH {
 		NetID:     NETID_TEST,
 		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
 			TxQueryUrl: "https://api-ropsten.etherscan.io/api"},
-		lockContractAddress:"0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
+		//lockContractAddress:"0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
 	}
 }
 func NewAdaptorETHMainnet() *AdaptorETH {
@@ -47,7 +47,7 @@ func NewAdaptorETHMainnet() *AdaptorETH {
 		NetID:     NETID_MAIN,
 		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io",
 			TxQueryUrl:"https://api.etherscan.io/api"},
-		lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
+		//lockContractAddress:"0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
 
@@ -87,7 +87,10 @@ func (aeth *AdaptorETH) GetAddress(key *adaptor.GetAddressInput) (*adaptor.GetAd
 	return &result, nil
 }
 func (aeth *AdaptorETH) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return GetMappAddr(addr, &aeth.RPCParams, aeth.lockContractAddress)
+	if len(addr.MappingDataSource)==0{
+		return nil,errors.New("You must define mapping contract address in MappingDataSource")
+	}
+	return GetMappAddr(addr, &aeth.RPCParams, addr.MappingDataSource)
 }
 
 //对一条消息进行签名
@@ -169,8 +172,7 @@ func (aeth *AdaptorETH) GetTransferTx(input *adaptor.GetTransferTxInput) (*adapt
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁 //eth没有多签，not implement
 func (aeth *AdaptorETH) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-
-	return &adaptor.CreateMultiSigAddressOutput{Address: aeth.lockContractAddress}, nil
+	return nil, errors.New("Please deploy multi-sign contract yourself.")
 }
 
 /*ISmartContract*/

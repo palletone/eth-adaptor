@@ -4,7 +4,7 @@ steps:
   - name: test
     image: golang
     commands:
-      - go test -mod=vendor .
+      - go test .
   - name: lint
     image: golang
     commands:

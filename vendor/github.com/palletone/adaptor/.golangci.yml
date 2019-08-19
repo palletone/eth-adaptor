@@ -204,8 +204,8 @@ issues:
 #   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
       - linters:
-        - gosec
-        text: "G[105,202,401,505]"
+        - golint
+        text: "JSON|API|URL"
 #     # Exclude some linters from running on tests files.
 #     - path: _test\.go
 #       linters:

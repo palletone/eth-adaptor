@@ -70,9 +70,10 @@ type GetAddressOutput struct {
 	Extra   []byte `json:"extra"`
 }
 type GetPalletOneMappingAddressInput struct {
-	PalletOneAddress string `json:"palletone_address"`
-	ChainAddress     string `json:"chain_address"`
-	Extra            []byte `json:"extra"`
+	PalletOneAddress  string `json:"palletone_address"`
+	ChainAddress      string `json:"chain_address"`
+	MappingDataSource string `json:"mapping_data_source"` //映射地址数据查询的地方，以太坊就是一个合约地址
+	Extra             []byte `json:"extra"`
 }
 type GetPalletOneMappingAddressOutput struct {
 	PalletOneAddress string `json:"palletone_address"`

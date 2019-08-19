@@ -18,6 +18,7 @@
 package ethadaptor
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -29,18 +30,18 @@ import (
 type AdaptorErc20 struct {
 	NetID int
 	RPCParams
-	lockContractAddress string
+	//lockContractAddress string
 }
 
-func NewAdaptorErc20(netID int, rPCParams RPCParams, lockAddress string) *AdaptorErc20 {
-	return &AdaptorErc20{netID, rPCParams, lockAddress}
+func NewAdaptorErc20(netID int, rPCParams RPCParams ) *AdaptorErc20 {
+	return &AdaptorErc20{netID, rPCParams}
 }
 func NewAdaptorErc20Testnet() *AdaptorErc20 {
 	return &AdaptorErc20{
 		NetID: NETID_TEST,
 		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
 			TxQueryUrl: "https://api-ropsten.etherscan.io/api"},
-		lockContractAddress: "0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
+		//lockContractAddress: "0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
 	}
 }
 func NewAdaptorErc20Mainnet() *AdaptorErc20 {
@@ -48,7 +49,7 @@ func NewAdaptorErc20Mainnet() *AdaptorErc20 {
 		NetID: NETID_MAIN,
 		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io",
 			TxQueryUrl: "https://api.etherscan.io/api"},
-		lockContractAddress: "0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
+		//lockContractAddress: "0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
 
@@ -163,7 +164,10 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 	return &result, nil
 }
 func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (*adaptor.GetPalletOneMappingAddressOutput, error) {
-	return GetMappAddr(addr, &aerc20.RPCParams, aerc20.lockContractAddress)
+	if len(addr.MappingDataSource)==0{
+		return nil,errors.New("You must define mapping contract address in MappingDataSource")
+	}
+	return GetMappAddr(addr, &aerc20.RPCParams, addr.MappingDataSource)
 }
 
 //对一条交易进行签名，并返回签名结果
@@ -273,7 +277,8 @@ func (aerc20 *AdaptorErc20) GetTransferTx(input *adaptor.GetTransferTxInput) (*a
 
 //创建一个多签地址，该地址必须要满足signCount个签名才能解锁
 func (aerc20 *AdaptorErc20) CreateMultiSigAddress(input *adaptor.CreateMultiSigAddressInput) (*adaptor.CreateMultiSigAddressOutput, error) {
-	return &adaptor.CreateMultiSigAddressOutput{Address: aerc20.lockContractAddress}, nil
+	//return &adaptor.CreateMultiSigAddressOutput{Address: aerc20.lockContractAddress}, nil
+	return nil, errors.New("Please deploy multi-sign contract yourself.")
 }
 
 //获取最新区块头
