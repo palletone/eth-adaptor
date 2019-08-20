@@ -49,21 +49,22 @@ func httpGet(url string) (string, int, error) {
 	return string(body), resp.StatusCode, nil
 }
 
-func httpPost(url string, params string) (string, int, error) {
-	resp, err := http.Post(url, "application/json", strings.NewReader(params))
-	if err != nil {
-		return "", 0, err
-	}
-	defer resp.Body.Close()
-
-	//fmt.Println(resp.StatusCode)
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", 0, err
-	}
-
-	return string(body), resp.StatusCode, nil
-}
+//
+//func httpPost(url string, params string) (string, int, error) {
+//	resp, err := http.Post(url, "application/json", strings.NewReader(params))
+//	if err != nil {
+//		return "", 0, err
+//	}
+//	defer resp.Body.Close()
+//
+//	//fmt.Println(resp.StatusCode)
+//	body, err := ioutil.ReadAll(resp.Body)
+//	if err != nil {
+//		return "", 0, err
+//	}
+//
+//	return string(body), resp.StatusCode, nil
+//}
 
 type Tx struct {
 	BlockNumber       string `json:"blockNumber"`
@@ -488,7 +489,7 @@ func GetContractInitialTx(input *adaptor.GetContractInitialTxInput, rpcParams *R
 	return &result, nil
 }
 
-func GetBlockInfo(input *adaptor.GetBlockInfoInput, rpcParams *RPCParams, netID int) (*adaptor.GetBlockInfoOutput,
+func GetBlockInfo(input *adaptor.GetBlockInfoInput, rpcParams *RPCParams) (*adaptor.GetBlockInfoOutput,
 	error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
@@ -500,15 +501,13 @@ func GetBlockInfo(input *adaptor.GetBlockInfoInput, rpcParams *RPCParams, netID 
 	var heder *types.Header
 	if input.Latest {
 		heder, err = client.HeaderByNumber(context.Background(), nil)
-	} else if input.Height > 0 {
-		number := new(big.Int)
-		number.SetUint64(input.Height)
-		heder, err = client.HeaderByNumber(context.Background(), number)
 	} else if len(input.BlockID) > 0 {
 		hash := common.BytesToHash(input.BlockID)
 		heder, err = client.HeaderByHash(context.Background(), hash)
 	} else {
-		heder, err = client.HeaderByNumber(context.Background(), nil)
+		number := new(big.Int)
+		number.SetUint64(input.Height)
+		heder, err = client.HeaderByNumber(context.Background(), number)
 	}
 	if err != nil {
 		return nil, err

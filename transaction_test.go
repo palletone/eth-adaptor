@@ -111,7 +111,7 @@ func TestGetBlockInfo(t *testing.T) {
 	input := &adaptor.GetBlockInfoInput{}
 
 	//
-	result, err := GetBlockInfo(input, &rpcParams, NETID_MAIN)
+	result, err := GetBlockInfo(input, &rpcParams)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
