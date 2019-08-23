@@ -53,7 +53,7 @@ func GetBalanceETH(input *adaptor.GetBalanceInput, rpcParams *RPCParams) (*adapt
 
 	//convert balance
 	var result adaptor.GetBalanceOutput
-	result.Balance.Amount = *balance
+	result.Balance.Amount = balance
 	result.Balance.Asset = input.Asset
 	return &result, nil
 }

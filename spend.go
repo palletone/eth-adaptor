@@ -187,9 +187,9 @@ func CreateETHTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams
 	toAddress := common.HexToAddress(input.ToAddress)
 
 	tx := types.NewTransaction(nonce, toAddress,
-		&input.Amount.Amount, //in wei
+		input.Amount.Amount, //in wei
 		gasLimit,
-		&input.Fee.Amount, //in wei
+		input.Fee.Amount, //in wei
 		nil)
 
 	rlpTXBytes, err := rlp.EncodeToBytes(tx)

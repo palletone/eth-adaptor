@@ -165,10 +165,10 @@ func convertSimpleTx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 	tx.TxIndex = uint(index)
 	timeStamp, _ := strconv.ParseUint(txResult.TimeStamp, 10, 64)
 	tx.Timestamp = timeStamp
-	tx.Amount = &adaptor.AmountAsset{Asset: "ETH"}
-	tx.Amount.Amount.SetString(txResult.Value, 10)
-	tx.Fee = &adaptor.AmountAsset{Asset: "ETH"}
-	tx.Fee.Amount.SetString(txResult.GasUsed, 10)
+	tx.Amount = adaptor.NewAmountAssetString(txResult.Value, "ETH")
+	//tx.Amount.Amount.SetString(txResult.Value, 10)
+	tx.Fee = adaptor.NewAmountAssetString(txResult.GasUsed, "ETH")
+	//tx.Fee.Amount.SetString(txResult.GasUsed, 10)
 	tx.FromAddress = tx.CreatorAddress
 	if txResult.To == "" {
 		tx.ToAddress = txResult.ContractAddress
@@ -256,10 +256,12 @@ func convertSimpleErc20Tx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 	tx.TxIndex = uint(index)
 	timeStamp, _ := strconv.ParseUint(txResult.TimeStamp, 10, 64)
 	tx.Timestamp = timeStamp
-	tx.Amount = &adaptor.AmountAsset{Asset: txResult.ContractAddress}
-	tx.Amount.Amount.SetString(txResult.Value, 10)
-	tx.Fee = &adaptor.AmountAsset{Asset: "ETH"}
-	tx.Fee.Amount.SetString(txResult.GasUsed, 10)
+	tx.Amount = adaptor.NewAmountAssetString(txResult.Value, txResult.ContractAddress)
+	//tx.Amount = &adaptor.AmountAsset{Asset: txResult.ContractAddress}
+	//tx.Amount.Amount.SetString(txResult.Value, 10)
+	tx.Fee = adaptor.NewAmountAssetString(txResult.GasUsed, "ETH")
+	//tx.Fee = &adaptor.AmountAsset{Asset: "ETH"}
+	//tx.Fee.Amount.SetString(txResult.GasUsed, 10)
 	tx.FromAddress = tx.CreatorAddress
 	if txResult.To == "" {
 		tx.ToAddress = txResult.ContractAddress
@@ -402,8 +404,11 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 		result.Tx.FromAddress = common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes()).String()
 		result.Tx.ToAddress = common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes()).String()
 
-		result.Tx.Amount = &adaptor.AmountAsset{}
-		result.Tx.Amount.Amount.SetBytes(receipt.Logs[0].Data)
+		//result.Tx.Amount = &adaptor.AmountAsset{}
+		//result.Tx.Amount.Amount.SetBytes(receipt.Logs[0].Data)
+		amt := new(big.Int)
+		amt.SetBytes(receipt.Logs[0].Data)
+		result.Tx.Amount = adaptor.NewAmountAsset(amt, "ETH")
 	} else {
 		result.Tx.FromAddress = result.Tx.CreatorAddress
 		receiptAddr := receipt.ContractAddress.String()
@@ -412,12 +417,12 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 		} else {
 			result.Tx.ToAddress = receiptAddr
 		}
-		result.Tx.Amount = &adaptor.AmountAsset{}
-		result.Tx.Amount.Amount.Set(msg.Value())
+		result.Tx.Amount = adaptor.NewAmountAsset(msg.Value(), "ETH")
+		//result.Tx.Amount.Amount.Set(msg.Value())
 	}
 
-	result.Tx.Fee = &adaptor.AmountAsset{}
-	result.Tx.Fee.Amount.SetUint64(msg.Gas())
+	result.Tx.Fee = adaptor.NewAmountAssetUint64(msg.Gas(), "ETH")
+	//result.Tx.Fee.Amount.SetUint64(msg.Gas())
 	result.Tx.AttachData = msg.Data()
 
 	return &result, nil

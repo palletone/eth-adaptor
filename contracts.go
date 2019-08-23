@@ -195,7 +195,7 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 	//value.SetString(input.Value, 10)
 	gasLimitU64 := uint64(2100000)
 	gasLimit := big.NewInt(2100000)
-	gasPrice := input.Fee.Amount.Div(&input.Fee.Amount, gasLimit)
+	gasPrice := input.Fee.Amount.Div(input.Fee.Amount, gasLimit)
 
 	//
 	deployerAddr := common.HexToAddress(input.Address)
@@ -226,7 +226,7 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 
 	//save result
 	var result adaptor.CreateContractInitialTxOutput
-	result.RawTranaction = rlpTXBytes
+	result.RawTransaction = rlpTXBytes
 	//result.ContractAddr = address.String()
 
 	return &result, nil
@@ -264,7 +264,7 @@ func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParam
 	value := new(big.Int)
 	gasLimitU64 := uint64(2100000)
 	gasLimit := big.NewInt(2100000)
-	gasPrice := input.Fee.Amount.Div(&input.Fee.Amount, gasLimit)
+	gasPrice := input.Fee.Amount.Div(input.Fee.Amount, gasLimit)
 
 	//
 	var tx *types.Transaction
@@ -292,7 +292,7 @@ func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParam
 
 	//save result
 	var result adaptor.CreateContractInvokeTxOutput
-	result.RawTranaction = rlpTXBytes
+	result.RawTransaction = rlpTXBytes
 
 	return &result, nil
 }

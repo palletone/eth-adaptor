@@ -132,10 +132,9 @@ func TestCreateETHTx(t *testing.T) {
 	//input.FromAddress = "0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"
 	//input.ToAddress = "0xaAA919a7c465be9b053673C567D73Be860317963"
 	input.ToAddress = "0xfa7fb320b6801336d5c044d52f70e282d48264a0"
-	input.Amount = &adaptor.AmountAsset{}
-	input.Amount.Amount.SetString("100000000000000000", 10) //1 eth,
-	input.Fee = &adaptor.AmountAsset{}
-	input.Fee.Amount.SetString("10000000000", 10) //10g wei,
+	input.Amount = adaptor.NewAmountAssetString("100000000000000000", "ETH")
+	input.Fee = adaptor.NewAmountAssetString("10000000000", "ETH") //10g wei,
+
 	result, err := CreateETHTx(&input, &rpcParams)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -149,10 +148,8 @@ func TestCreateTx(t *testing.T) {
 	//input.FromAddress = "0x7D7116A8706Ae08bAA7F4909e26728fa7A5f0365"
 	input.FromAddress = "0x5b8c8B8Aa705bF555F0B8E556Bf0d58956eCD6e9"
 	input.ToAddress = "0xaAA919a7c465be9b053673C567D73Be860317963"
-	input.Amount = &adaptor.AmountAsset{}
-	input.Amount.Amount.SetString("1000000000000000000", 10) //1 eth,
-	input.Fee = &adaptor.AmountAsset{}
-	input.Fee.Amount.SetString("10000000000", 10) //10g wei,
+	input.Amount = adaptor.NewAmountAssetString("1000000000000000000", "ETH") //1eth
+	input.Fee = adaptor.NewAmountAssetString("10000000000", "ETH")            //10g wei,
 	input.Extra = Hex2Bytes("2b9d23bffc64aaba7607445760434037a18e95f9501cf2bd49eedfb0115e5bea")
 
 	result, err := CreateTx(&input)

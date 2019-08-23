@@ -20,9 +20,10 @@ package ethadaptor
 import (
 	"errors"
 	"fmt"
+	"math/big"
 	"strconv"
 
-	base58 "github.com/btcsuite/btcutil/base58"
+	"github.com/btcsuite/btcutil/base58"
 
 	"github.com/palletone/adaptor"
 )
@@ -238,10 +239,11 @@ func (aerc20 *AdaptorErc20) GetBalance(input *adaptor.GetBalanceInput) (*adaptor
 		return nil, err
 	}
 	balanceStr := string(resultQuery.QueryResult)
-	var result adaptor.GetBalanceOutput
-	result.Balance.Amount.SetString(balanceStr[1:len(balanceStr)-1], 10)
-
-	return &result, nil
+	balanceAmt := new(big.Int)
+	balanceAmt.SetString(balanceStr[1:len(balanceStr)-1], 10)
+	var result = &adaptor.GetBalanceOutput{}
+	result.Balance = adaptor.AmountAsset{Amount: balanceAmt, Asset: input.Asset}
+	return result, nil
 }
 
 //获取某资产的小数点位数
