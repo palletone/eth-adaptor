@@ -352,6 +352,57 @@ func QueryContract(input *adaptor.QueryContractInput, rpcParams *RPCParams) (*ad
 	return &result, nil
 }
 
+func QueryContractCall(input *adaptor.QueryContractInput, rpcParams *RPCParams) (*adaptor.QueryContractOutput, error) {
+	//get rpc client
+	client, err := GetClient(rpcParams)
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	parsed, err := abi.JSON(strings.NewReader(string(input.Extra)))
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	if len(input.ContractAddress) == 0 {
+		return nil, fmt.Errorf("ContractAddress is empty")
+	}
+	var contractAddr common.Address
+	if "0x" == input.ContractAddress[0:2] || "0X" == input.ContractAddress[0:2] {
+		contractAddr = common.HexToAddress(input.ContractAddress[2:])
+	} else {
+		contractAddr = common.HexToAddress(input.ContractAddress)
+	}
+	contract := bind.NewBoundContract(contractAddr, parsed, client, client, client)
+
+	//
+	var (
+		ret0 = new(string)
+	)
+	if len(input.Args) != 0 {
+		//
+		var paramsNew []interface{}
+		convertContractParams(&paramsNew, &parsed, input.Function, input.Args)
+
+		//
+		err = contract.Call(&bind.CallOpts{Pending: false}, ret0, input.Function, paramsNew...)
+	} else {
+		//
+		err = contract.Call(&bind.CallOpts{Pending: false}, ret0, input.Function)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	//save result
+	var result adaptor.QueryContractOutput
+	result.QueryResult = []byte(*ret0)
+
+	return &result, nil
+}
+
 func UnpackInput() (string, error) {
 	const PANZABI = `[
 	{

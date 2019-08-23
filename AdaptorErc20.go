@@ -159,7 +159,7 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 	}
 
 	var result adaptor.GetPalletOneMappingAddressOutput
-	result.PalletOneAddress = resultStr[1 : len(resultStr)-1]
+	result.PalletOneAddress = resultStr[2 : len(resultStr)-2]
 
 	return &result, nil
 }
