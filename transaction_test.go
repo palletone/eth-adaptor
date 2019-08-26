@@ -26,6 +26,25 @@ func TestGetAddrTxHistoryHttp(t *testing.T) {
 		}
 	}
 }
+func TestGetAddrErc20TxHistoryHTTP(t *testing.T) {
+	input := &adaptor.GetAddrTxHistoryInput{FromAddress: "0x588eb98f8814aedb056d549c0bafd5ef4963069c", ToAddress: "0x5dcB84Ff1785579440f1b0F84b37f8B54204d5f3", AddressLogicAndOr: true}
+	result, err := GetAddrErc20TxHistoryHTTP("https://api-ropsten.etherscan.io/api", input)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(result.Count)
+		for i := range result.Txs {
+			fmt.Print("from ", result.Txs[i].FromAddress)
+			if result.Txs[i].ToAddress == "" {
+				fmt.Print(" create ", result.Txs[i].TargetAddress)
+			} else {
+				fmt.Print(" to ", result.Txs[i].ToAddress)
+			}
+			fmt.Print(" value: ", result.Txs[i].Amount.Amount.String())
+			fmt.Println(" gasused: ", result.Txs[i].Fee.Amount.String())
+		}
+	}
+}
 
 func TestGetTxBasicInfo(t *testing.T) {
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df ")} //pannz transfer
