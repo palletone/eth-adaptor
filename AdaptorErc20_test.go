@@ -50,7 +50,7 @@ func TestAdaptorErc20_GetPalletOneMappingAddress(t *testing.T) {
 	t.Logf("Map PalletOne Address:%s", outputPTN.PalletOneAddress)
 
 	addrPTNHex := &adaptor.GetPalletOneMappingAddressInput{
-		PalletOneAddress:  "P124gB1bXHDTXmox58g4hd4u13HV3e5vKie",
+		PalletOneAddress:  "P13RkqLWrE1gJRZ5wmYcfouEGEWmcfcycF7",
 		MappingDataSource: "0xa840d94b1ef4c326c370e84d108d539d31d52e84"}
 	outputETH, err := ada.GetPalletOneMappingAddress(addrPTNHex)
 	assert.Nil(t, err)

@@ -25,6 +25,7 @@ import (
 
 	"github.com/btcsuite/btcutil/base58"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/palletone/adaptor"
 )
 
@@ -129,11 +130,28 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 	}
 ]`
 
+	var result adaptor.GetPalletOneMappingAddressOutput
+
 	var input adaptor.QueryContractInput
 	input.ContractAddress = queryContractAddr
+	input.Extra = []byte(MapAddrABI)
 	if len(addr.ChainAddress) != 0 { //ETH地址
+		//
 		input.Function = "getMapPtnAddr"
 		input.Args = append(input.Args, []byte(addr.ChainAddress))
+		//
+		ret := new(string)
+		err := QueryContractCall(&input, rpcParams, ret)
+		if err != nil {
+			return nil, err
+		}
+		resultStr := *ret
+		fmt.Println("resultStr", resultStr)
+		if len(resultStr) == 0 || resultStr == "0x0000000000000000000000000000000000000000" {
+			return nil, adaptor.ErrNotFound
+		}
+		result.PalletOneAddress = resultStr
+
 	} else { //PTN地址 P开头
 		input.Function = "getMapEthAddr"
 		if addr.PalletOneAddress[0] != byte('P') {
@@ -145,22 +163,20 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 		}
 		addrHex := fmt.Sprintf("%x", addrBytes)
 		input.Args = append(input.Args, []byte(addrHex))
-	}
-	input.Extra = []byte(MapAddrABI)
 
-	//
-	resultQuery, err := QueryContract(&input, rpcParams)
-	if err != nil {
-		return nil, err
+		//
+		ret := new(common.Address)
+		err = QueryContractCall(&input, rpcParams, ret)
+		if err != nil {
+			return nil, err
+		}
+		resultStr := ret.String()
+		fmt.Println("resultStr", resultStr)
+		if len(resultStr) == 0 || resultStr == "0x0000000000000000000000000000000000000000" {
+			return nil, adaptor.ErrNotFound
+		}
+		result.ChainAddress = resultStr
 	}
-	resultStr := string(resultQuery.QueryResult)
-	fmt.Println("address map:", resultStr)
-	if len(resultStr) == 0 || resultStr == "0x0000000000000000000000000000000000000000" {
-		return nil, adaptor.ErrNotFound
-	}
-
-	var result adaptor.GetPalletOneMappingAddressOutput
-	result.PalletOneAddress = resultStr[2 : len(resultStr)-2]
 
 	return &result, nil
 }
