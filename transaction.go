@@ -412,7 +412,7 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	} else {
 		result.Tx.FromAddress = result.Tx.CreatorAddress
 		receiptAddr := receipt.ContractAddress.String()
-		if receiptAddr == "0x0000000000000000000000000000000000000000" {
+		if receiptAddr == EMPTY_ADDRESS {
 			result.Tx.ToAddress = result.Tx.TargetAddress
 		} else {
 			result.Tx.ToAddress = receiptAddr

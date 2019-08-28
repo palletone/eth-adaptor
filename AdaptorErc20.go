@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/palletone/adaptor"
 )
+const EMPTY_ADDRESS="0x0000000000000000000000000000000000000000"
 
 type AdaptorErc20 struct {
 	NetID int
@@ -147,7 +148,7 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 		}
 		resultStr := *ret
 		fmt.Println("resultStr", resultStr)
-		if len(resultStr) == 0 || resultStr == "0x0000000000000000000000000000000000000000" {
+		if len(resultStr) == 0 || resultStr == EMPTY_ADDRESS {
 			return nil, adaptor.ErrNotFound
 		}
 		result.PalletOneAddress = resultStr
@@ -172,7 +173,7 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 		}
 		resultStr := ret.String()
 		fmt.Println("resultStr", resultStr)
-		if len(resultStr) == 0 || resultStr == "0x0000000000000000000000000000000000000000" {
+		if len(resultStr) == 0 || resultStr == EMPTY_ADDRESS {
 			return nil, adaptor.ErrNotFound
 		}
 		result.ChainAddress = resultStr
