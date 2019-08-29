@@ -9,7 +9,7 @@ import (
 
 func TestGetAddrTxHistoryHttp(t *testing.T) {
 	input := &adaptor.GetAddrTxHistoryInput{FromAddress: "0x588eb98f8814aedb056d549c0bafd5ef4963069c", ToAddress: "0x5dcB84Ff1785579440f1b0F84b37f8B54204d5f3", AddressLogicAndOr: true}
-	result, err := GetAddrTxHistoryHTTP("https://api-ropsten.etherscan.io/api", input)
+	result, err := GetAddrTxHistoryHTTP("https://api-ropsten.etherscan.io/api?apikey=VYSBPQ383RJXM7HBQVTIK5NGIG8ZYVV6T6", input)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -28,7 +28,7 @@ func TestGetAddrTxHistoryHttp(t *testing.T) {
 }
 func TestGetAddrErc20TxHistoryHTTP(t *testing.T) {
 	input := &adaptor.GetAddrTxHistoryInput{FromAddress: "0x588eb98f8814aedb056d549c0bafd5ef4963069c", ToAddress: "0x5dcB84Ff1785579440f1b0F84b37f8B54204d5f3", AddressLogicAndOr: true}
-	result, err := GetAddrErc20TxHistoryHTTP("https://api-ropsten.etherscan.io/api", input)
+	result, err := GetAddrErc20TxHistoryHTTP("https://api-ropsten.etherscan.io/api?apikey=VYSBPQ383RJXM7HBQVTIK5NGIG8ZYVV6T6", input)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
