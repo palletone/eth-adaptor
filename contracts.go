@@ -99,7 +99,6 @@ func convertContractParams(paramsNew *[]interface{}, parsed *abi.ABI, method str
 				*paramsNew = append(*paramsNew, common.Hex2Bytes(str))
 			case abi.FixedPointTy: //#zxl#
 			case abi.FunctionTy: //#zxl#
-
 			}
 		}
 	}
@@ -230,7 +229,6 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 	//result.ContractAddr = address.String()
 
 	return &result, nil
-
 }
 
 func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParams *RPCParams, netID int) (

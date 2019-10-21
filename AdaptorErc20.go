@@ -153,7 +153,6 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 			return nil, adaptor.ErrNotFound
 		}
 		result.PalletOneAddress = resultStr
-
 	} else { //PTN地址 P开头
 		input.Function = "getMapEthAddr"
 		if addr.PalletOneAddress[0] != byte('P') {
@@ -165,7 +164,6 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 		}
 		addrHex := fmt.Sprintf("%x", addrBytes)
 		input.Args = append(input.Args, []byte(addrHex))
-
 		//
 		ret := new(common.Address)
 		err = QueryContractCall(&input, rpcParams, ret)
@@ -179,7 +177,6 @@ func GetMappAddr(addr *adaptor.GetPalletOneMappingAddressInput,
 		}
 		result.ChainAddress = resultStr
 	}
-
 	return &result, nil
 }
 func (aerc20 *AdaptorErc20) GetPalletOneMappingAddress(addr *adaptor.GetPalletOneMappingAddressInput) (
