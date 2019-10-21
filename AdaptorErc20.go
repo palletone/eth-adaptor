@@ -44,7 +44,7 @@ func NewAdaptorErc20Testnet() *AdaptorErc20 {
 	return &AdaptorErc20{
 		NetID: NETID_TEST,
 		RPCParams: RPCParams{Rawurl: "https://ropsten.infura.io",
-			TxQueryUrl: "https://api-ropsten.etherscan.io/api?apikey=YourApiKeyToken"},
+			TxQueryUrl: "https://api-ropsten.etherscan.io/api?apikey=VYSBPQ383RJXM7HBQVTIK5NGIG8ZYVV6T6"},
 		//lockContractAddress: "0x4d736ed88459b2db85472aab13a9d0ce2a6ea676",
 	}
 }
@@ -52,7 +52,7 @@ func NewAdaptorErc20Mainnet() *AdaptorErc20 {
 	return &AdaptorErc20{
 		NetID: NETID_MAIN,
 		RPCParams: RPCParams{Rawurl: "https://mainnet.infura.io",
-			TxQueryUrl: "https://api.etherscan.io/api?apikey=YourApiKeyToken"},
+			TxQueryUrl: "https://api.etherscan.io/api?apikey=VYSBPQ383RJXM7HBQVTIK5NGIG8ZYVV6T6"},
 		//lockContractAddress: "0x1989a21eb0f28063e47e6b448e8d76774bc9b493",
 	}
 }
