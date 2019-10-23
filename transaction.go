@@ -18,8 +18,10 @@
 package ethadaptor
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/big"
@@ -338,7 +340,9 @@ func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, ne
 	return &result, nil
 }
 
-func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netID int) (
+var transferMethodId = Hex2Bytes("a9059cbb")
+
+func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netID int, isErc20 bool) (
 	*adaptor.GetTransferTxOutput, error) {
 	//get rpc client
 	client, err := GetClient(rpcParams)
@@ -352,6 +356,9 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	if err != nil {
 		//fmt.Println("0")//pending not found
 		return nil, err
+	}
+	if isErc20 && !bytes.HasPrefix(tx.Data(), transferMethodId) {
+		return nil, errors.New("not a transfer method invoke")
 	}
 
 	//conver to msg for from address
@@ -384,6 +391,11 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	if toAddr != nil {
 		result.Tx.TargetAddress = msg.To().String()
 	}
+	asset := "ETH"
+	if isErc20 {
+		asset = msg.To().String()
+	}
+
 	result.Tx.IsInBlock = true
 	if receipt.Status > 0 {
 		result.Tx.IsSuccess = true
@@ -408,7 +420,7 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 		//result.Tx.Amount.Amount.SetBytes(receipt.Logs[0].Data)
 		amt := new(big.Int)
 		amt.SetBytes(receipt.Logs[0].Data)
-		result.Tx.Amount = adaptor.NewAmountAsset(amt, "ETH")
+		result.Tx.Amount = adaptor.NewAmountAsset(amt, asset)
 	} else {
 		result.Tx.FromAddress = result.Tx.CreatorAddress
 		receiptAddr := receipt.ContractAddress.String()
@@ -417,7 +429,7 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 		} else {
 			result.Tx.ToAddress = receiptAddr
 		}
-		result.Tx.Amount = adaptor.NewAmountAsset(msg.Value(), "ETH")
+		result.Tx.Amount = adaptor.NewAmountAsset(msg.Value(), asset)
 		//result.Tx.Amount.Amount.Set(msg.Value())
 	}
 

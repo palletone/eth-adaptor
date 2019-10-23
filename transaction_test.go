@@ -2,6 +2,7 @@ package ethadaptor
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/palletone/adaptor"
@@ -71,9 +72,9 @@ func TestGetTxBasicInfo(t *testing.T) {
 	}
 }
 
-func TestGetTransferTx(t *testing.T) {
+func TestGetTransferTxErc20Transfer(t *testing.T) {
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df")} //pannz transfer
-	input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
+	input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("ca36adce26c41828bbb14b74d908781e6f9376e8ac9da07ac32228013e64ac4f ")} //eth transfer
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
 
@@ -81,7 +82,8 @@ func TestGetTransferTx(t *testing.T) {
 		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df
 		//Rawurl: "https://mainnet.infura.io/", //"\\\\.\\pipe\\geth.ipc",//fb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
 	}
-	result, err := GetTransferTx(input, &rpcParams, NETID_TEST)
+	result, err := GetTransferTx(input, &rpcParams, NETID_TEST, true)
+	assert.Nil(t, err)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -136,4 +138,27 @@ func TestGetBlockInfo(t *testing.T) {
 	} else {
 		fmt.Println(result)
 	}
+}
+func TestGetTransferTxFromErc20ApproveMethod(t *testing.T) {
+	input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("4ef356ce0fc244ffb43cc0a941ca293c5b80e91254ad70474ba27acb9eb7b8fd ")} //erc20 approve
+
+	rpcParams := RPCParams{
+		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df
+	}
+	result, err := GetTransferTx(input, &rpcParams, NETID_TEST, true)
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	t.Log(err.Error())
+}
+
+func TestGetTransferTxFromInvalidTx(t *testing.T) {
+	input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("000000000000000000000000000 ")} //eth transfer
+
+	rpcParams := RPCParams{
+		Rawurl: "https://ropsten.infura.io/",
+	}
+	result, err := GetTransferTx(input, &rpcParams, NETID_TEST, false)
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	t.Log(err.Error())
 }
