@@ -73,8 +73,12 @@ func TestGetTxBasicInfo(t *testing.T) {
 }
 
 func TestGetTransferTxErc20Transfer(t *testing.T) {
-	//input := &adaptor.GetTransferTxInput{Hex2Bytes("61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df")} //pannz transfer
-	input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("ca36adce26c41828bbb14b74d908781e6f9376e8ac9da07ac32228013e64ac4f ")} //eth transfer
+	//input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
+	//input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("498b634c39fbd19af340d66c8866623c124eb0e2160a45aa433644adc636bedb")} //eth pending transfer
+	//input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df")} //pannz transfer
+	input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("0325d73d025a8c8aa73c88303a65b13898e88384f4e153c5bc6466e7f7581e35")} //pannz pending transfer
+	//input := &adaptor.GetTransferTxInput{TxID: Hex2Bytes("4ef356ce0fc244ffb43cc0a941ca293c5b80e91254ad70474ba27acb9eb7b8fd")} //pannz approve
+
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
 	//input := &adaptor.GetTransferTxInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
 
@@ -87,7 +91,7 @@ func TestGetTransferTxErc20Transfer(t *testing.T) {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		//fmt.Println(result)
+		fmt.Println("result:")
 
 		fmt.Println(result.Tx.CreatorAddress)
 		fmt.Println(result.Tx.TargetAddress)
@@ -99,8 +103,9 @@ func TestGetTransferTxErc20Transfer(t *testing.T) {
 		} else {
 			fmt.Println(result.Tx.ToAddress)
 		}
-
+		fmt.Println(result.Tx.IsSuccess)
 		fmt.Println(result.Tx.Amount.Amount.String())
+		fmt.Println(result.Tx.BlockHeight)
 	}
 }
 
