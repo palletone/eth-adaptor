@@ -422,10 +422,12 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 		result.Tx.IsSuccess = false
 	}
 	result.Tx.IsStable = true //todo delete
-	if "0x" == blockHash[:2] || "0X" == blockHash[:2] {
-		result.Tx.BlockID = Hex2Bytes(blockHash[2:])
-	} else {
-		result.Tx.BlockID = Hex2Bytes(blockHash)
+	if len(blockHash) > 2 {
+		if "0x" == blockHash[:2] || "0X" == blockHash[:2] {
+			result.Tx.BlockID = Hex2Bytes(blockHash[2:])
+		} else {
+			result.Tx.BlockID = Hex2Bytes(blockHash)
+		}
 	}
 	result.Tx.BlockHeight = uint(bigIntBlockNum.Uint64())
 	result.Tx.TxIndex = receipt.TransactionIndex
