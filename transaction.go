@@ -109,7 +109,7 @@ func GetAddrTxHistoryHTTP(apiURL string, input *adaptor.GetAddrTxHistoryInput) (
 		request += "&sort=desc"
 	}
 	//request += "&apikey=YourApiKeyToken"
-	fmt.Println(request)
+	//fmt.Println(request)
 	//
 	strRespose, _, err := httpGet(request)
 	if err != nil {
