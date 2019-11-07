@@ -357,7 +357,9 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	}
 	data := tx.Data()
 	transferMethodId := Hex2Bytes("a9059cbb")
-	if isErc20 && !bytes.HasPrefix(data, transferMethodId) {
+	transferFromMethodId := Hex2Bytes("23b872dd")
+	isTransfer := bytes.HasPrefix(data, transferMethodId)
+	if isErc20 && !isTransfer && !bytes.HasPrefix(data, transferFromMethodId) {
 		return nil, errors.New("not a transfer method invoke")
 	}
 
@@ -405,11 +407,22 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 	receipt, err := client.TransactionReceipt(context.Background(), hash)
 	if err != nil {
 		if isErc20 { //for pending erc20 tx
-			recvAddr := common.BytesToAddress(data[16:36])
-			result.Tx.ToAddress = recvAddr.String()
-			tokenValue := new(big.Int)
-			tokenValue.SetBytes(data[36:])
-			result.Tx.Amount = adaptor.NewAmountAsset(tokenValue, asset)
+			dataLen := len(data)
+			if isTransfer && dataLen == 68 { //transfer 4+32+32 32=(12+20)
+				recvAddr := common.BytesToAddress(data[16:36])
+				result.Tx.ToAddress = recvAddr.String()
+				tokenValue := new(big.Int)
+				tokenValue.SetBytes(data[36:])
+				result.Tx.Amount = adaptor.NewAmountAsset(tokenValue, asset)
+			} else if dataLen == 100 { //transferFrom 4+32+32+32 32=(12+20)
+				recvAddr := common.BytesToAddress(data[48:68])
+				result.Tx.ToAddress = recvAddr.String()
+				tokenValue := new(big.Int)
+				tokenValue.SetBytes(data[68:])
+				result.Tx.Amount = adaptor.NewAmountAsset(tokenValue, asset)
+			} else {
+				return nil, errors.New("tx data's length is invalid")
+			}
 		}
 		return &result, nil
 	}
