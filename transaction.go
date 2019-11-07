@@ -340,8 +340,6 @@ func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, ne
 	return &result, nil
 }
 
-var transferMethodId = Hex2Bytes("a9059cbb")
-
 func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netID int, isErc20 bool) (
 	*adaptor.GetTransferTxOutput, error) {
 	//get rpc client
@@ -358,7 +356,7 @@ func GetTransferTx(input *adaptor.GetTransferTxInput, rpcParams *RPCParams, netI
 		return nil, err
 	}
 	data := tx.Data()
-	if isErc20 && !bytes.HasPrefix(data, transferMethodId) {
+	if isErc20 && !bytes.HasPrefix(data, []byte("a9059cbb")) {
 		return nil, errors.New("not a transfer method invoke")
 	}
 
