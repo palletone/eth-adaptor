@@ -164,10 +164,10 @@ func (aeth *AdaptorETH) GetAssetDecimal(asset *adaptor.GetAssetDecimalInput) (
 	return &result, nil
 }
 
-//创建一个转账交易，但是未签名 //contract tx pack --> packed msg
+//创建一个转账交易，但是未签名 //send eth tx, not sign
 func (aeth *AdaptorETH) CreateTransferTokenTx(input *adaptor.CreateTransferTokenTxInput) (
 	*adaptor.CreateTransferTokenTxOutput, error) {
-	return CreateTx(input) //add m and pack, return msg
+	return CreateETHTx(input, &aeth.RPCParams)
 }
 
 //获取某个地址对某种Token的交易历史,支持分页和升序降序排列

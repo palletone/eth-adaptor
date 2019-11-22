@@ -165,7 +165,7 @@ func TestSignMessage(t *testing.T) {
 
 	var input adaptor.SignMessageInput
 	input.PrivateKey = key
-	input.Message = Hex2Bytes("6d0000000000000000000000005b8c8b8aa705bf555f0b8e556bf0d58956ecd6e9000000000000000000000000aaa919a7c465be9b053673c567d73be8603179630000000000000000000000000000000000000000000000000de0b6b3a76400002b9d23bffc64aaba7607445760434037a18e95f9501cf2bd49eedfb0115e5bea")
+	input.Message = Hex2Bytes("")
 
 	result, err := SignMessage(&input)
 	if err != nil {

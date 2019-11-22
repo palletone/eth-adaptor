@@ -96,7 +96,7 @@ contract PalletOne {
   event Withdraw(address token, address user, bytes redeem, address recver, uint amount, uint confirmvalue, string state);
 
   address public admin; //the admin address
-  
+
   struct Multisig {
       uint balance;
       uint nonece;
@@ -142,7 +142,7 @@ contract PalletOne {
           break;
       }
   }
-    
+
   function setallconfirms(uint8[] addrconfirms, bytes32 tranhash, address[] owners, bytes sigstr1, bytes sigstr2) private pure {
     address addr = 0;
     if (sigstr1.length != 0) {
@@ -154,7 +154,7 @@ contract PalletOne {
         setoneconfirm(addrconfirms, addr, owners);
     }
   }
-  
+
   function calconfirm(uint8[] addrconfirms) private pure returns (uint8) {
     uint8[] memory weights = new uint8[](3);
     weights[0] = 1;
@@ -167,7 +167,7 @@ contract PalletOne {
     }
     return confirms;
   }
-  
+
   function getconfirm(address[] owners, bytes32 tranhash, bytes sigstr1, bytes sigstr2) private pure returns (uint8)  {
     uint8[] memory addrconfirms = new uint8[](3);
     
@@ -177,13 +177,7 @@ contract PalletOne {
     confirms = calconfirm(addrconfirms);
     return confirms;  
   }
-  
-  function deposit(bytes redeem) public payable {
-    bytes32 hash = keccak256(abi.encodePacked(redeem));
-    tokens[0][hash].balance = tokens[0][hash].balance.add(msg.value);
-    emit Deposit(0, msg.sender, msg.value, redeem);
-  }
-  
+
   function withdraw(bytes redeem, address recver, uint amount, uint nonece, bytes sigstr1, bytes sigstr2) public {
     bytes32 hash = keccak256(abi.encodePacked(redeem));
     require(tokens[0][hash].balance >= amount);
@@ -201,22 +195,6 @@ contract PalletOne {
     tokens[0][hash].nonece = tokens[0][hash].nonece.add(1);
     recver.transfer(amount);
     emit Withdraw(0, msg.sender, redeem, recver, amount, confirms, "withdraw");
-  }
-
-  /**
-  * This function handles deposits of Ethereum based tokens to the contract.
-  * Does not allow Ether.
-  * If token transfer fails, transaction is reverted and remaining gas is refunded.
-  * Emits a Deposit event.
-  * Note: Remember to call Token(address).approve(this, amount) or this contract will not be able to do the transfer on your behalf.
-  * @param token Ethereum contract address of the token
-  * @param amount uint of the amount of the token the user wishes to deposit
-  */
-  function deposittoken(address token, bytes redeem, uint amount) public {
-    bytes32 hash = keccak256(abi.encodePacked(redeem));
-    require(IToken(token).transferFrom(msg.sender, this, amount));
-    tokens[token][hash].balance = tokens[token][hash].balance.add(amount);
-    emit Deposit(token, msg.sender, amount, redeem);
   }
 
   function subamount(address token, bytes32 hash, uint amount) private {
@@ -288,11 +266,98 @@ contract PalletOne {
     return recover(tranhash, sigstr);
   }
 
+  
+  function getMapPtnAddr(address addr) external view returns (string){
+    if (addrmap[addr] == address(0)) {
+        return "";
+    }
+    return encodeBase58(addrmap[addr]);
+  }
+  function getMapEthAddr(address ptnAddr) external view returns (address){
+    return addrmapPTN[ptnAddr];
+  }
+
+
+  function bytesConcat(bytes _b) internal returns (string){
+    string memory ret = new string(2 + _b.length);
+    bytes memory bret = bytes(ret);
+    uint k = 0;
+    bret[k++] = byte('P');
+    bret[k++] = byte('1');
+    for (uint8 i = 0; i < _b.length; i++) bret[k++] = _b[i];
+    return string(ret);
+  }
+  function toBytes(uint160 x) internal returns (bytes) {
+    bytes20 a = bytes20(x);
+    bytes memory b = new bytes(25);
+    b[0] = byte(0);
+    for (uint8 i=0; i < 20; i++) {
+        b[1+i] = a[i];
+    }
+    bytes32 cksum = sha256(sha256(0,a));
+    for (uint8 j=0; j < 4; j++) {
+        b[21+j] = cksum[j];
+    }
+    return b;
+  }
+  function encodeBase58(address addrHex) constant returns (string) {
+    uint160 a = uint160(addrHex);
+    string memory result = bytesConcat(toBase58(toBytes(a)));
+    return result;
+  }
+  function toBase58(bytes source) internal returns (bytes) {
+    if (source.length == 0) {
+        return "";
+    }
+    uint8[] memory digits = new uint8[](40); //TODO: figure out exactly how much is needed
+    digits[0] = 0;
+    uint8 digitlength = 1;
+    for (uint8 i = 0; i<source.length; ++i) {
+        uint carry = uint8(source[i]);
+        for (uint8 j = 0; j<digitlength; ++j) {
+            carry += uint(digits[j]) * 256;
+            digits[j] = uint8(carry % 58);
+            carry = carry / 58;
+        }
+        
+        while (carry > 0) {
+            digits[digitlength] = uint8(carry % 58);
+            digitlength++;
+            carry = carry / 58;
+        }
+    }
+
+    return toAlphabet(reverse(truncate(digits, digitlength)));
+  }
+  bytes constant ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function toAlphabet(uint8[] indices) internal returns (bytes) {
+    bytes memory output = new bytes(indices.length);
+    for (var i = 0; i<indices.length; i++) {
+        output[i] = ALPHABET[indices[i]];
+    }
+    return output;
+  }
+  function reverse(uint8[] input) internal returns (uint8[]) {
+    uint8[] memory output = new uint8[](input.length);
+    for (var i = 0; i<input.length; i++) {
+        output[i] = input[input.length-1-i];
+    }
+    return output;
+  }
+  function truncate(uint8[] array, uint8 length) internal returns (uint8[]) {
+    uint8[] memory output = new uint8[](length);
+    for (var i = 0; i<length; i++) {
+        output[i] = array[i];
+    }
+    return output;
+  }
+
+
   function suicideto(address addr) public isAdmin {
       selfdestruct(addr);
   }
 
-  function() public {
-    revert();
+  function () payable {
+      // can receive eth
   }
 }
