@@ -22,6 +22,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -182,13 +183,15 @@ func CreateETHTx(input *adaptor.CreateTransferTokenTxInput, rpcParams *RPCParams
 		return nil, err
 	}
 
-	gasLimit := uint64(21000) //in units
+	gasLimitU64 := uint64(2100000)
+	gasLimit := big.NewInt(2100000)
 	toAddress := common.HexToAddress(input.ToAddress)
+	gasPrice := input.Fee.Amount.Div(input.Fee.Amount, gasLimit)
 
 	tx := types.NewTransaction(nonce, toAddress,
 		input.Amount.Amount, //in wei
-		gasLimit,
-		input.Fee.Amount, //in wei
+		gasLimitU64,
+		gasPrice, //in wei
 		nil)
 
 	rlpTXBytes, err := rlp.EncodeToBytes(tx)
