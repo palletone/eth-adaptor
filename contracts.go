@@ -226,7 +226,7 @@ func CreateContractInitialTx(input *adaptor.CreateContractInitialTxInput, rpcPar
 	//save result
 	var result adaptor.CreateContractInitialTxOutput
 	result.RawTransaction = rlpTXBytes
-	//result.ContractAddr = address.String()
+	result.Extra = tx.Data()
 
 	return &result, nil
 }
