@@ -291,6 +291,7 @@ func CreateContractInvokeTx(input *adaptor.CreateContractInvokeTxInput, rpcParam
 	//save result
 	var result adaptor.CreateContractInvokeTxOutput
 	result.RawTransaction = rlpTXBytes
+	result.Extra = tx.Data()
 
 	return &result, nil
 }
