@@ -31,7 +31,7 @@ func TestBindETHTxAndSignature(t *testing.T) {
 
 	var input adaptor.BindTxAndSignatureInput
 	input.Transaction = Hex2Bytes("ee8201df8502540be40082520894aaa919a7c465be9b053673c567d73be860317963880de0b6b3a764000080808080")
-	input.Signs = append(input.Signs, sig)
+	input.Signatures = append(input.Signatures, sig)
 
 	result, err := BindETHTxAndSignature(&input)
 	if err != nil {
@@ -54,7 +54,7 @@ func TestBindTxAndSignature(t *testing.T) {
 
 	var input adaptor.BindTxAndSignatureInput
 	input.Transaction = Hex2Bytes("6d0000000000000000000000005b8c8b8aa705bf555f0b8e556bf0d58956ecd6e9000000000000000000000000aaa919a7c465be9b053673c567d73be8603179630000000000000000000000000000000000000000000000000de0b6b3a76400002b9d23bffc64aaba7607445760434037a18e95f9501cf2bd49eedfb0115e5bea")
-	input.Signs = append(input.Signs, sig)
+	input.Signatures = append(input.Signatures, sig)
 	input.Extra = []byte("withdraw(address,uint,string,bytes,bytes,bytes)")
 	//input.Extra = []byte("transfer(address,uint256)")
 
@@ -159,6 +159,19 @@ func TestCreateTx(t *testing.T) {
 		fmt.Printf("unsigned tx: %x\n", result.Transaction)
 	}
 }
+
+func TestHashMessage(t *testing.T) {
+	var input adaptor.HashMessageInput
+	input.Message = Hex2Bytes("")
+
+	result, err := HashMessage(&input)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Printf("Hash: %x\n", result.Hash)
+	}
+}
+
 func TestSignMessage(t *testing.T) {
 	keyHex := "8e87ebb3b00565aaf3675e1f7d16ed68b300c7302267934f3831105b48e8a3e7"
 	key := Hex2Bytes(keyHex)

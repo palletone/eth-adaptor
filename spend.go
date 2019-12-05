@@ -88,7 +88,7 @@ func BindETHTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.Bin
 		return nil, err
 	}
 
-	signedTx, err := tx.WithSignature(types.HomesteadSigner{}, input.Signs[0])
+	signedTx, err := tx.WithSignature(types.HomesteadSigner{}, input.Signatures[0])
 	if err != nil {
 		return nil, err
 	}
@@ -113,8 +113,8 @@ func BindTxAndSignature(input *adaptor.BindTxAndSignatureInput) (*adaptor.BindTx
 	//receiver amount token extra
 	data = append(data, input.Transaction[33:]...) //m+from=33
 	//signatures
-	for i := range input.Signs {
-		sigPadded := common.LeftPadBytes(input.Signs[i], 32)
+	for i := range input.Signatures {
+		sigPadded := common.LeftPadBytes(input.Signatures[i], 32)
 		data = append(data, sigPadded...)
 	}
 
@@ -282,6 +282,16 @@ func CreateTx(input *adaptor.CreateTransferTokenTxInput) (*adaptor.CreateTransfe
 	//} else {
 	//	return CreateETHTx(input, client, fromAddress)
 	//}
+}
+
+func HashMessage(input *adaptor.HashMessageInput) (*adaptor.HashMessageOutput, error) {
+	hash := crypto.Keccak256Hash(input.Message)
+	//fmt.Printf("%x\n", hash.Bytes())
+
+	var result adaptor.HashMessageOutput
+	result.Hash = hash.Bytes()
+
+	return &result, nil
 }
 
 func SignMessage(input *adaptor.SignMessageInput) (*adaptor.SignMessageOutput, error) {
