@@ -75,7 +75,7 @@ func TestBindTxAndSignature(t *testing.T) {
 }
 func TestCalcTxHash(t *testing.T) {
 	var txs [][]byte
-	hashHex := []string{"072984d536835f130f9e120c06026ae0638b27e3f49f478d79731cebb64e2b51", "a0826794e0381b52c49eb4e8a13d906db797165856dbdc3506bee1043117ca13"}
+	hashHex := []string{"b32c7f19f0b817bfd8734787c3bc42515fa16ffaf78ba6c6c62c44424d4ebde7", "a0826794e0381b52c49eb4e8a13d906db797165856dbdc3506bee1043117ca13"}
 
 	txHex := "ee8201df8502540be40082520894aaa919a7c465be9b053673c567d73be860317963880de0b6b3a764000080808080"
 	tx := Hex2Bytes(txHex)
