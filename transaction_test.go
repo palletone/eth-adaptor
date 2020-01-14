@@ -50,11 +50,12 @@ func TestGetAddrErc20TxHistoryHTTP(t *testing.T) {
 func TestGetTxBasicInfo(t *testing.T) {
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df ")} //pannz transfer
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("51121d1124fb844132f994ef5067ec73f9bbe92b41c12720ae073401f746dc99")} //eth transfer
-	input := &adaptor.GetTxBasicInfoInput{TxID: Hex2Bytes("7448307f010d968046bff8a03c6b493dd1b83c9ce6719eca94adb8f59f4a85ea")} //contract create
+	input := &adaptor.GetTxBasicInfoInput{TxID: Hex2Bytes("c927dd7c9fe834575203cdf71bab89bdbaf39c1380f37fcc59ae30a38931881b")} //contract create
 	//input := &adaptor.GetTxBasicInfoInput{Hex2Bytes("7e707df7c7ddaaef6f2314fc3cc601154488ed3be8fc9ccc508b87f9b0ab7558 ")} //pending not found
 
 	rpcParams := RPCParams{
-		Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df
+		//Rawurl: "https://ropsten.infura.io/", //"\\\\.\\pipe\\geth.ipc",//61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df
+		Rawurl: "https://kovan.infura.io/", //"\\\\.\\pipe\\geth.ipc",//61cded704bd23d8ff7cbe0ac4b62b940bd76f3709f784db695c95efa8074b7df
 		//Rawurl: "https://mainnet.infura.io/", //"\\\\.\\pipe\\geth.ipc",//fb686ccee357012b8b8f338f8266a472f3c211c82f0a4c30a5d2e51176556546
 	}
 	result, err := GetTxBasicInfo(input, &rpcParams, NETID_TEST)
