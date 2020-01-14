@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/crypto"
 	"io/ioutil"
 	"math/big"
 	"net/http"
@@ -273,34 +272,6 @@ func convertSimpleErc20Tx(txResult *Tx) *adaptor.SimpleTransferTokenTx {
 	//tx.AttachData = tx.TxRawData //
 
 	return tx
-}
-
-func recoverPlain(sighash common.Hash, R, S, Vb *big.Int) (common.Address, error) {
-	if Vb.BitLen() > 8 {
-		return common.Address{}, fmt.Errorf("invalid signature")
-	}
-	V := byte(Vb.Uint64() - 27)
-	//if V > 4 {
-	//	V = 0
-	//}
-
-	// encode the signature in uncompressed format
-	r, s := R.Bytes(), S.Bytes()
-	sig := make([]byte, 65)
-	copy(sig[32-len(r):32], r)
-	copy(sig[64-len(s):64], s)
-	sig[64] = V
-	// recover the public key from the signature
-	pub, err := crypto.Ecrecover(sighash[:], sig)
-	if err != nil {
-		return common.Address{}, err
-	}
-	if len(pub) == 0 || pub[0] != 4 {
-		return common.Address{}, errors.New("invalid public key")
-	}
-	var addr common.Address
-	copy(addr[:], crypto.Keccak256(pub[1:])[12:])
-	return addr, nil
 }
 
 func GetTxBasicInfo(input *adaptor.GetTxBasicInfoInput, rpcParams *RPCParams, netID int) (
