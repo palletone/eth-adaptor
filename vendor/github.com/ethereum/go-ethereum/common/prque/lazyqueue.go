@@ -48,14 +48,14 @@ type LazyQueue struct {
 }
 
 type (
-	PriorityCallback    func(data interface{}, now mclock.AbsTime) int64   // actual priority callback
+	PriorityCallback    func(data interface{}) int64                       // actual priority callback
 	MaxPriorityCallback func(data interface{}, until mclock.AbsTime) int64 // estimated maximum priority callback
 )
 
 // NewLazyQueue creates a new lazy queue
 func NewLazyQueue(setIndex SetIndexCallback, priority PriorityCallback, maxPriority MaxPriorityCallback, clock mclock.Clock, refreshPeriod time.Duration) *LazyQueue {
 	q := &LazyQueue{
-		popQueue:     newSstack(nil),
+		popQueue:     newSstack(nil, false),
 		setIndex:     setIndex,
 		priority:     priority,
 		maxPriority:  maxPriority,
@@ -71,8 +71,8 @@ func NewLazyQueue(setIndex SetIndexCallback, priority PriorityCallback, maxPrior
 
 // Reset clears the contents of the queue
 func (q *LazyQueue) Reset() {
-	q.queue[0] = newSstack(q.setIndex0)
-	q.queue[1] = newSstack(q.setIndex1)
+	q.queue[0] = newSstack(q.setIndex0, false)
+	q.queue[1] = newSstack(q.setIndex1, false)
 }
 
 // Refresh performs queue re-evaluation if necessary
@@ -87,13 +87,13 @@ func (q *LazyQueue) Refresh() {
 
 // refresh re-evaluates items in the older queue and swaps the two queues
 func (q *LazyQueue) refresh(now mclock.AbsTime) {
-	q.maxUntil = now + mclock.AbsTime(q.period)
+	q.maxUntil = now.Add(q.period)
 	for q.queue[0].Len() != 0 {
 		q.Push(heap.Pop(q.queue[0]).(*item).value)
 	}
 	q.queue[0], q.queue[1] = q.queue[1], q.queue[0]
 	q.indexOffset = 1 - q.indexOffset
-	q.maxUntil += mclock.AbsTime(q.period)
+	q.maxUntil = q.maxUntil.Add(q.period)
 }
 
 // Push adds an item to the queue
@@ -139,11 +139,10 @@ func (q *LazyQueue) peekIndex() int {
 // Pop multiple times. Popped items are passed to the callback. MultiPop returns
 // when the callback returns false or there are no more items to pop.
 func (q *LazyQueue) MultiPop(callback func(data interface{}, priority int64) bool) {
-	now := q.clock.Now()
 	nextIndex := q.peekIndex()
 	for nextIndex != -1 {
 		data := heap.Pop(q.queue[nextIndex]).(*item).value
-		heap.Push(q.popQueue, &item{data, q.priority(data, now)})
+		heap.Push(q.popQueue, &item{data, q.priority(data)})
 		nextIndex = q.peekIndex()
 		for q.popQueue.Len() != 0 && (nextIndex == -1 || q.queue[nextIndex].blocks[0][0].priority < q.popQueue.blocks[0][0].priority) {
 			i := heap.Pop(q.popQueue).(*item)
@@ -164,7 +163,7 @@ func (q *LazyQueue) PopItem() interface{} {
 	return i
 }
 
-// Remove removes removes the item with the given index.
+// Remove removes the item with the given index.
 func (q *LazyQueue) Remove(index int) interface{} {
 	if index < 0 {
 		return nil
